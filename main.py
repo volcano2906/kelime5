@@ -32,6 +32,21 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 
+# Çeviri önbelleği (daha hızlı çeviri için)
+translation_cache = {}
+
+def translate_word(word):
+    """ Translates a word only if it's not already in the cache. """
+    if word in translation_cache:
+        return translation_cache[word]
+    
+    try:
+        translated = GoogleTranslator(source='auto', target='en').translate(word)
+        translation_cache[word] = translated
+        return translated
+    except:
+        return "Translation Error"
+
 def update_rank(rank):
     try:
         rank = int(float(rank))  # Önce float, sonra int dönüşümü
@@ -52,15 +67,12 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
-    # İngilizce çeviri fonksiyonu
-    def translate_word(word):
-        try:
-            return GoogleTranslator(source='auto', target='en').translate(word)
-        except:
-            return "Translation Error"
+    # Önce tüm benzersiz kelimeleri toplayarak tek seferde çeviri yap
+    unique_keywords = df["Keyword"].unique()
+    translations = {word: translate_word(word) for word in unique_keywords}
 
     # İngilizce çeviri ekle
-    df["English Translation"] = df["Keyword"].apply(translate_word)
+    df["English Translation"] = df["Keyword"].map(translations)
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
@@ -77,7 +89,7 @@ if uploaded_files:
     ).reset_index()
 
     # İngilizce çevirileri ekle
-    summary_df["English Translation"] = summary_df["Keyword"].apply(translate_word)
+    summary_df["English Translation"] = summary_df["Keyword"].map(translations)
 
     # Tabloları birleştir
     pivot_df = pivot_df.merge(summary_df, on="Keyword", how="left")
@@ -101,7 +113,7 @@ if uploaded_files:
     ### **Frekans Analizi** ###
     st.subheader("Anahtar Kelime Frekans Analizi")
 
-    # Ek filtreleme seçenekleri
+    # Filtreleme seçenekleri
     exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
     exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
 
@@ -137,10 +149,14 @@ if uploaded_files:
     bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"])
     trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"])
 
-    # İngilizce çevirileri ekle
-    word_freq["English"] = word_freq["Word"].apply(translate_word)
-    bigram_freq["English"] = bigram_freq["Bigram"].apply(translate_word)
-    trigram_freq["English"] = trigram_freq["Trigram"].apply(translate_word)
+    # **Tek seferde çeviri yaparak hızlandır**
+    all_unique_terms = set(word_freq["Word"]) | set(bigram_freq["Bigram"]) | set(trigram_freq["Trigram"])
+    term_translations = {term: translate_word(term) for term in all_unique_terms}
+
+    # Çevirileri ekleyelim
+    word_freq["English"] = word_freq["Word"].map(term_translations)
+    bigram_freq["English"] = bigram_freq["Bigram"].map(term_translations)
+    trigram_freq["English"] = trigram_freq["Trigram"].map(term_translations)
 
     # Sonuçları yatay olarak gösterme
     st.write("### Kelime Frekans Analizi")
