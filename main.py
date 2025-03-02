@@ -32,26 +32,7 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
-include_volume_5_in_analysis = st.checkbox("Include Volume 5 Keywords in Analysis")
-
-# Yeniden hesaplama düğmesi
-treemap_recalculate = st.button("Tekrar Eden Kelimeleri Yeniden Hesapla")
-
-def update_rank(rank):
-    try:
-        rank = float(rank)
-    except:
-        rank = 250.0
-    if 1 <= rank <= 10:
-        return 5
-    elif 11 <= rank <= 30:
-        return 4
-    elif 31 <= rank <= 50:
-        return 3
-    elif 51 <= rank <= 249:
-        return 2
-    else:
-        return 1
+include_volume_5_in_analysis = st.checkbox("Include Volume 5 Keywords in Analysis", value=True)
 
 if uploaded_files:
     # Dosyaları oku ve birleştir
@@ -59,84 +40,47 @@ if uploaded_files:
     df = pd.concat(df_list, ignore_index=True)
     df = df.drop_duplicates()
     
-    # Anahtar kelime hacmi 5 olanları filtrelemeden önce monogram, bigram ve trigram hesapla
+    # Anahtar kelime hacmi 5 olanları analizden hariç tutma
     df_analysis = df.copy()
     if not include_volume_5_in_analysis:
         df_analysis = df_analysis[df_analysis["Volume"] != 5]
     
-    keywords_list_full = ' '.join(df_analysis["Keyword"].dropna()).lower().split()
-    monograms_full = Counter(keywords_list_full)
-    bigrams_full = Counter(ngrams(keywords_list_full, 2))
-    trigrams_full = Counter(ngrams(keywords_list_full, 3))
+    keywords_list_filtered = ' '.join(df_analysis["Keyword"].dropna()).lower().split()
+    monograms_filtered = Counter(keywords_list_filtered)
+    bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
+    trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
     
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
         df = df[df["Volume"] != 5]
     
-    # Eğer düğmeye basılırsa tekrar eden kelimeleri hesapla
-    if treemap_recalculate:
-        df_analysis = df.copy()
-        if not include_volume_5_in_analysis:
-            df_analysis = df_analysis[df_analysis["Volume"] != 5]
-        
-        keywords_list_filtered = ' '.join(df_analysis["Keyword"].dropna()).lower().split()
-        monograms_filtered = Counter(keywords_list_filtered)
-        bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
-        trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
-    else:
-        monograms_filtered = monograms_full
-        bigrams_filtered = bigrams_full
-        trigrams_filtered = trigrams_full
-    
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].astype(str)  # Rank sütunu string olmalı
-    df["Score"] = df["Rank"].apply(update_rank)
-    
-    # Eksik kelimeleri bul
-    def find_missing_keywords(keyword):
-        words = set(re.split(r'[ ,]+', keyword.lower()))
-        missing_words = words - all_keywords - stop_words
-        return ', '.join(missing_words) if missing_words else "-"
-    
-    df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
-    
-    # Veriyi uygun formata dönüştürme (Keyword'ler satır, Application Id'ler sütun, Rank değerleri hücrede)
-    pivot_df = df.pivot_table(index=["Keyword", "Volume"], columns="Application Id", values="Rank", aggfunc=lambda x: ', '.join(map(str, set(x)))).reset_index()
-    
-    # Puanları toplama
-    score_pivot = df.groupby("Keyword")["Score"].sum().reset_index()
-    
-    # Null olmayan Rank değerlerini sayma
-    rank_count = df.groupby("Keyword")["Rank"].count().reset_index()
-    rank_count.rename(columns={"Rank": "Rank Count"}, inplace=True)
-    
-    # Puanları ve Rank sayısını tabloya ekleme
-    pivot_df = pivot_df.merge(score_pivot, on="Keyword", how="left")
-    pivot_df = pivot_df.merge(rank_count, on="Keyword", how="left")
-    pivot_df = pivot_df.merge(df[["Keyword", "Missing Keywords"]].drop_duplicates(), on="Keyword", how="left")
-    
-    # Sütun adlarını güncelle (Application Id'leri doğrudan koru)
-    pivot_df.columns = ["Keyword", "Volume"] + list(pivot_df.columns[2:-3]) + ["Total Score", "Rank Count", "Missing Keywords"]
-    
-    # Boş değerleri null olarak değiştir
-    pivot_df = pivot_df.fillna("null")
-    
-    st.write("### En Çok Tekrar Eden Kelimeler")
-    st.write("**Monogram (Tek Kelimeler)**")
-    st.write(monograms_filtered.most_common(10))
-    
-    st.write("**Bigram (İki Kelimeli Öbekler)**")
-    st.write([' '.join(bigram) for bigram, _ in bigrams_filtered.most_common(10)])
-    
-    st.write("**Trigram (Üç Kelimeli Öbekler)**")
-    st.write([' '.join(trigram) for trigram, _ in trigrams_filtered.most_common(10)])
     
     # Sonuçları gösterme
-    st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
-    st.dataframe(pivot_df, use_container_width=True)
+    st.write("### En Çok Tekrar Eden Kelimeler")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.write("**Monogram (Tek Kelimeler)**")
+        monogram_data = monograms_filtered.most_common(10)
+        for word, count in monogram_data:
+            st.write(f"{word}: {count}")
+    
+    with col2:
+        st.write("**Bigram (İki Kelimeli Öbekler)**")
+        bigram_data = bigrams_filtered.most_common(10)
+        for bigram, count in bigram_data:
+            st.write(f"{' '.join(bigram)}: {count}")
+    
+    with col3:
+        st.write("**Trigram (Üç Kelimeli Öbekler)**")
+        trigram_data = trigrams_filtered.most_common(10)
+        for trigram, count in trigram_data:
+            st.write(f"{' '.join(trigram)}: {count}")
     
     # CSV olarak indirme butonu
-    csv = pivot_df.to_csv(index=False).encode('utf-8')
+    csv = df.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="Dönüştürülmüş CSV'yi İndir",
         data=csv,
