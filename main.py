@@ -33,8 +33,8 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 
-# Yeniden hesaplama seçeneği
-treemap_option = st.selectbox("Tekrar Eden Kelimeleri Yeniden Hesapla", ["5'i Dahil Et", "Tekrar Hesapla"], index=0)
+# Tekrar eden kelimeleri yeniden hesaplama seçeneği
+recalculate_treemap = st.checkbox("Tekrar Eden Kelimeleri Yeniden Hesapla")
 
 def update_rank(rank):
     try:
@@ -68,8 +68,8 @@ if uploaded_files:
     if drop_low_volume:
         df = df[df["Volume"] != 5]
     
-    # Eğer "Tekrar Hesapla" seçildiyse tekrar eden kelimeleri hesapla
-    if treemap_option == "Tekrar Hesapla":
+    # Eğer "Tekrar Eden Kelimeleri Yeniden Hesapla" seçildiyse tekrar eden kelimeleri hesapla
+    if recalculate_treemap:
         keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
         monograms_filtered = Counter(keywords_list_filtered)
         bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
@@ -112,17 +112,20 @@ if uploaded_files:
     # Boş değerleri null olarak değiştir
     pivot_df = pivot_df.fillna("null")
     
-    st.write("### En Çok Tekrar Eden Kelimeler")
-    st.write("**Monogram (Tek Kelimeler)**")
-    st.write(monograms_filtered.most_common(10))
+    # Sonuçları sayfanın en altına yazdırma
+    with st.expander("En Çok Tekrar Eden Kelimeler"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("**Monogram (Tek Kelimeler)**")
+            st.write(monograms_filtered.most_common(10))
+        with col2:
+            st.write("**Bigram (İki Kelimeli Öbekler)**")
+            st.write([' '.join(bigram) for bigram, _ in bigrams_filtered.most_common(10)])
+        with col3:
+            st.write("**Trigram (Üç Kelimeli Öbekler)**")
+            st.write([' '.join(trigram) for trigram, _ in trigrams_filtered.most_common(10)])
     
-    st.write("**Bigram (İki Kelimeli Öbekler)**")
-    st.write([' '.join(bigram) for bigram, _ in bigrams_filtered.most_common(10)])
-    
-    st.write("**Trigram (Üç Kelimeli Öbekler)**")
-    st.write([' '.join(trigram) for trigram, _ in trigrams_filtered.most_common(10)])
-    
-    # Sonuçları gösterme
+    # Dönüştürülmüş veri tablosunu gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
     st.dataframe(pivot_df, use_container_width=True)
     
