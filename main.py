@@ -21,7 +21,7 @@ title = st.text_input("Title (Maksimum 30 karakter)", max_chars=30)
 subtitle = st.text_input("Subtitle (Maksimum 30 karakter)", max_chars=30)
 kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=100)
 
-# Girilen kelimeleri temizle ve listele
+# Girilen kelimeleri temizle ve set olarak sakla
 user_input_text = f"{title} {subtitle} {kw_input}".strip().lower()
 user_words = set(re.split(r'[ ,]+', user_input_text))
 user_words = {word for word in user_words if word and word not in stop_words}
@@ -128,10 +128,11 @@ if uploaded_files:
         all_bigrams.extend(extract_ngrams(keyword, 2))
         all_trigrams.extend(extract_ngrams(keyword, 3))
 
-    # Eksik kelimeleri bul
-    def find_missing_items(items):
-        missing_items = [item for item in items if item not in user_words]
-        return ', '.join(missing_items) if missing_items else "-"
+    # Eksik kelimeleri bul (word-level check)
+    def find_missing_items(ngram):
+        ngram_words = set(ngram.split())  # Bütün kelimeleri böl ve set olarak al
+        missing_words = ngram_words - user_words  # Kullanıcının girmediği kelimeleri bul
+        return ', '.join(missing_words) if missing_words else "-"
 
     # Frekansları hesapla ve eksik kelimeleri ekle
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
