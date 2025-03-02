@@ -1,4 +1,4 @@
 nltk
 TfidfVectorizer
 pip
-sklearn
+scikit-learn
