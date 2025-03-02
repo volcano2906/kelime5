@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
 import re
-from collections import Counter
-from nltk.util import ngrams
 from nltk.corpus import stopwords
+from collections import Counter
 import nltk
 
 # Stopwords'leri yükle
@@ -32,9 +31,6 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 
-# Tek bir uygulamada rank edilen kelimeleri filtreleme seçeneği
-drop_single_app_rank = st.checkbox("Exclude Keywords Ranked in Only One App")
-
 def update_rank(rank):
     try:
         rank = int(float(rank))  # Önce float, sonra int dönüşümü
@@ -54,12 +50,7 @@ if uploaded_files:
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
-
-    # Kelime analizini yapmadan önce tek bir uygulamada geçen kelimeleri çıkartalım
-    if drop_single_app_rank:
-        app_counts = df.groupby("Keyword")["Application Id"].nunique()
-        df = df[df["Keyword"].isin(app_counts[app_counts > 1].index)]
-
+    
     # Eksik kelimeleri bul
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
@@ -102,38 +93,76 @@ if uploaded_files:
         mime="text/csv"
     )
 
-    # ---- N-gram Analysis ----
-    st.subheader("Kelime Frekans Analizi")
+    ### Ek Alan: Frekans Analizi ###
+    st.subheader("Anahtar Kelime Frekans Analizi")
 
-    # Tek kelime, biword ve treeword analizlerini yapalım
-    all_text = ' '.join(df["Keyword"]).lower()
-    words = [word for word in re.split(r'\W+', all_text) if word and word not in stop_words]
-    
-    # Kelime frekansları
-    word_counts = Counter(words)
-    biword_counts = Counter(ngrams(words, 2))
-    triword_counts = Counter(ngrams(words, 3))
+    # Ek filtreleme seçenekleri
+    exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
+    exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
 
-    # Tek kelime frekans tablosu
-    word_df = pd.DataFrame(word_counts.items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
-    biword_df = pd.DataFrame(biword_counts.items(), columns=["Biword", "Frequency"]).sort_values(by="Frequency", ascending=False)
-    triword_df = pd.DataFrame(triword_counts.items(), columns=["Triword", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    # Filtreleme uygulama
+    freq_df = df.copy()
+    if exclude_low_volume_freq:
+        freq_df = freq_df[freq_df["Volume"] != 5]
+    if exclude_single_app_keywords:
+        freq_df = freq_df[freq_df.groupby("Keyword")["Application Id"].transform("nunique") > 1]
 
-    # Verileri göster
-    st.write("#### Tek Kelime Frekansı")
-    st.dataframe(word_df, use_container_width=True)
+    # Kelime ayrıştırma fonksiyonları
+    def extract_words(text):
+        words = re.split(r'[ ,]+', text.lower())
+        return [word.strip() for word in words if word and word not in stop_words]
 
-    st.write("#### Biword (İki Kelime) Frekansı")
-    st.dataframe(biword_df, use_container_width=True)
+    def extract_ngrams(text, n):
+        words = extract_words(text)
+        return [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
 
-    st.write("#### Triword (Üç Kelime) Frekansı")
-    st.dataframe(triword_df, use_container_width=True)
+    # Tüm kelimeleri içeren liste
+    all_words = []
+    all_bigrams = []
+    all_trigrams = []
 
-    # CSV indirme butonları
-    word_csv = word_df.to_csv(index=False).encode('utf-8')
-    biword_csv = biword_df.to_csv(index=False).encode('utf-8')
-    triword_csv = triword_df.to_csv(index=False).encode('utf-8')
+    for keyword in freq_df["Keyword"]:
+        words = extract_words(keyword)
+        all_words.extend(words)
+        all_bigrams.extend(extract_ngrams(keyword, 2))
+        all_trigrams.extend(extract_ngrams(keyword, 3))
 
-    st.download_button("Tek Kelime Frekanslarını İndir", data=word_csv, file_name="word_frequency.csv", mime="text/csv")
-    st.download_button("Biword Frekanslarını İndir", data=biword_csv, file_name="biword_frequency.csv", mime="text/csv")
-    st.download_button("Triword Frekanslarını İndir", data=triword_csv, file_name="triword_frequency.csv", mime="text/csv")
+    # Frekansları hesapla
+    word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+
+    # Sonuçları gösterme
+    st.write("### Kelime Frekans Analizi")
+    st.write("**Tek Kelimeler (Unigrams)**")
+    st.dataframe(word_freq, use_container_width=True)
+
+    st.write("**İki Kelimelik Kombinasyonlar (Bigrams)**")
+    st.dataframe(bigram_freq, use_container_width=True)
+
+    st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
+    st.dataframe(trigram_freq, use_container_width=True)
+
+    # CSV olarak indirme
+    word_csv = word_freq.to_csv(index=False).encode('utf-8')
+    bigram_csv = bigram_freq.to_csv(index=False).encode('utf-8')
+    trigram_csv = trigram_freq.to_csv(index=False).encode('utf-8')
+
+    st.download_button(
+        label="Tek Kelime Frekanslarını İndir",
+        data=word_csv,
+        file_name="word_frequencies.csv",
+        mime="text/csv"
+    )
+    st.download_button(
+        label="İki Kelime Frekanslarını İndir",
+        data=bigram_csv,
+        file_name="bigram_frequencies.csv",
+        mime="text/csv"
+    )
+    st.download_button(
+        label="Üç Kelime Frekanslarını İndir",
+        data=trigram_csv,
+        file_name="trigram_frequencies.csv",
+        mime="text/csv"
+    )
