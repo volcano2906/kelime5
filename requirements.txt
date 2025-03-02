@@ -1,4 +1,3 @@
-nltk --upgrade
-pip
+nltk
 scikit-learn
 deep-translator
