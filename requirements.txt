@@ -1,3 +1,4 @@
 pip
 nltk
 scikit-learn
+deep_translator
