@@ -30,8 +30,11 @@ all_keywords = {word.lower().strip() for word in all_keywords if word and word.l
 # CSV dosyalarını yükleme
 uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
 
-# Anahtar kelime hacmi 5 olanları dahil edip etmeme seçeneği
-drop_low_volume_option = st.selectbox("Tekrar Eden Kelimeleri Yeniden Hesapla Seçeneği", ["Include Volume 5 Keywords", "Exclude Volume 5 Keywords"])
+# Anahtar kelime hacmi 5 olanları filtreleme seçeneği
+drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
+
+# Tekrar eden kelimeleri yeniden hesaplama seçeneği
+recalculate_treemap = st.checkbox("Tekrar Eden Kelimeleri Yeniden Hesapla")
 
 def update_rank(rank):
     try:
@@ -61,15 +64,20 @@ if uploaded_files:
     bigrams_full = Counter(ngrams(keywords_list_full, 2))
     trigrams_full = Counter(ngrams(keywords_list_full, 3))
     
-    # Kullanıcı Volume 5 anahtar kelimeleri hariç tutmayı seçerse
-    if drop_low_volume_option == "Exclude Volume 5 Keywords":
+    # Anahtar kelime hacmi 5 olanları filtrele
+    if drop_low_volume:
         df = df[df["Volume"] != 5]
     
-    # Monogram, bigram ve trigramları tekrar hesapla
-    keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
-    monograms_filtered = Counter(keywords_list_filtered)
-    bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
-    trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
+    # Eğer "Tekrar Eden Kelimeleri Yeniden Hesapla" seçildiyse tekrar eden kelimeleri hesapla
+    if recalculate_treemap:
+        keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
+        monograms_filtered = Counter(keywords_list_filtered)
+        bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
+        trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
+    else:
+        monograms_filtered = monograms_full
+        bigrams_filtered = bigrams_full
+        trigrams_filtered = trigrams_full
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].astype(str)  # Rank sütunu string olmalı
@@ -104,17 +112,20 @@ if uploaded_files:
     # Boş değerleri null olarak değiştir
     pivot_df = pivot_df.fillna("null")
     
-    st.write("### En Çok Tekrar Eden Kelimeler")
-    st.write("**Monogram (Tek Kelimeler)**")
-    st.write(monograms_filtered.most_common(10))
+    # Sonuçları sayfanın en altına yazdırma
+    with st.expander("En Çok Tekrar Eden Kelimeler"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("**Monogram (Tek Kelimeler)**")
+            st.write(monograms_filtered.most_common(10))
+        with col2:
+            st.write("**Bigram (İki Kelimeli Öbekler)**")
+            st.write([' '.join(bigram) for bigram, _ in bigrams_filtered.most_common(10)])
+        with col3:
+            st.write("**Trigram (Üç Kelimeli Öbekler)**")
+            st.write([' '.join(trigram) for trigram, _ in trigrams_filtered.most_common(10)])
     
-    st.write("**Bigram (İki Kelimeli Öbekler)**")
-    st.write([' '.join(bigram) for bigram, _ in bigrams_filtered.most_common(10)])
-    
-    st.write("**Trigram (Üç Kelimeli Öbekler)**")
-    st.write([' '.join(trigram) for trigram, _ in trigrams_filtered.most_common(10)])
-    
-    # Sonuçları gösterme
+    # Dönüştürülmüş veri tablosunu gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
     st.dataframe(pivot_df, use_container_width=True)
     
