@@ -4,7 +4,6 @@ import re
 from nltk.corpus import stopwords
 from collections import Counter
 import nltk
-from deep_translator import GoogleTranslator
 
 # Stopwords'leri yükle
 nltk.download('stopwords')
@@ -32,21 +31,6 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 
-# Çeviri önbelleği (daha hızlı çeviri için)
-translation_cache = {}
-
-def translate_word(word):
-    """ Translates a word only if it's not already in the cache. """
-    if word in translation_cache:
-        return translation_cache[word]
-    
-    try:
-        translated = GoogleTranslator(source='auto', target='en').translate(word)
-        translation_cache[word] = translated
-        return translated
-    except:
-        return "Translation Error"
-
 def update_rank(rank):
     try:
         rank = int(float(rank))  # Önce float, sonra int dönüşümü
@@ -66,17 +50,18 @@ if uploaded_files:
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
+    
+    # Eksik kelimeleri bul
+    def find_missing_keywords(keyword):
+        words = set(re.split(r'[ ,]+', keyword.lower()))
+        missing_words = words - all_keywords
+        return ', '.join(missing_words) if missing_words else "-"
 
-    # Önce tüm benzersiz kelimeleri toplayarak tek seferde çeviri yap
-    unique_keywords = df["Keyword"].unique()
-    translations = {word: translate_word(word) for word in unique_keywords}
-
-    # İngilizce çeviri ekle
-    df["English Translation"] = df["Keyword"].map(translations)
-
+    df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
+    
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
-        index=["Keyword", "English Translation", "Volume"], 
+        index=["Keyword", "Volume"], 
         columns="Application Id", 
         values="Rank", 
         aggfunc='first'
@@ -85,11 +70,9 @@ if uploaded_files:
     # Puanları toplama ve Rank sayısını hesaplama
     summary_df = df.groupby("Keyword").agg(
         Total_Score=("Score", "sum"),
-        Rank_Count=("Rank", "count")
+        Rank_Count=("Rank", "count"),
+        Missing_Keywords=("Missing Keywords", "first")
     ).reset_index()
-
-    # İngilizce çevirileri ekle
-    summary_df["English Translation"] = summary_df["Keyword"].map(translations)
 
     # Tabloları birleştir
     pivot_df = pivot_df.merge(summary_df, on="Keyword", how="left")
@@ -110,10 +93,10 @@ if uploaded_files:
         mime="text/csv"
     )
 
-    ### **Frekans Analizi** ###
+    ### Ek Alan: Frekans Analizi ###
     st.subheader("Anahtar Kelime Frekans Analizi")
 
-    # Filtreleme seçenekleri
+    # Ek filtreleme seçenekleri
     exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
     exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
 
@@ -145,18 +128,9 @@ if uploaded_files:
         all_trigrams.extend(extract_ngrams(keyword, 3))
 
     # Frekansları hesapla
-    word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
-    bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"])
-    trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"])
-
-    # **Tek seferde çeviri yaparak hızlandır**
-    all_unique_terms = set(word_freq["Word"]) | set(bigram_freq["Bigram"]) | set(trigram_freq["Trigram"])
-    term_translations = {term: translate_word(term) for term in all_unique_terms}
-
-    # Çevirileri ekleyelim
-    word_freq["English"] = word_freq["Word"].map(term_translations)
-    bigram_freq["English"] = bigram_freq["Bigram"].map(term_translations)
-    trigram_freq["English"] = trigram_freq["Trigram"].map(term_translations)
+    word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
 
     # Sonuçları yatay olarak gösterme
     st.write("### Kelime Frekans Analizi")
@@ -166,11 +140,32 @@ if uploaded_files:
     with col1:
         st.write("**Tek Kelimeler (Unigrams)**")
         st.dataframe(word_freq, use_container_width=True)
+        word_csv = word_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Tek Kelime Frekanslarını İndir",
+            data=word_csv,
+            file_name="word_frequencies.csv",
+            mime="text/csv"
+        )
 
     with col2:
         st.write("**İki Kelimelik Kombinasyonlar (Bigrams)**")
         st.dataframe(bigram_freq, use_container_width=True)
+        bigram_csv = bigram_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="İki Kelime Frekanslarını İndir",
+            data=bigram_csv,
+            file_name="bigram_frequencies.csv",
+            mime="text/csv"
+        )
 
     with col3:
         st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
         st.dataframe(trigram_freq, use_container_width=True)
+        trigram_csv = trigram_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Üç Kelime Frekanslarını İndir",
+            data=trigram_csv,
+            file_name="trigram_frequencies.csv",
+            mime="text/csv"
+        )
