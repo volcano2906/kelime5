@@ -21,9 +21,10 @@ title = st.text_input("Title (Maksimum 30 karakter)", max_chars=30)
 subtitle = st.text_input("Subtitle (Maksimum 30 karakter)", max_chars=30)
 kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=100)
 
-# Girilen alanları birleştir ve temizle
-all_keywords = set(re.split(r'[ ,]+', f"{title} {subtitle} {kw_input}".strip().lower()))
-all_keywords = {word for word in all_keywords if word and word not in stop_words}
+# Girilen kelimeleri temizle ve listele
+user_input_text = f"{title} {subtitle} {kw_input}".strip().lower()
+user_words = set(re.split(r'[ ,]+', user_input_text))
+user_words = {word for word in user_words if word and word not in stop_words}
 
 # CSV dosyalarını yükleme
 uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
@@ -54,7 +55,7 @@ if uploaded_files:
     # Eksik kelimeleri bul
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
-        missing_words = words - all_keywords
+        missing_words = words - user_words
         return ', '.join(missing_words) if missing_words else "-"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
@@ -129,10 +130,10 @@ if uploaded_files:
 
     # Eksik kelimeleri bul
     def find_missing_items(items):
-        missing_items = [item for item in items if item not in all_keywords]
+        missing_items = [item for item in items if item not in user_words]
         return ', '.join(missing_items) if missing_items else "-"
 
-    # Frekansları hesapla
+    # Frekansları hesapla ve eksik kelimeleri ekle
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
     word_freq["Missing Keywords"] = word_freq["Word"].apply(find_missing_items)
     
