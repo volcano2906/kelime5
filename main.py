@@ -58,12 +58,20 @@ if uploaded_files:
         return ', '.join(missing_words) if missing_words else "-"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
-    
-    ### **Eksik Kelimeler Üzerinden Frekans Analizi** ###
-    st.subheader("Eksik Kelimeler İçin Frekans Analizi")
 
-    # Missing keywords'in tamamını tek bir string listesi olarak al
-    missing_text = " ".join(df["Missing Keywords"].dropna().tolist())
+    # Frekans Analizi
+    st.subheader("Anahtar Kelime Frekans Analizi")
+
+    # Ek filtreleme seçenekleri
+    exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
+    exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
+
+    # Filtreleme uygulama
+    freq_df = df.copy()
+    if exclude_low_volume_freq:
+        freq_df = freq_df[freq_df["Volume"] != 5]
+    if exclude_single_app_keywords:
+        freq_df = freq_df[freq_df.groupby("Keyword")["Application Id"].transform("nunique") > 1]
 
     # Kelime ayrıştırma fonksiyonları
     def extract_words(text):
@@ -74,27 +82,71 @@ if uploaded_files:
         words = extract_words(text)
         return [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
 
-    # Missing keywords üzerinden frekans analizi
-    missing_words = extract_words(missing_text)
-    missing_bigrams = extract_ngrams(missing_text, 2)
-    missing_trigrams = extract_ngrams(missing_text, 3)
+    # Tüm kelimeleri içeren liste
+    all_words = []
+    all_bigrams = []
+    all_trigrams = []
+
+    for keyword in freq_df["Keyword"]:
+        words = extract_words(keyword)
+        all_words.extend(words)
+        all_bigrams.extend(extract_ngrams(keyword, 2))
+        all_trigrams.extend(extract_ngrams(keyword, 3))
+
+    # Kullanıcının girdiği kelimeleri filtreleme
+    filtered_words = [word for word in all_words if word not in all_keywords]
+    filtered_bigrams = [bigram for bigram in all_bigrams if bigram not in all_keywords]
+    filtered_trigrams = [trigram for trigram in all_trigrams if trigram not in all_keywords]
 
     # Frekansları hesapla
-    missing_word_freq = pd.DataFrame(Counter(missing_words).items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
-    missing_bigram_freq = pd.DataFrame(Counter(missing_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
-    missing_trigram_freq = pd.DataFrame(Counter(missing_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    word_freq = pd.DataFrame(Counter(filtered_words).items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    bigram_freq = pd.DataFrame(Counter(filtered_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    trigram_freq = pd.DataFrame(Counter(filtered_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+
+    # Missing Keywords hesaplama fonksiyonu
+    def find_missing_from_input(term):
+        words = set(term.split())
+        missing_words = words - all_keywords
+        return ', '.join(missing_words) if missing_words else "-"
+
+    word_freq["Missing Keywords"] = word_freq["Word"].apply(find_missing_from_input)
+    bigram_freq["Missing Keywords"] = bigram_freq["Bigram"].apply(find_missing_from_input)
+    trigram_freq["Missing Keywords"] = trigram_freq["Trigram"].apply(find_missing_from_input)
 
     # Sonuçları yatay olarak gösterme
+    st.write("### Eksik Kelimeler İçin Frekans Analizi")
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.write("**Eksik Tek Kelimeler (Unigrams)**")
-        st.dataframe(missing_word_freq, use_container_width=True)
+        st.write("**Tek Kelimeler (Unigrams)**")
+        st.dataframe(word_freq, use_container_width=True)
+        word_csv = word_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Tek Kelime Frekanslarını İndir",
+            data=word_csv,
+            file_name="word_frequencies.csv",
+            mime="text/csv"
+        )
 
     with col2:
-        st.write("**Eksik İki Kelimelik Kombinasyonlar (Bigrams)**")
-        st.dataframe(missing_bigram_freq, use_container_width=True)
+        st.write("**İki Kelimelik Kombinasyonlar (Bigrams)**")
+        st.dataframe(bigram_freq, use_container_width=True)
+        bigram_csv = bigram_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="İki Kelime Frekanslarını İndir",
+            data=bigram_csv,
+            file_name="bigram_frequencies.csv",
+            mime="text/csv"
+        )
 
     with col3:
-        st.write("**Eksik Üç Kelimelik Kombinasyonlar (Trigrams)**")
-        st.dataframe(missing_trigram_freq, use_container_width=True)
+        st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
+        st.dataframe(trigram_freq, use_container_width=True)
+        trigram_csv = trigram_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Üç Kelime Frekanslarını İndir",
+            data=trigram_csv,
+            file_name="trigram_frequencies.csv",
+            mime="text/csv"
+        )
