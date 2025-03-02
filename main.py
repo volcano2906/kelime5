@@ -33,9 +33,6 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 
-# Yeniden hesaplama seçeneği
-treemap_option = st.selectbox("Tekrar Eden Kelimeleri Yeniden Hesapla", ["5'i Dahil Et", "Tekrar Hesapla"], index=0)
-
 def update_rank(rank):
     try:
         rank = float(rank)
@@ -67,17 +64,6 @@ if uploaded_files:
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
         df = df[df["Volume"] != 5]
-    
-    # Eğer "Tekrar Hesapla" seçildiyse tekrar eden kelimeleri hesapla
-    if treemap_option == "Tekrar Hesapla":
-        keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
-        monograms_filtered = Counter(keywords_list_filtered)
-        bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
-        trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
-    else:
-        monograms_filtered = monograms_full
-        bigrams_filtered = bigrams_full
-        trigrams_filtered = trigrams_full
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].astype(str)  # Rank sütunu string olmalı
@@ -112,15 +98,15 @@ if uploaded_files:
     # Boş değerleri null olarak değiştir
     pivot_df = pivot_df.fillna("null")
     
-    st.write("### En Çok Tekrar Eden Kelimeler")
+    st.write("### En Çok Tekrar Eden Kelimeler (Filtre Öncesi)")
     st.write("**Monogram (Tek Kelimeler)**")
-    st.write(monograms_filtered.most_common(10))
+    st.write(monograms_full.most_common(10))
     
     st.write("**Bigram (İki Kelimeli Öbekler)**")
-    st.write([' '.join(bigram) for bigram, _ in bigrams_filtered.most_common(10)])
+    st.write([' '.join(bigram) for bigram, _ in bigrams_full.most_common(10)])
     
     st.write("**Trigram (Üç Kelimeli Öbekler)**")
-    st.write([' '.join(trigram) for trigram, _ in trigrams_filtered.most_common(10)])
+    st.write([' '.join(trigram) for trigram, _ in trigrams_full.most_common(10)])
     
     # Sonuçları gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
