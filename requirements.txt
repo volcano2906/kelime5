@@ -1,4 +1,4 @@
 nltk
+pip
 TfidfVectorizer
-!pip install --upgrade pip
 scikit-learn
