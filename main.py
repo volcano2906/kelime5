@@ -30,8 +30,11 @@ all_keywords = {word.lower().strip() for word in all_keywords if word and word.l
 # CSV dosyalarını yükleme
 uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
 
-# Anahtar kelime hacmi 5 olanları dahil edip etmeme seçeneği
-drop_low_volume_option = st.selectbox("Tekrar Eden Kelimeleri Yeniden Hesapla Seçeneği", ["Include Volume 5 Keywords", "Exclude Volume 5 Keywords"])
+# Anahtar kelime hacmi 5 olanları filtreleme seçeneği
+drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
+
+# Yeniden hesaplama seçeneği
+treemap_option = st.selectbox("Tekrar Eden Kelimeleri Yeniden Hesapla", ["5'i Dahil Et", "Tekrar Hesapla"], index=0)
 
 def update_rank(rank):
     try:
@@ -61,15 +64,20 @@ if uploaded_files:
     bigrams_full = Counter(ngrams(keywords_list_full, 2))
     trigrams_full = Counter(ngrams(keywords_list_full, 3))
     
-    # Kullanıcı Volume 5 anahtar kelimeleri hariç tutmayı seçerse
-    if drop_low_volume_option == "Exclude Volume 5 Keywords":
+    # Anahtar kelime hacmi 5 olanları filtrele
+    if drop_low_volume:
         df = df[df["Volume"] != 5]
     
-    # Monogram, bigram ve trigramları tekrar hesapla
-    keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
-    monograms_filtered = Counter(keywords_list_filtered)
-    bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
-    trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
+    # Eğer "Tekrar Hesapla" seçildiyse tekrar eden kelimeleri hesapla
+    if treemap_option == "Tekrar Hesapla":
+        keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
+        monograms_filtered = Counter(keywords_list_filtered)
+        bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
+        trigrams_filtered = Counter(ngrams(keywords_list_filtered, 3))
+    else:
+        monograms_filtered = monograms_full
+        bigrams_filtered = bigrams_full
+        trigrams_filtered = trigrams_full
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].astype(str)  # Rank sütunu string olmalı
