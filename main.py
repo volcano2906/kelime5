@@ -59,53 +59,8 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
     
-    # Veriyi uygun formata dönüştürme
-    pivot_df = df.pivot_table(
-        index=["Keyword", "Volume"], 
-        columns="Application Id", 
-        values="Rank", 
-        aggfunc='first'
-    ).reset_index()
-    
-    # Puanları toplama ve Rank sayısını hesaplama
-    summary_df = df.groupby("Keyword").agg(
-        Total_Score=("Score", "sum"),
-        Rank_Count=("Rank", "count"),
-        Missing_Keywords=("Missing Keywords", "first")
-    ).reset_index()
-
-    # Tabloları birleştir
-    pivot_df = pivot_df.merge(summary_df, on="Keyword", how="left")
-
-    # Boş değerleri "null" olarak değiştir
-    pivot_df.fillna("null", inplace=True)
-
-    # Sonuçları gösterme
-    st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
-    st.dataframe(pivot_df, use_container_width=True)
-
-    # CSV olarak indirme butonu
-    csv = pivot_df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="Dönüştürülmüş CSV'yi İndir",
-        data=csv,
-        file_name="converted_keywords_with_scores.csv",
-        mime="text/csv"
-    )
-
-    ### Ek Alan: Frekans Analizi ###
-    st.subheader("Eksik Kelimeler İçin Frekans Analizi")
-
-    # Ek filtreleme seçenekleri
-    exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
-    exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
-
-    # Filtreleme uygulama
-    freq_df = df.copy()
-    if exclude_low_volume_freq:
-        freq_df = freq_df[freq_df["Volume"] != 5]
-    if exclude_single_app_keywords:
-        freq_df = freq_df[freq_df.groupby("Keyword")["Application Id"].transform("nunique") > 1]
+    # Tüm eksik kelimeleri set olarak al
+    missing_keywords_set = set(df["Missing Keywords"].str.lower().str.split(', ').explode())
 
     # Kelime ayrıştırma fonksiyonları
     def extract_words(text):
@@ -116,33 +71,30 @@ if uploaded_files:
         words = extract_words(text)
         return [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
 
-    # Missing Keywords'leri tek tek listeye ekleyelim
-    missing_words_list = []
-    for missing_text in df["Missing Keywords"].dropna():
-        missing_words_list.extend(re.split(r'[ ,]+', missing_text.lower()))
-
-    # Tüm eksik kelimeleri içeren liste
+    # Frekans analizi için verileri hazırla
     all_words = []
     all_bigrams = []
     all_trigrams = []
 
-    for keyword in freq_df["Keyword"]:
+    for keyword in df["Keyword"]:
         words = extract_words(keyword)
         all_words.extend(words)
         all_bigrams.extend(extract_ngrams(keyword, 2))
         all_trigrams.extend(extract_ngrams(keyword, 3))
 
-    # Kullanıcının zaten girdiği kelimeleri çıkar + Missing Keywords ekle
-    filtered_words = [word for word in all_words + missing_words_list if word not in all_keywords]
-    filtered_bigrams = [bigram for bigram in all_bigrams if bigram not in all_keywords]
-    filtered_trigrams = [trigram for trigram in all_trigrams if trigram not in all_keywords]
-
     # Frekansları hesapla
-    word_freq = pd.DataFrame(Counter(filtered_words).items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
-    bigram_freq = pd.DataFrame(Counter(filtered_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
-    trigram_freq = pd.DataFrame(Counter(filtered_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+    trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
+
+    # "Missing Keywords" analizi yap
+    word_freq["Missing"] = word_freq["Word"].apply(lambda x: "Yes" if x in missing_keywords_set else "No")
+    bigram_freq["Missing"] = bigram_freq["Bigram"].apply(lambda x: "Yes" if x in missing_keywords_set else "No")
+    trigram_freq["Missing"] = trigram_freq["Trigram"].apply(lambda x: "Yes" if x in missing_keywords_set else "No")
 
     # Sonuçları yatay olarak gösterme
+    st.write("### Eksik Kelimeler İçin Frekans Analizi")
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
