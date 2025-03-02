@@ -94,7 +94,7 @@ if uploaded_files:
     )
 
     ### Ek Alan: Frekans Analizi ###
-    st.subheader("Anahtar Kelime Frekans Analizi")
+    st.subheader("Eksik Kelimeler İçin Frekans Analizi")
 
     # Ek filtreleme seçenekleri
     exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
@@ -116,7 +116,12 @@ if uploaded_files:
         words = extract_words(text)
         return [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
 
-    # Tüm kelimeleri içeren liste
+    # Missing Keywords'leri tek tek listeye ekleyelim
+    missing_words_list = []
+    for missing_text in df["Missing Keywords"].dropna():
+        missing_words_list.extend(re.split(r'[ ,]+', missing_text.lower()))
+
+    # Tüm eksik kelimeleri içeren liste
     all_words = []
     all_bigrams = []
     all_trigrams = []
@@ -127,8 +132,8 @@ if uploaded_files:
         all_bigrams.extend(extract_ngrams(keyword, 2))
         all_trigrams.extend(extract_ngrams(keyword, 3))
 
-    # Kullanıcının zaten girdiği kelimeleri çıkar
-    filtered_words = [word for word in all_words if word not in all_keywords]
+    # Kullanıcının zaten girdiği kelimeleri çıkar + Missing Keywords ekle
+    filtered_words = [word for word in all_words + missing_words_list if word not in all_keywords]
     filtered_bigrams = [bigram for bigram in all_bigrams if bigram not in all_keywords]
     filtered_trigrams = [trigram for trigram in all_trigrams if trigram not in all_keywords]
 
@@ -138,8 +143,6 @@ if uploaded_files:
     trigram_freq = pd.DataFrame(Counter(filtered_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
 
     # Sonuçları yatay olarak gösterme
-    st.write("### Eksik Kelimeler İçin Frekans Analizi")
-
     col1, col2, col3 = st.columns(3)
 
     with col1:
