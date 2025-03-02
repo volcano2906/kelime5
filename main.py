@@ -132,37 +132,40 @@ if uploaded_files:
     bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
     trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"]).sort_values(by="Frequency", ascending=False)
 
-    # Sonuçları gösterme
+    # Sonuçları yatay olarak gösterme
     st.write("### Kelime Frekans Analizi")
-    st.write("**Tek Kelimeler (Unigrams)**")
-    st.dataframe(word_freq, use_container_width=True)
 
-    st.write("**İki Kelimelik Kombinasyonlar (Bigrams)**")
-    st.dataframe(bigram_freq, use_container_width=True)
+    col1, col2, col3 = st.columns(3)
 
-    st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
-    st.dataframe(trigram_freq, use_container_width=True)
+    with col1:
+        st.write("**Tek Kelimeler (Unigrams)**")
+        st.dataframe(word_freq, use_container_width=True)
+        word_csv = word_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Tek Kelime Frekanslarını İndir",
+            data=word_csv,
+            file_name="word_frequencies.csv",
+            mime="text/csv"
+        )
 
-    # CSV olarak indirme
-    word_csv = word_freq.to_csv(index=False).encode('utf-8')
-    bigram_csv = bigram_freq.to_csv(index=False).encode('utf-8')
-    trigram_csv = trigram_freq.to_csv(index=False).encode('utf-8')
+    with col2:
+        st.write("**İki Kelimelik Kombinasyonlar (Bigrams)**")
+        st.dataframe(bigram_freq, use_container_width=True)
+        bigram_csv = bigram_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="İki Kelime Frekanslarını İndir",
+            data=bigram_csv,
+            file_name="bigram_frequencies.csv",
+            mime="text/csv"
+        )
 
-    st.download_button(
-        label="Tek Kelime Frekanslarını İndir",
-        data=word_csv,
-        file_name="word_frequencies.csv",
-        mime="text/csv"
-    )
-    st.download_button(
-        label="İki Kelime Frekanslarını İndir",
-        data=bigram_csv,
-        file_name="bigram_frequencies.csv",
-        mime="text/csv"
-    )
-    st.download_button(
-        label="Üç Kelime Frekanslarını İndir",
-        data=trigram_csv,
-        file_name="trigram_frequencies.csv",
-        mime="text/csv"
-    )
+    with col3:
+        st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
+        st.dataframe(trigram_freq, use_container_width=True)
+        trigram_csv = trigram_freq.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Üç Kelime Frekanslarını İndir",
+            data=trigram_csv,
+            file_name="trigram_frequencies.csv",
+            mime="text/csv"
+        )
