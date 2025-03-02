@@ -55,6 +55,12 @@ if uploaded_files:
     df = pd.concat(df_list, ignore_index=True)
     df = df.drop_duplicates()
     
+    # Anahtar kelime hacmi 5 olanları filtrelemeden önce monogram, bigram ve trigram hesapla
+    keywords_list_full = ' '.join(df["Keyword"].dropna()).lower().split()
+    monograms_full = Counter(keywords_list_full)
+    bigrams_full = Counter(ngrams(keywords_list_full, 2))
+    trigrams_full = Counter(ngrams(keywords_list_full, 3))
+    
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
         df = df[df["Volume"] != 5]
@@ -92,21 +98,15 @@ if uploaded_files:
     # Boş değerleri null olarak değiştir
     pivot_df = pivot_df.fillna("null")
     
-    # Monogram, Bigram ve Trigram analizini yap
-    keywords_list = ' '.join(df["Keyword"].dropna()).lower().split()
-    monograms = Counter(keywords_list)
-    bigrams = Counter(ngrams(keywords_list, 2))
-    trigrams = Counter(ngrams(keywords_list, 3))
-    
-    st.write("### En Çok Tekrar Eden Kelimeler")
+    st.write("### En Çok Tekrar Eden Kelimeler (Filtre Öncesi)")
     st.write("**Monogram (Tek Kelimeler)**")
-    st.write(monograms.most_common(10))
+    st.write(monograms_full.most_common(10))
     
     st.write("**Bigram (İki Kelimeli Öbekler)**")
-    st.write([' '.join(bigram) for bigram, _ in bigrams.most_common(10)])
+    st.write([' '.join(bigram) for bigram, _ in bigrams_full.most_common(10)])
     
     st.write("**Trigram (Üç Kelimeli Öbekler)**")
-    st.write([' '.join(trigram) for trigram, _ in trigrams.most_common(10)])
+    st.write([' '.join(trigram) for trigram, _ in trigrams_full.most_common(10)])
     
     # Sonuçları gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
