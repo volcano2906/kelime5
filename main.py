@@ -33,8 +33,8 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 
-# Yeniden hesaplama düğmesi
-treemap_recalculate = st.button("Tekrar Eden Kelimeleri Yeniden Hesapla")
+# Yeniden hesaplama seçeneği
+treemap_option = st.selectbox("Tekrar Eden Kelimeleri Yeniden Hesapla", ["5'i Dahil Et", "Tekrar Hesapla"], index=0)
 
 def update_rank(rank):
     try:
@@ -68,8 +68,8 @@ if uploaded_files:
     if drop_low_volume:
         df = df[df["Volume"] != 5]
     
-    # Eğer düğmeye basılırsa tekrar eden kelimeleri hesapla
-    if treemap_recalculate:
+    # Eğer "Tekrar Hesapla" seçildiyse tekrar eden kelimeleri hesapla
+    if treemap_option == "Tekrar Hesapla":
         keywords_list_filtered = ' '.join(df["Keyword"].dropna()).lower().split()
         monograms_filtered = Counter(keywords_list_filtered)
         bigrams_filtered = Counter(ngrams(keywords_list_filtered, 2))
