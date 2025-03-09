@@ -19,7 +19,7 @@ st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 st.subheader("Anahtar Kelime Karşılaştırma")
 title = st.text_input("Title (Maksimum 30 karakter)", max_chars=30)
 subtitle = st.text_input("Subtitle (Maksimum 30 karakter)", max_chars=30)
-kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=100)
+kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=150)
 
 # Girilen kelimeleri temizle ve set olarak sakla
 user_input_text = f"{title} {subtitle} {kw_input}".strip().lower()
