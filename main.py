@@ -132,7 +132,7 @@ if uploaded_files:
     def find_missing_items(ngram):
         ngram_words = set(ngram.split())  # Bütün kelimeleri böl ve set olarak al
         missing_words = ngram_words - user_words  # Kullanıcının girmediği kelimeleri bul
-        return ', '.join(missing_words) if missing_words else "-"
+        return ','.join(missing_words) if missing_words else "-"
 
     # Frekansları hesapla ve eksik kelimeleri ekle
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
