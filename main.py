@@ -56,7 +56,7 @@ if uploaded_files:
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
         missing_words = words - user_words
-        return ', '.join(missing_words) if missing_words else "-"
+        return ','.join(missing_words) if missing_words else "-"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
     
