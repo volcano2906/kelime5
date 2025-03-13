@@ -99,6 +99,10 @@ if uploaded_files:
 
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
+        # Kolonları yeniden sıralama
+    first_columns = ["Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match in User Input"]
+    remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
+    pivot_df = pivot_df[first_columns + remaining_columns]
 
     # Sonuçları gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
