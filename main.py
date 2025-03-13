@@ -59,10 +59,10 @@ if uploaded_files:
         return ','.join(missing_words) if missing_words else "-"
 
         # Eksik kelimeleri bul
-    def find_missing_keywords(keyword):
-        words = set(re.split(r'[ ,]+', keyword.lower()))
-        missing_words = words - user_words
-        return ','.join(missing_words) if missing_words else "-"
+    def check_exact_match(keyword):
+        # Regex ile exact match kontrolü yap
+        pattern = r'(^|[\s,])' + re.escape(keyword) + r'($|[\s,])'
+        return "Yes" if re.search(pattern, user_input_text) else "No"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
     
