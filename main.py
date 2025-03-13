@@ -58,6 +58,12 @@ if uploaded_files:
         missing_words = words - user_words
         return ','.join(missing_words) if missing_words else "-"
 
+        # Eksik kelimeleri bul
+    def find_missing_keywords(keyword):
+        words = set(re.split(r'[ ,]+', keyword.lower()))
+        missing_words = words - user_words
+        return ','.join(missing_words) if missing_words else "-"
+
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
     
     # Veriyi uygun formata dönüştürme
@@ -77,6 +83,7 @@ if uploaded_files:
 
     # Tabloları birleştir
     pivot_df = pivot_df.merge(summary_df, on="Keyword", how="left")
+    pivot_df["Exact Match in User Input"] = pivot_df["Keyword"].apply(check_exact_match)
 
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
