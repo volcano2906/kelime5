@@ -17,8 +17,8 @@ st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 
 # Kullanıcıdan Title, Subtitle ve KW girişi
 st.subheader("Anahtar Kelime Karşılaştırma")
-title = st.text_input("Title (Maksimum 30 karakter)", max_chars=120)
-subtitle = st.text_input("Subtitle (Maksimum 30 karakter)", max_chars=120)
+title = st.text_input("Title (Maksimum 30 karakter)", max_chars=30)
+subtitle = st.text_input("Subtitle (Maksimum 30 karakter)", max_chars=30)
 kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=400)
 
 # Girilen kelimeleri temizle ve set olarak sakla
