@@ -15,15 +15,27 @@ st.set_page_config(layout="wide")
 # Başlık
 st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 
-# Kullanıcıdan Title, Subtitle ve KW girişi
+# Kullanıcıdan 4 Title, 4 Subtitle ve KW girişi
 st.subheader("Anahtar Kelime Karşılaştırma")
-title = st.text_input("Title (Maksimum 30 karakter)", max_chars=30)
-subtitle = st.text_input("Subtitle (Maksimum 30 karakter)", max_chars=30)
+col1, col2, col3, col4 = st.columns(4)
+
+title1 = col1.text_input("Title 1 (Maksimum 30 karakter)", max_chars=30)
+subtitle1 = col1.text_input("Subtitle 1 (Maksimum 30 karakter)", max_chars=30)
+
+title2 = col2.text_input("Title 2 (Maksimum 30 karakter)", max_chars=30)
+subtitle2 = col2.text_input("Subtitle 2 (Maksimum 30 karakter)", max_chars=30)
+
+title3 = col3.text_input("Title 3 (Maksimum 30 karakter)", max_chars=30)
+subtitle3 = col3.text_input("Subtitle 3 (Maksimum 30 karakter)", max_chars=30)
+
+title4 = col4.text_input("Title 4 (Maksimum 30 karakter)", max_chars=30)
+subtitle4 = col4.text_input("Subtitle 4 (Maksimum 30 karakter)", max_chars=30)
+
 kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=400)
 
 # Girilen kelimeleri temizle ve set olarak sakla
-user_input_text = f"{title} {subtitle} {kw_input}".strip().lower()
-user_words = set(re.split(r'[ ,]+', user_input_text))
+user_input_text = f"{title1} {subtitle1} {title2} {subtitle2} {title3} {subtitle3} {title4} {subtitle4} {kw_input}".strip().lower()
+user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
 # CSV dosyalarını yükleme
