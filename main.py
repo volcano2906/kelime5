@@ -43,6 +43,7 @@ uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], acc
 
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
+drop_rank_more = st.checkbox("Exclude Keywords with Rank More Than 11")
 
 def update_rank(rank):
     try:
@@ -59,6 +60,9 @@ if uploaded_files:
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
         df = df[df["Volume"] != 5]
+
+    if drop_rank_more:
+        df = df[df["Rank"] < 11]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
