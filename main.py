@@ -70,7 +70,7 @@ if uploaded_files:
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     #df["Rank"] = df["Rank"].fillna("250").astype(str)
-    print(df["Rank"].dtype)  # Eğer float64 ise, hala yanlış formatta demektir.
+    st.write(df["Rank"].dtype)  # Eğer float64 ise, hala yanlış formatta demektir.
     df["Rank"] = pd.to_numeric(df["Rank"], errors='coerce')  # Stringleri sayıya çevir
     df["Rank"] = df["Rank"].fillna(250).astype(int)  # NaN'ları 250 yap, integer olarak sakla
     df["Score"] = df["Rank"].apply(update_rank)
