@@ -112,7 +112,7 @@ if uploaded_files:
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[6:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
-        pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna(250).astype(int)
+        pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna("Null").astype(int)
 
     # Sonuçları gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
