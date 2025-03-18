@@ -73,6 +73,7 @@ if uploaded_files:
     st.write(df["Rank"].dtype)  # Eğer float64 ise, hala yanlış formatta demektir.
     df["Rank"] = pd.to_numeric(df["Rank"], errors='coerce')  # Stringleri sayıya çevir
     df["Rank"] = df["Rank"].fillna(250).astype(int)  # NaN'ları 250 yap, integer olarak sakla
+    df["Rank"] = df["Rank"].astype(int)
     df["Score"] = df["Rank"].apply(update_rank)
     
     # Eksik kelimeleri bul
