@@ -69,7 +69,9 @@ if uploaded_files:
         df = df[df["Rank"] > 11]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
-    df["Rank"] = df["Rank"].fillna("250").astype(str)
+    #df["Rank"] = df["Rank"].fillna("250").astype(str)
+    df["Rank"] = pd.to_numeric(df["Rank"], errors='coerce')  # Sayıya çevir
+    df["Rank"] = df["Rank"].fillna(250).astype(int)  # NaN'ları 250 yap, integer formatına çevir
     df["Score"] = df["Rank"].apply(update_rank)
     
     # Eksik kelimeleri bul
