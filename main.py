@@ -82,6 +82,20 @@ if uploaded_files:
         return "Yes" if re.search(pattern, user_input_text) else "No"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
+
+    competitor_count = df["Application Id"].nunique()
+    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
+    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
+    unique_words = set()
+    for keyword in keywords_in_all_competitors:
+        unique_words.update(keyword.split())
+
+    # Convert unique words to a comma-separated string
+    result_string = ", ".join(sorted(unique_words))
+
+    # Display result
+    st.write(result_string)
+
     
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
