@@ -64,9 +64,6 @@ if uploaded_files:
 
     if drop_rank_more:
         df = df[df["Rank"] < 11]
-
-    if drop_rank_count:
-        df = df[df["Rank_Count"] != 1]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
@@ -105,6 +102,8 @@ if uploaded_files:
     pivot_df = pivot_df.merge(summary_df, on="Keyword", how="left")
     pivot_df["Exact Match in User Input"] = pivot_df["Keyword"].apply(check_exact_match)
 
+    if drop_rank_count:
+        df = df[df["Rank_Count"] != 1]
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
