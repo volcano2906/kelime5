@@ -88,7 +88,8 @@ if uploaded_files:
     keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
     unique_words = set()
     for keyword in keywords_in_all_competitors:
-        unique_words.update(keyword.split())
+        if keyword not in stop_words:
+           unique_words.update(keyword.split())
 
     # Convert unique words to a comma-separated string
     result_string = ", ".join(sorted(unique_words))
