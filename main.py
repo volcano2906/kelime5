@@ -49,6 +49,7 @@ if uploaded_files:
     # Dosyaları oku ve birleştir
     df_list = [pd.read_csv(file) for file in uploaded_files]
     df = pd.concat(df_list, ignore_index=True).drop_duplicates()
+    dfCopyAnaliz=df.copy()
     
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
@@ -142,7 +143,7 @@ if uploaded_files:
     keyword_filter_text = st.text_input("Include only keywords containing (case-insensitive):", "")
 
     # Filtreleme uygulama
-    freq_df = df.copy()
+    freq_df = dfCopyAnaliz.copy()
     if exclude_low_volume_freq:
         freq_df = freq_df[freq_df["Volume"] != 5]
     if exclude_single_app_keywords:
