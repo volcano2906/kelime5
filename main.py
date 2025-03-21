@@ -182,10 +182,6 @@ if uploaded_files:
     volume_lookup = dfCopyAnaliz[["Keyword_cleaned", "Volume"]].drop_duplicates()
 
     
-
-
-    
-    
     # Frekansları hesapla ve eksik kelimeleri ekle
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
     #word_freq["Missing Keywords"] = word_freq["Word"].apply(find_missing_items)
@@ -196,6 +192,10 @@ if uploaded_files:
     #trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"])
     #trigram_freq["Missing Keywords"] = trigram_freq["Trigram"].apply(find_missing_items)
 
+    # ✅ df'den exact match için temizlenmiş keyword ve volume al
+    df["Keyword_cleaned"] = df["Keyword"].str.lower().str.replace(r'[^a-zA-Z\\s]', '', regex=True).str.strip()
+    volume_lookup = df[["Keyword_cleaned", "Volume"]].drop_duplicates()
+    
     # ✅ Frekansları hesapla ve hacimleri exact match ile eşleştir + eksik kelime analizi
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
     word_freq = word_freq.merge(volume_lookup, how="left", left_on="Word", right_on="Keyword_cleaned")
