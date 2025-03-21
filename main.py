@@ -17,13 +17,13 @@ st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 
 # Kullanıcıdan 4 Title, 4 Subtitle ve KW girişi
 st.subheader("Anahtar Kelime Karşılaştırma")
-col1, col2= st.columns(2)
+col1, col2 = st.columns([1, 2])
 
 title1 = col1.text_input("Title 1 (Maksimum 30 karakter)", max_chars=30)
 subtitle1 = col1.text_input("Subtitle 1 (Maksimum 30 karakter)", max_chars=30)
 
-kw_input = col2.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=400)
-long_description = col2.text_input("Subtitle 2 (Maksimum 30 karakter)", max_chars=30)
+kw_input = col2.text_input("Keyword Alanı (Maksimum 400 karakter, space veya comma ile ayırın)", max_chars=400)
+long_description = col2.text_input("Long Description (Maksimum 4000 karakter)", max_chars=4000)
 
 # Girilen kelimeleri temizle ve set olarak sakla
 user_input_text = f"{title1} {subtitle1} {kw_input} {long_description}".strip().lower()
