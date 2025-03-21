@@ -22,7 +22,7 @@ col1, col2= st.columns(2)
 title1 = col1.text_input("Title 1 (Maksimum 30 karakter)", max_chars=30)
 subtitle1 = col1.text_input("Subtitle 1 (Maksimum 30 karakter)", max_chars=30)
 
-kw_input = col2.st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=400)
+kw_input = col2.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=400)
 long_description = col2.text_input("Subtitle 2 (Maksimum 30 karakter)", max_chars=30)
 
 # Girilen kelimeleri temizle ve set olarak sakla
