@@ -147,6 +147,7 @@ if uploaded_files:
     # Ek filtreleme seçenekleri
     exclude_low_volume_freq = st.checkbox("Exclude Keywords with Volume 5 in Frequency Analysis")
     exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
+    keyword_filter_text = st.text_input("Include only keywords containing (case-insensitive):", "")
 
     # Filtreleme uygulama
     freq_df = df.copy()
@@ -154,6 +155,8 @@ if uploaded_files:
         freq_df = freq_df[freq_df["Volume"] != 5]
     if exclude_single_app_keywords:
         freq_df = freq_df[freq_df.groupby("Keyword")["Application Id"].transform("nunique") > 1]
+    if keyword_filter_text:
+        freq_df = freq_df[freq_df["Keyword"].str.contains(keyword_filter_text, case=False, na=False)]
 
     # Kelime ayrıştırma fonksiyonları
     def extract_words(text):
