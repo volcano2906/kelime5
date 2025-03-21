@@ -32,9 +32,9 @@ title4 = col4.text_input("Title 4 (Maksimum 30 karakter)", max_chars=30)
 subtitle4 = col4.text_input("Subtitle 4 (Maksimum 30 karakter)", max_chars=30)
 
 kw_input = st.text_input("Keyword Alanı (Maksimum 100 karakter, space veya comma ile ayırın)", max_chars=400)
-
+you_long = st.text_area("Please write your data:", "", height=400) # Increase the height
 # Girilen kelimeleri temizle ve set olarak sakla
-user_input_text = f"{title1} {subtitle1} {title2} {subtitle2} {title3} {subtitle3} {title4} {subtitle4} {kw_input}".strip().lower()
+user_input_text = f"{title1} {subtitle1} {title2} {subtitle2} {title3} {subtitle3} {title4} {subtitle4} {kw_input} {you_long}".strip().lower()
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
