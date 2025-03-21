@@ -142,7 +142,13 @@ if uploaded_files:
     exclude_single_app_keywords = st.checkbox("Exclude Keywords Ranked by Only One App in Frequency Analysis")
     keyword_filter_text = st.text_input("Include only keywords containing (case-insensitive):", "")
 
-    # Filtreleme uygulama
+    # 1. Clean original keywords from df for exact match lookup
+    df["Keyword_cleaned"] = df["Keyword"].str.lower().str.replace(r'[^a-zA-Z\\s]', '', regex=True).str.strip()
+    df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r'\\s+', ' ', regex=True)
+    
+    volume_lookup = df[["Keyword_cleaned", "Volume"]].drop_duplicates()
+    
+    # 2. Filtreleme uygulama
     freq_df = dfCopyAnaliz.copy()
     if exclude_low_volume_freq:
         freq_df = freq_df[freq_df["Volume"] != 5]
@@ -150,70 +156,57 @@ if uploaded_files:
         freq_df = freq_df[freq_df.groupby("Keyword")["Application Id"].transform("nunique") > 1]
     if keyword_filter_text:
         freq_df = freq_df[freq_df["Keyword"].str.contains(keyword_filter_text, case=False, na=False)]
-
-    # Kelime ayrıştırma fonksiyonları
+    
+    # 3. Word splitting functions
     def extract_words(text):
         words = re.split(r'[ ,]+', text.lower())
         return [word.strip() for word in words if word and word not in stop_words]
-
+    
     def extract_ngrams(text, n):
         words = extract_words(text)
         return [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
-
-    # Tüm kelimeleri içeren liste
+    
+    # 4. Extract all keywords
     all_words = []
     all_bigrams = []
     all_trigrams = []
-
+    
     for keyword in freq_df["Keyword"]:
         words = extract_words(keyword)
         all_words.extend(words)
         all_bigrams.extend(extract_ngrams(keyword, 2))
         all_trigrams.extend(extract_ngrams(keyword, 3))
-
-    # Eksik kelimeleri bul (word-level check)
+    
+    # 5. Clean ngrams the same way as df["Keyword_cleaned"]
+    def clean_ngram(ngram):
+        return re.sub(r'[^a-zA-Z\\s]', '', ngram.lower()).strip()
+    
     def find_missing_items(ngram):
-        ngram_words = set(ngram.split())  # Bütün kelimeleri böl ve set olarak al
-        missing_words = ngram_words - user_words  # Kullanıcının girmediği kelimeleri bul
+        ngram_words = set(ngram.split())
+        missing_words = ngram_words - user_words
         return ','.join(missing_words) if missing_words else "-"
-
-    # ✅ Keyword temizleme ve Volume eşlemesi için hazırlık
-    dfCopyAnaliz["Keyword_cleaned"] = dfCopyAnaliz["Keyword"].str.lower().str.replace(r'[^a-zA-Z\\s]', '', regex=True).str.strip()
-    volume_lookup = dfCopyAnaliz[["Keyword_cleaned", "Volume"]].drop_duplicates()
-
     
-    # Frekansları hesapla ve eksik kelimeleri ekle
+    # 6. Create cleaned version of ngrams for matching
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
-    #word_freq["Missing Keywords"] = word_freq["Word"].apply(find_missing_items)
-    
-    #bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"])
-    #bigram_freq["Missing Keywords"] = bigram_freq["Bigram"].apply(find_missing_items)
-    
-    #trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"])
-    #trigram_freq["Missing Keywords"] = trigram_freq["Trigram"].apply(find_missing_items)
-
-    # ✅ df'den exact match için temizlenmiş keyword ve volume al
-    df["Keyword_cleaned"] = df["Keyword"].str.lower().str.replace(r'[^a-zA-Z\\s]', '', regex=True).str.strip()
-    volume_lookup = df[["Keyword_cleaned", "Volume"]].drop_duplicates()
-    
-    # ✅ Frekansları hesapla ve hacimleri exact match ile eşleştir + eksik kelime analizi
-    word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
-    word_freq = word_freq.merge(volume_lookup, how="left", left_on="Word", right_on="Keyword_cleaned")
-    word_freq.drop(columns=["Keyword_cleaned"], inplace=True)
+    word_freq["Keyword_cleaned"] = word_freq["Word"].apply(clean_ngram)
+    word_freq = word_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
     word_freq["Volume"] = word_freq["Volume"].fillna("none")
     word_freq["Missing Keywords"] = word_freq["Word"].apply(find_missing_items)
+    word_freq.drop(columns=["Keyword_cleaned"], inplace=True)
     
     bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"])
-    bigram_freq = bigram_freq.merge(volume_lookup, how="left", left_on="Bigram", right_on="Keyword_cleaned")
-    bigram_freq.drop(columns=["Keyword_cleaned"], inplace=True)
+    bigram_freq["Keyword_cleaned"] = bigram_freq["Bigram"].apply(clean_ngram)
+    bigram_freq = bigram_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
     bigram_freq["Volume"] = bigram_freq["Volume"].fillna("none")
     bigram_freq["Missing Keywords"] = bigram_freq["Bigram"].apply(find_missing_items)
+    bigram_freq.drop(columns=["Keyword_cleaned"], inplace=True)
     
     trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"])
-    trigram_freq = trigram_freq.merge(volume_lookup, how="left", left_on="Trigram", right_on="Keyword_cleaned")
-    trigram_freq.drop(columns=["Keyword_cleaned"], inplace=True)
+    trigram_freq["Keyword_cleaned"] = trigram_freq["Trigram"].apply(clean_ngram)
+    trigram_freq = trigram_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
     trigram_freq["Volume"] = trigram_freq["Volume"].fillna("none")
     trigram_freq["Missing Keywords"] = trigram_freq["Trigram"].apply(find_missing_items)
+    trigram_freq.drop(columns=["Keyword_cleaned"], inplace=True)
 
     # Sonuçları yatay olarak gösterme
     st.write("### Eksik Kelimeler İçin Frekans Analizi")
