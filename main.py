@@ -26,7 +26,7 @@ kw_input = col2.text_input("Keyword Alanı (Maksimum 100 karakter, space veya co
 long_description = col2.text_input("Subtitle 2 (Maksimum 30 karakter)", max_chars=30)
 
 # Girilen kelimeleri temizle ve set olarak sakla
-user_input_text = f"{title1} {subtitle1} {kw_input} {you_long}".strip().lower()
+user_input_text = f"{title1} {subtitle1} {kw_input} {long_description}".strip().lower()
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
