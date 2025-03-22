@@ -149,6 +149,17 @@ if uploaded_files:
     df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r'\\s+', ' ', regex=True)
     
     volume_lookup = df[["Keyword_cleaned", "Volume"]].drop_duplicates()
+
+    competitor_count = df["Application Id"].nunique()
+    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
+    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
+    unique_words = set()
+    for keyword in keywords_in_all_competitors:
+            words = re.split(r'\s+', keyword.lower())  # Split by spaces
+            unique_words.update([word for word in words if word not in stop_words])
+
+    # Convert unique words to a comma-separated string
+    result_string = ", ".join(sorted(unique_words))
     
     # 2. Filtreleme uygulama
     freq_df = dfCopyAnaliz.copy()
@@ -227,16 +238,6 @@ if uploaded_files:
         st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
         st.dataframe(trigram_freq, use_container_width=True)
 
-    competitor_count = df["Application Id"].nunique()
-    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
-    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    unique_words = set()
-    for keyword in keywords_in_all_competitors:
-            words = re.split(r'\s+', keyword.lower())  # Split by spaces
-            unique_words.update([word for word in words if word not in stop_words])
-
-    # Convert unique words to a comma-separated string
-    result_string = ", ".join(sorted(unique_words))
 
 
 
