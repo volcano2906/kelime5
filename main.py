@@ -72,7 +72,7 @@ if uploaded_files:
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
         missing_words = {word for word in words - user_words if word not in stop_words}
-        return ',".join(missing_words) if missing_words else "-"    
+        return ','.join(missing_words) if missing_words else "-"    
         # Eksik kelimeleri bul
     def check_exact_match(keyword):
         # Regex ile exact match kontrolü yap
@@ -189,7 +189,7 @@ if uploaded_files:
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
         missing_words = {word for word in words - user_words if word not in stop_words}
-        return ',".join(missing_words) if missing_words else "-"
+        return ','.join(missing_words) if missing_words else "-"
     
     # 6. Create cleaned version of ngrams for matching
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
