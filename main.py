@@ -89,8 +89,7 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
 
-    # Display result
-    st.write(result_string)
+
 
     
     # Veriyi uygun formata dönüştürme
@@ -160,6 +159,8 @@ if uploaded_files:
 
     # Convert unique words to a comma-separated string
     result_string = ", ".join(sorted(unique_words))
+    # Display result
+    st.write(result_string)
     
     # 2. Filtreleme uygulama
     freq_df = dfCopyAnaliz.copy()
