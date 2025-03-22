@@ -108,6 +108,8 @@ if uploaded_files:
     
     # 3. Apply to df
     df["Missing From Top"] = df["Keyword"].apply(lambda k: find_result_string_words_missing_in_keyword(k, unique_words))
+    st.write("### Keywords Missing Some of the Shared Words")
+    st.dataframe(df[["Keyword", "Missing From Result Words"]], use_container_width=True)
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
