@@ -63,11 +63,16 @@ if uploaded_files:
     df["Score"] = df["Rank"].apply(update_rank)
     
     # Eksik kelimeleri bul
+    #def find_missing_keywords(keyword):
+     #   words = set(re.split(r'[ ,]+', keyword.lower()))
+      #  missing_words = words - user_words
+      #  return ','.join(missing_words) if missing_words else "-"
+
+
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
-        missing_words = words - user_words
-        return ','.join(missing_words) if missing_words else "-"
-
+        missing_words = {word for word in words - user_words if word not in stop_words}
+        return ',".join(missing_words) if missing_words else "-"    
         # Eksik kelimeleri bul
     def check_exact_match(keyword):
         # Regex ile exact match kontrolü yap
@@ -181,10 +186,10 @@ if uploaded_files:
     def clean_ngram(ngram):
         return re.sub(r'[^a-zA-Z\\s]', '', ngram.lower()).strip()
     
-    def find_missing_items(ngram):
-        ngram_words = set(ngram.split())
-        missing_words = ngram_words - user_words
-        return ','.join(missing_words) if missing_words else "-"
+    def find_missing_keywords(keyword):
+        words = set(re.split(r'[ ,]+', keyword.lower()))
+        missing_words = {word for word in words - user_words if word not in stop_words}
+        return ',".join(missing_words) if missing_words else "-"
     
     # 6. Create cleaned version of ngrams for matching
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
