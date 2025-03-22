@@ -28,6 +28,7 @@ long_description = col2.text_input("Long Description (Maksimum 4000 karakter)", 
 # Girilen kelimeleri temizle ve set olarak sakla
 user_input_text = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
 user_input_text = re.sub(r'[^a-zA-Z\s]', '', user_input_text).strip()
+st.write(user_input_text)
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
