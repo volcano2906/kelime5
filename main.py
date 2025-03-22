@@ -31,7 +31,12 @@ user_input_text = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text).strip()
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
-
+if "uploaded" not in st.session_state:
+    uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+    if uploaded_files:
+        st.session_state.uploaded = uploaded_files  # Save uploaded files to session state
+else:
+    uploaded_files = st.session_state.uploaded  # Reuse already uploaded files
 
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
@@ -231,5 +236,4 @@ if uploaded_files:
         st.dataframe(trigram_freq, use_container_width=True)
 
 
-# CSV dosyalarını yükleme
-uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+
