@@ -138,19 +138,19 @@ if uploaded_files:
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     
     # Apply on original df
-    df["Extra Words (Not in Shared Set)"] = df["Keyword"].apply(
+    df["missFromCommon"] = df["Keyword"].apply(
         lambda k: find_extra_words_not_in_shared_set(k, unique_words)
     )
     
     # Merge into pivot_df
     pivot_df = pivot_df.merge(
-        df[["Keyword", "Extra Words (Not in Shared Set)"]].drop_duplicates(),
+        df[["Keyword", "missFromCommon"]].drop_duplicates(),
         on="Keyword",
         how="left"
     )
 
     
-    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Extra Words (Not in Shared Set)"]
+    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[7:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
