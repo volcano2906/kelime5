@@ -98,18 +98,20 @@ if uploaded_files:
     result_string = ", ".join(sorted(unique_words))
     # Display result
     st.write(result_string)
-    # 3. For each keyword in df, find missing words from result_string
-    # 2. ✅ For each keyword, check which result_string words are NOT in it
-    def find_result_string_words_missing_in_keyword(keyword, reference_words):
+
+    # Step 2: ✅ For each keyword, find words that are NOT in result_string
+    def find_words_not_in_result_string(keyword, reference_words):
         keyword_words = set(re.split(r'\s+', keyword.lower()))
         keyword_words = {w for w in keyword_words if w and w not in stop_words}
-        missing = {word for word in reference_words if word not in keyword_words}
-        return ', '.join(sorted(missing)) if missing else "-"
+        not_in_result = keyword_words - reference_words
+        return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     
-    # 3. Apply to df
-    df["Missing From Top"] = df["Keyword"].apply(lambda k: find_result_string_words_missing_in_keyword(k, unique_words))
-    st.write("### Keywords Missing Some of the Shared Words")
-    st.dataframe(df[["Keyword", "Missing From Top"]], use_container_width=True)
+    # Step 3: Apply to DataFrame
+    df["Extra Words (Not in Shared Set)"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
+    
+    # Step 4: Optional display
+    st.write("### Keywords Containing Extra Words (Not in Shared Competitor Words)")
+    st.dataframe(df[["Keyword", "Extra Words (Not in Shared Set)"]], use_container_width=True)
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
