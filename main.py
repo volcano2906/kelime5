@@ -99,18 +99,15 @@ if uploaded_files:
     # Display result
     st.write(result_string)
     # 3. For each keyword in df, find missing words from result_string
-    def find_missing_from_result_string(keyword, reference_words):
+    # 2. ✅ For each keyword, check which result_string words are NOT in it
+    def find_result_string_words_missing_in_keyword(keyword, reference_words):
         keyword_words = set(re.split(r'\s+', keyword.lower()))
         keyword_words = {w for w in keyword_words if w and w not in stop_words}
-        missing = reference_words - keyword_words
+        missing = {word for word in reference_words if word not in keyword_words}
         return ', '.join(sorted(missing)) if missing else "-"
     
-    # 4. Apply to df and show
-    df["Missing Shared Words"] = df["Keyword"].apply(lambda k: find_missing_from_result_string(k, unique_words))
-    
-    # 5. Optional: display results
-    st.write("### Keywords Missing Shared Words")
-    st.dataframe(df[["Keyword", "Missing Shared Words"]], use_container_width=True)
+    # 3. Apply to df
+    df["Missing From Top"] = df["Keyword"].apply(lambda k: find_result_string_words_missing_in_keyword(k, unique_words))
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
@@ -136,7 +133,7 @@ if uploaded_files:
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
-    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match"]
+    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Missing From Top"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[6:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
