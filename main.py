@@ -170,8 +170,7 @@ if uploaded_files:
     
     volume_lookup = df[["Keyword_cleaned", "Volume"]].drop_duplicates()
     
-    # 4. Apply to df and show
-    df["Missing Shared Words"] = df["Keyword"].apply(lambda k: find_missing_from_result_string(k, unique_words))
+
     
     # 2. Filtreleme uygulama
     freq_df = dfCopyAnaliz.copy()
