@@ -106,14 +106,14 @@ if uploaded_files:
 
     # Tabloları birleştir
     pivot_df = pivot_df.merge(summary_df, on="Keyword", how="left")
-    pivot_df["Exact Match in User Input"] = pivot_df["Keyword"].apply(check_exact_match)
+    pivot_df["Exact Match"] = pivot_df["Keyword"].apply(check_exact_match)
 
     if drop_rank_count:
        pivot_df = pivot_df[pivot_df["Rank_Count"] != 1]
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
-    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match in User Input"]
+    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[6:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
