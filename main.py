@@ -137,7 +137,9 @@ if uploaded_files:
         not_in_result = keyword_words - reference_words
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
 
-    pivot_df["Miss From Comm"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
+    df["Extra Words (Not in Shared Set)"] = df["Keyword"].apply(lambda k: find_extra_words_not_in_shared_set(k, unique_words))
+    # Merge into pivot_df
+    pivot_df = pivot_df.merge(df[["Keyword", "Miss From Comm"]].drop_duplicates(),on="Keyword",how="left")
 
     
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Miss From Comm"]
