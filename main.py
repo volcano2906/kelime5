@@ -186,7 +186,7 @@ if uploaded_files:
     def clean_ngram(ngram):
         return re.sub(r'[^a-zA-Z\\s]', '', ngram.lower()).strip()
     
-    def find_missing_keywords(keyword):
+    def find_missing_items(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
         missing_words = {word for word in words - user_words if word not in stop_words}
         return ','.join(missing_words) if missing_words else "-"
