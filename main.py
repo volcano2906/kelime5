@@ -89,17 +89,6 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
 
-    competitor_count = df["Application Id"].nunique()
-    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
-    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    unique_words = set()
-    for keyword in keywords_in_all_competitors:
-            words = re.split(r'\s+', keyword.lower())  # Split by spaces
-            unique_words.update([word for word in words if word not in stop_words])
-
-    # Convert unique words to a comma-separated string
-    result_string = ", ".join(sorted(unique_words))
-
     # Display result
     st.write(result_string)
 
@@ -237,6 +226,17 @@ if uploaded_files:
     with col3:
         st.write("**Üç Kelimelik Kombinasyonlar (Trigrams)**")
         st.dataframe(trigram_freq, use_container_width=True)
+
+    competitor_count = df["Application Id"].nunique()
+    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
+    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
+    unique_words = set()
+    for keyword in keywords_in_all_competitors:
+            words = re.split(r'\s+', keyword.lower())  # Split by spaces
+            unique_words.update([word for word in words if word not in stop_words])
+
+    # Convert unique words to a comma-separated string
+    result_string = ", ".join(sorted(unique_words))
 
 
 
