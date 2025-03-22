@@ -86,25 +86,6 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
 
-    competitor_count = df["Application Id"].nunique()
-    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
-    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    unique_words = set()
-    for keyword in keywords_in_all_competitors:
-            words = re.split(r'\s+', keyword.lower())  # Split by spaces
-            unique_words.update([word for word in words if word not in stop_words])
-
-    # Convert unique words to a comma-separated string
-    result_string = ", ".join(sorted(unique_words))
-    # Display result
-    st.write(result_string)
-
-    # Step 2: ✅ For each keyword, find words that are NOT in result_string
-    def find_words_not_in_result_string(keyword, reference_words):
-        keyword_words = set(re.split(r'\s+', keyword.lower()))
-        keyword_words = {w for w in keyword_words if w and w not in stop_words}
-        not_in_result = keyword_words - reference_words
-        return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     
     # Step 3: Apply to DataFrame
     
@@ -135,6 +116,26 @@ if uploaded_files:
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
 
+    #
+    competitor_count = df["Application Id"].nunique()
+    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
+    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
+    unique_words = set()
+    for keyword in keywords_in_all_competitors:
+            words = re.split(r'\s+', keyword.lower())  # Split by spaces
+            unique_words.update([word for word in words if word not in stop_words])
+
+    # Convert unique words to a comma-separated string
+    result_string = ", ".join(sorted(unique_words))
+    # Display result
+    st.write(result_string)
+
+    # Step 2: ✅ For each keyword, find words that are NOT in result_string
+    def find_words_not_in_result_string(keyword, reference_words):
+        keyword_words = set(re.split(r'\s+', keyword.lower()))
+        keyword_words = {w for w in keyword_words if w and w not in stop_words}
+        not_in_result = keyword_words - reference_words
+        return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     pivot_df["Miss From Comm"] = pivot_df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Miss From Comm"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
