@@ -130,16 +130,24 @@ if uploaded_files:
     # Display result
     st.write(result_string)
 
-    # Step 2: ✅ For each keyword, find words that are NOT in result_string
-    def find_words_not_in_result_string(keyword, reference_words):
+    # Step: Generate extra words per keyword
+    def find_extra_words_not_in_shared_set(keyword, reference_words):
         keyword_words = set(re.split(r'\s+', keyword.lower()))
         keyword_words = {w for w in keyword_words if w and w not in stop_words}
         not_in_result = keyword_words - reference_words
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
-
-    df["Miss From Comm"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
+    
+    # Apply on original df
+    df["Extra Words (Not in Shared Set)"] = df["Keyword"].apply(
+        lambda k: find_extra_words_not_in_shared_set(k, unique_words)
+    )
+    
     # Merge into pivot_df
-    pivot_df = pivot_df.merge(df[["Keyword", "Miss From Comm"]].drop_duplicates(),on="Keyword",how="left")
+    pivot_df = pivot_df.merge(
+        df[["Keyword", "Extra Words (Not in Shared Set)"]].drop_duplicates(),
+        on="Keyword",
+        how="left"
+    )
 
     
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Miss From Comm"]
