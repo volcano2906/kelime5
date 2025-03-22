@@ -98,7 +98,6 @@ if uploaded_files:
     result_string = ", ".join(sorted(unique_words))
     # Display result
     st.write(result_string)
-    st.dataframe(df[["Keyword", "Missing Shared Words"]], use_container_width=True)
 
         # 3. For each keyword in df, find missing words from result_string
     def find_missing_from_result_string(keyword, reference_words):
@@ -107,7 +106,8 @@ if uploaded_files:
         missing = reference_words - keyword_words
         return ', '.join(sorted(missing)) if missing else "-"
 
-    
+
+    df["Missing Shared Words"] = df["Keyword"].apply(lambda k: find_missing_from_result_string(k, unique_words))
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
         index=["Keyword", "Volume"], 
