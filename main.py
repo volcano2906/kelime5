@@ -107,11 +107,8 @@ if uploaded_files:
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     
     # Step 3: Apply to DataFrame
-    df["Extra Words (Not in Shared Set)"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
+    df["Miss From Comm"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
     
-    # Step 4: Optional display
-    st.write("### Keywords Containing Extra Words (Not in Shared Competitor Words)")
-    st.dataframe(df[["Keyword", "Extra Words (Not in Shared Set)"]], use_container_width=True)
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
@@ -137,7 +134,7 @@ if uploaded_files:
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
-    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Missing From Top"]
+    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Miss From Comm"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[6:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
