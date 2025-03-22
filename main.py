@@ -98,6 +98,7 @@ if uploaded_files:
     result_string = ", ".join(sorted(unique_words))
     # Display result
     st.write(result_string)
+    st.dataframe(df[["Keyword", "Missing Shared Words"]], use_container_width=True)
 
         # 3. For each keyword in df, find missing words from result_string
     def find_missing_from_result_string(keyword, reference_words):
