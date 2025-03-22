@@ -138,7 +138,6 @@ if uploaded_files:
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
 
     pivot_df["Miss From Comm"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
-    st.dataframe(pivot_df, use_container_width=True)
 
     
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Miss From Comm"]
