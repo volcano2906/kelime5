@@ -15,6 +15,9 @@ st.set_page_config(layout="wide")
 # Başlık
 st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 
+# Show the uploader inside the placeholder
+uploaded_files = uploader_placeholder.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+
 # Kullanıcıdan 4 Title, 4 Subtitle ve KW girişi
 st.subheader("Anahtar Kelime Karşılaştırma")
 col1, col2 = st.columns([1, 2])
@@ -34,12 +37,6 @@ user_words = {word for word in user_words if word and word not in stop_words}
 # Create a placeholder for the uploader
 uploader_placeholder = st.empty()
 
-# Show the uploader inside the placeholder
-uploaded_files = uploader_placeholder.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
-
-# Once files are uploaded, clear the uploader widget
-if uploaded_files:
-    uploader_placeholder.empty()  # This hides the uploader after upload
 
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
