@@ -86,19 +86,6 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
 
-    # 3. For each keyword in df, find missing words from result_string
-    def find_missing_from_result_string(keyword, reference_words):
-        keyword_words = set(re.split(r'\s+', keyword.lower()))
-        keyword_words = {w for w in keyword_words if w and w not in stop_words}
-        missing = reference_words - keyword_words
-        return ', '.join(sorted(missing)) if missing else "-"
-    
-    # 4. Apply to df and show
-    df["Missing Shared Words"] = df["Keyword"].apply(lambda k: find_missing_from_result_string(k, unique_words))
-
-
-
-
     
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
@@ -169,6 +156,16 @@ if uploaded_files:
     result_string = ", ".join(sorted(unique_words))
     # Display result
     st.write(result_string)
+
+        # 3. For each keyword in df, find missing words from result_string
+    def find_missing_from_result_string(keyword, reference_words):
+        keyword_words = set(re.split(r'\s+', keyword.lower()))
+        keyword_words = {w for w in keyword_words if w and w not in stop_words}
+        missing = reference_words - keyword_words
+        return ', '.join(sorted(missing)) if missing else "-"
+    
+    # 4. Apply to df and show
+    df["Missing Shared Words"] = df["Keyword"].apply(lambda k: find_missing_from_result_string(k, unique_words))
     
     # 2. Filtreleme uygulama
     freq_df = dfCopyAnaliz.copy()
