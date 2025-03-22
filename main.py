@@ -31,7 +31,15 @@ user_input_text = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text).strip()
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
-uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+# Create a placeholder for the uploader
+uploader_placeholder = st.empty()
+
+# Show the uploader inside the placeholder
+uploaded_files = uploader_placeholder.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+
+# Once files are uploaded, clear the uploader widget
+if uploaded_files:
+    uploader_placeholder.empty()  # This hides the uploader after upload
 
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
