@@ -107,7 +107,7 @@ if uploaded_files:
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     
     # Step 3: Apply to DataFrame
-    df["Miss From Comm"] = df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
+    
     
 
     # Veriyi uygun formata dönüştürme
@@ -134,6 +134,8 @@ if uploaded_files:
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
+
+    pivot_df["Miss From Comm"] = pivot_df["Keyword"].apply(lambda k: find_words_not_in_result_string(k, unique_words))
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","Miss From Comm"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
