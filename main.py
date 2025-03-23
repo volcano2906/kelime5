@@ -270,20 +270,20 @@ if uploaded_files:
     
     shared_words = set()
     for keyword in keywords_in_all_competitors:
-    words = re.split(r'\s+', keyword.lower())
-    shared_words.update([word for word in words if word and word not in stop_words])
+        words = re.split(r'\s+', keyword.lower())
+        shared_words.update([word for word in words if word and word not in stop_words])
     
     # Step 2: Define function to find extra words not in shared_words
     def get_miss_from_common(keyword, shared_words):
-    keyword_words = set(re.split(r'\s+', keyword.lower()))
-    keyword_words = {w for w in keyword_words if w and w not in stop_words}
-    return keyword_words - shared_words
+        keyword_words = set(re.split(r'\s+', keyword.lower()))
+        keyword_words = {w for w in keyword_words if w and w not in stop_words}
+        return keyword_words - shared_words
     
     # Step 3: For each competitor, generate result_string
     app_results = {}
     
     for app_id in df["Application Id"].unique():
-    app_df = df[df["Application Id"] == app_id]
+        app_df = df[df["Application Id"] == app_id]
     
     # Start with shared_words
     app_word_set = set(shared_words)
@@ -299,8 +299,8 @@ if uploaded_files:
     
     # Optional: Show results
     st.write("### Result Strings by Competitor (Application Id)")
-    for app_id, words in app_results.items():
-    st.markdown(f"**{app_id}**: {words}")
+        for app_id, words in app_results.items():
+        st.markdown(f"**{app_id}**: {words}")
 
 
 
