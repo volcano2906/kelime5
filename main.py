@@ -289,7 +289,7 @@ if uploaded_files:
         app_word_set = set(shared_words)
         
         for _, row in app_df.iterrows():
-            if int(row["Rank"]) != 250:
+            if int(row["Rank"]) != 250 and Rank_Count !=1:
                 keyword = row["Keyword"]
                 miss_words = get_miss_from_common(keyword, shared_words)
                 app_word_set.update(miss_words)
