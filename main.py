@@ -263,5 +263,45 @@ if uploaded_files:
         st.dataframe(trigram_freq, use_container_width=True)
 
 
+    # Step 1: Get shared words across all competitors (same as before)
+    competitor_count = df["Application Id"].nunique()
+    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
+    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
+    
+    shared_words = set()
+    for keyword in keywords_in_all_competitors:
+    words = re.split(r'\s+', keyword.lower())
+    shared_words.update([word for word in words if word and word not in stop_words])
+    
+    # Step 2: Define function to find extra words not in shared_words
+    def get_miss_from_common(keyword, shared_words):
+    keyword_words = set(re.split(r'\s+', keyword.lower()))
+    keyword_words = {w for w in keyword_words if w and w not in stop_words}
+    return keyword_words - shared_words
+    
+    # Step 3: For each competitor, generate result_string
+    app_results = {}
+    
+    for app_id in df["Application Id"].unique():
+    app_df = df[df["Application Id"] == app_id]
+    
+    # Start with shared_words
+    app_word_set = set(shared_words)
+    
+    for _, row in app_df.iterrows():
+        if int(row["Rank"]) != 250:
+            keyword = row["Keyword"]
+            miss_words = get_miss_from_common(keyword, shared_words)
+            app_word_set.update(miss_words)
+    
+    # Final result_string for that app
+    app_results[app_id] = ", ".join(sorted(app_word_set))
+    
+    # Optional: Show results
+    st.write("### Result Strings by Competitor (Application Id)")
+    for app_id, words in app_results.items():
+    st.markdown(f"**{app_id}**: {words}")
+
+
 
 
