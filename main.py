@@ -297,10 +297,11 @@ if uploaded_files:
     
     # Display result
     st.write("### Result Strings by Competitor (Application Id)")
+    
     for app_id, word_string in app_results.items():
         words = word_string.split(", ")
         highlighted_words = [
-            f"<span style='color:green'>{word}</span>" if word in user_words else word
+            f"<span style='color:green'>{word}</span>" if word.strip().lower() in user_words else word
             for word in words
         ]
         highlighted_string = ", ".join(highlighted_words)
