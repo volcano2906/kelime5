@@ -284,22 +284,22 @@ if uploaded_files:
     
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
-    
-    # Start with shared_words
-    app_word_set = set(shared_words)
-    
-    for _, row in app_df.iterrows():
-        if int(row["Rank"]) != 250:
-            keyword = row["Keyword"]
-            miss_words = get_miss_from_common(keyword, shared_words)
-            app_word_set.update(miss_words)
-    
-    # Final result_string for that app
-    app_results[app_id] = ", ".join(sorted(app_word_set))
+        
+        # Start with shared_words
+        app_word_set = set(shared_words)
+        
+        for _, row in app_df.iterrows():
+            if int(row["Rank"]) != 250:
+                keyword = row["Keyword"]
+                miss_words = get_miss_from_common(keyword, shared_words)
+                app_word_set.update(miss_words)
+        
+        # Final result_string for that app
+        app_results[app_id] = ", ".join(sorted(app_word_set))
     
     # Optional: Show results
     st.write("### Result Strings by Competitor (Application Id)")
-        for app_id, words in app_results.items():
+    for app_id, words in app_results.items():
         st.markdown(f"**{app_id}**: {words}")
 
 
