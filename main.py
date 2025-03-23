@@ -264,6 +264,7 @@ if uploaded_files:
 
 
     # Step 1: Get shared words across all competitors (same as before)
+    dfCommonAnaliz=df.copy()
     competitor_count = df["Application Id"].nunique()
     keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
     keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
