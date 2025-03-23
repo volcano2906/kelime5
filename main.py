@@ -267,7 +267,8 @@ if uploaded_files:
     competitor_count = df["Application Id"].nunique()
     keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
     keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    
+    # Add Rank_Count column to df (based on how many times each keyword appears)
+    df["Rank_Count"] = df.groupby("Keyword")["Application Id"].transform("count")
     shared_words = set()
     for keyword in keywords_in_all_competitors:
         words = re.split(r'\s+', keyword.lower())
