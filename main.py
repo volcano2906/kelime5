@@ -315,10 +315,10 @@ if uploaded_files:
     user_words = {w for w in user_words if w and w not in stop_words}
     st.write(user_words)
     
-    if target_app_id and target_app_id in pivot_df.columns:
+    if target_app_id in pivot_df.columns:
         # ✅ Filter where the target app has Rank == 250
         filtered_keywords = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
-    
+        st.write(filtered_keywords)
         # ✅ Split keywords into words
         app_250_words = set()
         for kw in filtered_keywords:
