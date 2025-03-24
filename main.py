@@ -330,12 +330,6 @@ if uploaded_files:
         # Save final result string
         app_results[app_id] = ", ".join(word_strings)
     
-        # Highlight with user_words (exact match)
-        highlighted = [
-                        f"<span style='color:green'>{w}</span>" if w.split()[0].strip('()%') in user_words else w
-                        for w in word_strings
-                    ]
-        st.markdown(f\"**{app_id}**: {', '.join(highlighted)}\", unsafe_allow_html=True)
     
     # Display result
     st.write("### Result Strings by Competitor (Application Id)")
