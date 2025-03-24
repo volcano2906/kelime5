@@ -264,68 +264,62 @@ if uploaded_files:
 
 
     # Step 1: Get shared words across all competitors (same as before)
-    dfCommonAnaliz=df.copy()
     competitor_count = df["Application Id"].nunique()
     keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
     keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    # Add Rank_Count column to df (based on how many times each keyword appears)
-    df["Rank_Count"] = df.groupby("Keyword")["Application Id"].transform("count")
+    
     shared_words = set()
     for keyword in keywords_in_all_competitors:
         words = re.split(r'\s+', keyword.lower())
         shared_words.update([word for word in words if word and word not in stop_words])
     
+    # 2. Function to Get Missing Words from Shared
     def get_miss_from_common(keyword, shared_words):
         keyword_words = set(re.split(r'\s+', keyword.lower()))
         keyword_words = {w for w in keyword_words if w and w not in stop_words}
         return keyword_words - shared_words
     
-    # Generate result string per app
+    # 3. Create empty result holder per competitor
     app_results = {}
     
+    # 4. Go through each app
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
+        
+        word_stats = {}  # word: [non250_count, total_count]
+    
+        for _, row in app_df.iterrows():
+            keyword = row["Keyword"]
+            rank = int(float(row["Rank"])) if str(row["Rank"]).strip().replace('.', '', 1).isdigit() else 250
+            
+            miss_words = get_miss_from_common(keyword, shared_words)
+    
+            for word in miss_words:
+                if word not in word_stats:
+                    word_stats[word] = [0, 0]  # [non-250 count, total count]
+                if rank != 250:
+                    word_stats[word][0] += 1  # non-250
+                word_stats[word][1] += 1     # total
+    
+        # Start with shared words
         app_word_set = set(shared_words)
     
-        # Collect all additional words from keywords with Rank ≠ 250 and Rank_Count ≠ 1
-        for _, row in app_df.iterrows():
-            if int(row["Rank"]) != 250 and row["Rank_Count"] != 1:
-                keyword = row["Keyword"]
-                miss_words = get_miss_from_common(keyword, shared_words)
-                app_word_set.update(miss_words)
-    
-        # Word usage tracking
-        word_counts_total = defaultdict(int)
-        word_counts_valid = defaultdict(int)
-        
-        for _, row in app_df.iterrows():
-            keyword_words = re.split(r'\s+', row["Keyword"].lower())
-            keyword_words = [w for w in keyword_words if w and w not in stop_words]
-        
-            for word in keyword_words:
-                if word in app_word_set:
-                    word_counts_total[word] += 1
-                    if int(row["Rank"]) != 250:
-                        word_counts_valid[word] += 1
-        
-        # Format result string with percentages
-        word_strings = []
-        for word in sorted(app_word_set):
-            total = word_counts_total.get(word, 0)
-            valid = word_counts_valid.get(word, 0)
-        
-            if total > 0:
-                percent = int(round((valid / total) * 100))
-                word_strings.append(f"{word} ({percent}%)")
+        # Now build enriched word list
+        enriched_words = []
+        for word in sorted(app_word_set.union(word_stats.keys())):
+            if word in word_stats:
+                non250, total = word_stats[word]
+                percentage = round(non250 / total * 100, 1)
+                enriched_words.append(f"{word} ({percentage})")
             else:
-                word_strings.append(word)
-        
-        # Save final result string
-        app_results[app_id] = ", ".join(word_strings)
+                enriched_words.append(word)
     
+        app_results[app_id] = ", ".join(enriched_words)
     
-    # Display result
-    st.write("### Result Strings by Competitor (Application Id)")
+    # 5. Optional: Show in Streamlit
+    st.write("### Enriched Result Strings by Competitor")
+    for app_id, string in app_results.items():
+        st.markdown(f"**{app_id}**: {string}")
     
     for app_id, word_string in app_results.items():
         words = word_string.split(", ")
