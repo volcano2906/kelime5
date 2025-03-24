@@ -306,32 +306,32 @@ if uploaded_files:
         highlighted_string = ", ".join(highlighted_words)
         st.markdown(f"**{app_id}**: {highlighted_string}", unsafe_allow_html=True)
 
-    # Input for Application Id
-    target_app_id = st.text_input("Enter Competitor Application ID to Find Words with Rank 250", "")
+    target_app_id = st.text_input("Enter Competitor Application ID to Find Common Words (Where Rank = 250)", "")
     
+    # Combine user input into one cleaned word set
+    user_input_combined = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
+    user_input_cleaned = re.sub(r'[^a-zA-Z\s,]', '', user_input_combined)
+    user_words = set(re.split(r'[,\s]+', user_input_cleaned.strip()))
+    user_words = {w for w in user_words if w and w not in stop_words}
+    
+    # Continue only if a valid app_id is entered
     if target_app_id and target_app_id in df["Application Id"].astype(str).values:
-        # Convert to string in case app ID is numeric
         target_df = df[df["Application Id"].astype(str) == target_app_id]
+        keywords_with_250 = target_df[target_df["Rank"].astype(int) == 250]["Keyword"]
     
-        # Combine title, subtitle, and keyword input fields (from earlier)
-        user_input_combined = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
-        user_input_cleaned = re.sub(r'[^a-zA-Z\s,]', '', user_input_combined)
-        input_words = set(re.split(r'[,\s]+', user_input_cleaned.strip()))
-        input_words = {w for w in input_words if w and w not in stop_words}
+        # Break those keywords into words
+        app_250_words = set()
+        for kw in keywords_with_250:
+            words = re.split(r'\s+', kw.lower())
+            app_250_words.update([w for w in words if w and w not in stop_words])
     
-        # Check if any of the user's words exist in the app's keywords with Rank 250
-        words_with_rank_250 = set()
-        for word in input_words:
-            for _, row in target_df.iterrows():
-                keyword_words = set(re.split(r'\s+', row["Keyword"].lower()))
-                if word in keyword_words and int(row["Rank"]) == 250:
-                    words_with_rank_250.add(word)
+        # Find intersection
+        common_words = sorted(user_words & app_250_words)
     
-        if words_with_rank_250:
-            st.write("These words in your input have Rank 250 for this competitor:")
-            st.write(", ".join(sorted(words_with_rank_250)))
+        if common_words:
+            st.write("✅ Common words between your input and keywords with Rank 250:")
+            st.write(", ".join(common_words))
         else:
-            st.write("No words with Rank 250 found for this competitor in your input.")
+            st.write("🚫 No common words found.")
     elif target_app_id:
         st.warning("Application ID not found in uploaded data.")
-
