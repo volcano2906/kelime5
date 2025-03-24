@@ -264,62 +264,39 @@ if uploaded_files:
 
 
     # Step 1: Get shared words across all competitors (same as before)
+    dfCommonAnaliz=df.copy()
     competitor_count = df["Application Id"].nunique()
     keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
     keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    
+    # Add Rank_Count column to df (based on how many times each keyword appears)
+    df["Rank_Count"] = df.groupby("Keyword")["Application Id"].transform("count")
     shared_words = set()
     for keyword in keywords_in_all_competitors:
         words = re.split(r'\s+', keyword.lower())
         shared_words.update([word for word in words if word and word not in stop_words])
     
-    # 2. Function to Get Missing Words from Shared
     def get_miss_from_common(keyword, shared_words):
         keyword_words = set(re.split(r'\s+', keyword.lower()))
         keyword_words = {w for w in keyword_words if w and w not in stop_words}
         return keyword_words - shared_words
     
-    # 3. Create empty result holder per competitor
+    # Generate result string per app
     app_results = {}
     
-    # 4. Go through each app
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
-        
-        word_stats = {}  # word: [non250_count, total_count]
+        app_word_set = set(shared_words)  # start with shared words
     
         for _, row in app_df.iterrows():
-            keyword = row["Keyword"]
-            rank = int(float(row["Rank"])) if str(row["Rank"]).strip().replace('.', '', 1).isdigit() else 250
-            
-            miss_words = get_miss_from_common(keyword, shared_words)
+            if int(row["Rank"]) != 250 and row["Rank_Count"] != 1:
+                keyword = row["Keyword"]
+                miss_words = get_miss_from_common(keyword, shared_words)
+                app_word_set.update(miss_words)
+        
+        app_results[app_id] = ", ".join(sorted(app_word_set))
     
-            for word in miss_words:
-                if word not in word_stats:
-                    word_stats[word] = [0, 0]  # [non-250 count, total count]
-                if rank != 250:
-                    word_stats[word][0] += 1  # non-250
-                word_stats[word][1] += 1     # total
-    
-        # Start with shared words
-        app_word_set = set(shared_words)
-    
-        # Now build enriched word list
-        enriched_words = []
-        for word in sorted(app_word_set.union(word_stats.keys())):
-            if word in word_stats:
-                non250, total = word_stats[word]
-                percentage = round(non250 / total * 100, 1)
-                enriched_words.append(f"{word} ({percentage})")
-            else:
-                enriched_words.append(word)
-    
-        app_results[app_id] = ", ".join(enriched_words)
-    
-    # 5. Optional: Show in Streamlit
-    st.write("### Enriched Result Strings by Competitor")
-    for app_id, string in app_results.items():
-        st.markdown(f"**{app_id}**: {string}")
+    # Display result
+    st.write("### Result Strings by Competitor (Application Id)")
     
     for app_id, word_string in app_results.items():
         words = word_string.split(", ")
@@ -329,7 +306,6 @@ if uploaded_files:
         ]
         highlighted_string = ", ".join(highlighted_words)
         st.markdown(f"**{app_id}**: {highlighted_string}", unsafe_allow_html=True)
-
 
 
 
