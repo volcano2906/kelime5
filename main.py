@@ -318,9 +318,7 @@ if uploaded_files:
     
         # Step 1: Get keywords where this app has Rank = 250
         keywords_with_250 = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
-    
-        st.write("🎯 Keywords with Rank = 250 from pivot_df:")
-        st.write(keywords_with_250)
+
     
         # Step 2: Extract words from those keywords
         app_250_words = set()
@@ -337,7 +335,6 @@ if uploaded_files:
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
         # Step 4: Find new relevant words
-        st.write(existing_app_words)
         new_common_words = app_250_words & user_words - existing_app_words
         
         # Step 5: Display
