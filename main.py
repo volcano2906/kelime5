@@ -306,32 +306,35 @@ if uploaded_files:
         highlighted_string = ", ".join(highlighted_words)
         st.markdown(f"**{app_id}**: {highlighted_string}", unsafe_allow_html=True)
 
-    target_app_id = st.text_input("Enter Competitor Application ID to Find Common Words (Where Rank = 250)", "")
+    target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
     
-    # Combine user input into one cleaned word set
-    user_input_combined = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
-    user_input_cleaned = re.sub(r'[^a-zA-Z\s,]', '', user_input_combined)
-    user_words = set(re.split(r'[,\s]+', user_input_cleaned.strip()))
-    user_words = {w for w in user_words if w and w not in stop_words}
-    st.write(user_words)
+    if target_app_id and target_app_id.strip() in df["Application Id"].astype(str).values:
+        target_app_id = target_app_id.strip()
     
-    if target_app_id in pivot_df.columns:
-        # ✅ Filter where the target app has Rank == 250
-        filtered_keywords = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
-        st.write(filtered_keywords)
-        # ✅ Split keywords into words
+        # Filter rows for selected app
+        target_df = df[df["Application Id"].astype(str) == target_app_id]
+    
+        st.write(f"Showing data for App ID: **{target_app_id}**")
+        st.write("⬇️ Raw Keyword + Rank Info:")
+        st.dataframe(target_df[["Keyword", "Rank"]])
+    
+        # Step 1: Clean up Rank column
+        target_df["Rank"] = target_df["Rank"].astype(str).str.extract(r'(\\d+)')
+        target_df["Rank"] = pd.to_numeric(target_df["Rank"], errors='coerce').fillna(250).astype(int)
+    
+        # Step 2: Filter for Rank = 250
+        keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
+        st.write("🎯 Keywords with Rank = 250:")
+        st.write(keywords_with_250)
+    
+        # Step 3: If needed, split into words
         app_250_words = set()
-        for kw in filtered_keywords:
-            words = re.split(r'\s+', kw.lower())
+        for kw in keywords_with_250:
+            words = re.split(r'\\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
-        # ✅ Compare with user words
-        common_words = sorted(user_words & app_250_words)
-    
-        if common_words:
-            st.write("✅ Common words between your input and keywords ranked 250 in this app:")
-            st.write(", ".join(common_words))
-        else:
-            st.write("🚫 No common words found.")
-    elif target_app_id:
-        st.warning("Application ID not found in pivoted data.")
+        st.write("🧠 Words in those keywords (Rank=250):")
+        st.write(", ".join(sorted(app_250_words)) if app_250_words else "⚠️ No words found.")
+    else:
+        if target_app_id:
+            st.warning("❌ Application ID not found in data.")
