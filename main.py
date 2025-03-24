@@ -315,17 +315,22 @@ if uploaded_files:
     user_words = {w for w in user_words if w and w not in stop_words}
     st.write(user_words)
     
-    # Continue only if a valid app_id is entered
-    if target_app_id and target_app_id in df["Application Id"].astype(str).values:
+    if target_app_id and target_app_id.strip() in df["Application Id"].astype(str).values:
+        target_app_id = target_app_id.strip()
         target_df = df[df["Application Id"].astype(str) == target_app_id]
-        keywords_with_250 = target_df[target_df["Rank"].astype(int) == 250]["Keyword"]
+    
+        # Ensure Rank is numeric
+        target_df["Rank"] = pd.to_numeric(target_df["Rank"], errors='coerce').fillna(250).astype(int)
+        keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
+    
+        st.write("Keywords with Rank 250:")
         st.write(keywords_with_250)
-        # Break those keywords into words
+    
         app_250_words = set()
         for kw in keywords_with_250:
             words = re.split(r'\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
-    
+
         # Find intersection
         common_words = sorted(user_words & app_250_words)
     
