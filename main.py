@@ -326,6 +326,7 @@ if uploaded_files:
     
         # Step 2: Filter for Rank = 250
         keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
+        st.write(user_words)
         st.write(keywords_with_250)
     
         # Step 3: If needed, split into words
