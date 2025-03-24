@@ -330,6 +330,7 @@ if uploaded_files:
     
         # Step 3: Get words from app_results[target_app_id] if available
         existing_app_words = set()
+        app_results = {str(app_id): result for app_id, result in app_results.items()}
         if target_app_id in app_results:
             result_str = app_results[target_app_id].lower()
             existing_app_words = set(re.split(r'[,\s]+', result_str))
