@@ -314,7 +314,7 @@ if uploaded_files:
         target_df = df[df["Application Id"].astype(str) == target_app_id]
     
         # Combine title, subtitle, and keyword input fields (from earlier)
-        user_input_combined = f"{title1} {subtitle1} {title2} {subtitle2} {title3} {subtitle3} {title4} {subtitle4} {kw_input}".lower()
+        user_input_combined = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
         user_input_cleaned = re.sub(r'[^a-zA-Z\s,]', '', user_input_combined)
         input_words = set(re.split(r'[,\s]+', user_input_cleaned.strip()))
         input_words = {w for w in input_words if w and w not in stop_words}
