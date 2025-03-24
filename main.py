@@ -294,13 +294,6 @@ if uploaded_files:
                 miss_words = get_miss_from_common(keyword, shared_words)
                 app_word_set.update(miss_words)
     
-        # Filter dictionary-valid words
-        final_word_set = {
-            word for word in app_word_set
-            if (word in english_vocab or word in allowed_short_words)
-            and re.match("^[a-zA-Z]+$", word)
-        }
-    
         # Word usage tracking
         word_counts_total = defaultdict(int)
         word_counts_valid = defaultdict(int)
