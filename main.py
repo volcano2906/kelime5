@@ -339,7 +339,7 @@ if uploaded_files:
         
         # Step 5: Display
         if new_common_words:
-            st.success("✅ Common words (not already in app_results):")
+            st.success("✅ Used but not ranked:")
             st.write(", ".join(new_common_words))
         else:
             st.warning("🚫 No new common words found.")
