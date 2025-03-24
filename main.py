@@ -312,7 +312,12 @@ if uploaded_files:
     if target_app_id and target_app_id in df["Application Id"].astype(str).values:
         # Convert to string in case app ID is numeric
         target_df = df[df["Application Id"].astype(str) == target_app_id]
-        input_words = user_words
+    
+        # Combine title, subtitle, and keyword input fields (from earlier)
+        user_input_combined = f"{title1} {subtitle1} {title2} {subtitle2} {title3} {subtitle3} {title4} {subtitle4} {kw_input}".lower()
+        user_input_cleaned = re.sub(r'[^a-zA-Z\s,]', '', user_input_combined)
+        input_words = set(re.split(r'[,\s]+', user_input_cleaned.strip()))
+        input_words = {w for w in input_words if w and w not in stop_words}
     
         # Check if any of the user's words exist in the app's keywords with Rank 250
         words_with_rank_250 = set()
@@ -329,5 +334,4 @@ if uploaded_files:
             st.write("No words with Rank 250 found for this competitor in your input.")
     elif target_app_id:
         st.warning("Application ID not found in uploaded data.")
-
 
