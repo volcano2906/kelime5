@@ -314,18 +314,21 @@ if uploaded_files:
     
     if target_app_id and target_app_id.strip() in df["Application Id"].astype(str).values:
         target_app_id = target_app_id.strip()
-    
-        # Filter rows for selected app
+        
+        # Step 1: Filter rows for selected app
         target_df = df[df["Application Id"].astype(str) == target_app_id]
+        
         # ✅ Step 2: Clean Rank column and extract digits
         target_df["Rank"] = target_df["Rank"].astype(str).str.extract(r'(\d+)')
         target_df["Rank"] = pd.to_numeric(target_df["Rank"], errors='coerce').fillna(250).astype(int)
         
         # ✅ Step 3: Filter for Rank == 250
         keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
-        # Step 2: Filter for Rank = 250
-        keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
-    
+        
+        # Debug print
+        st.write("✅ Keywords with Rank = 250:")
+        st.write(keywords_with_250)
+            
         st.write(user_words)
         st.write(keywords_with_250)
     
