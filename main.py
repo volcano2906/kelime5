@@ -323,7 +323,7 @@ if uploaded_files:
             # Get ranked keywords only
             ranked_keyword_words = set()
             for _, row in app_df.iterrows():
-                if int(row["Rank"]) = 250:
+                if int(row["Rank"]) == 250:
                     keyword_text = row["Keyword"].lower()
                     keyword_cleaned = re.sub(r'[^a-zA-Z\\s]', '', keyword_text)
                     keyword_words = set(re.split(r'[ ,]+', keyword_cleaned))
