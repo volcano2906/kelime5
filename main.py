@@ -337,8 +337,13 @@ if uploaded_files:
             words = re.split(r'\\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
-        st.write("🧠 Words in those keywords (Rank=250):")
-        st.write(", ".join(sorted(app_250_words)) if app_250_words else "⚠️ No words found.")
+        common_words = user_words & app_250_words
+    
+        if common_words:
+            st.write("✅ Common words between your input and keywords with Rank = 250:")
+            st.write(", ".join(sorted(common_words)))
+        else:
+            st.write("🚫 No common words found between your input and this app’s Rank 250 keywords.")
     else:
         if target_app_id:
             st.warning("❌ Application ID not found in data.")
