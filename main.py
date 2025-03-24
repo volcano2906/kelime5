@@ -335,6 +335,7 @@ if uploaded_files:
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
         # Step 4: Find new relevant words
+        st.write(existing_app_words)
         new_common_words = app_250_words & user_words - existing_app_words
         
         # Step 5: Display
