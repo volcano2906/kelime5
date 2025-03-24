@@ -306,36 +306,28 @@ if uploaded_files:
         highlighted_string = ", ".join(highlighted_words)
         st.markdown(f"**{app_id}**: {highlighted_string}", unsafe_allow_html=True)
 
-    # Input field for competitor ID
-    selected_app_id_input = st.text_input("Enter a Competitor (Application Id) to Inspect", "")
+    # Input for Application Id
+    target_app_id = st.text_input("Enter Competitor Application ID to Find Words with Rank 250", "")
     
-    # Only proceed if user entered a value
-    if selected_app_id_input:
-        # Normalize types
-        app_ids = df["Application Id"].astype(str).unique()
-        
-        if selected_app_id_input not in app_ids:
-            st.warning("No data found for that Application Id.")
+    if target_app_id and target_app_id in df["Application Id"].astype(str).values:
+        # Convert to string in case app ID is numeric
+        target_df = df[df["Application Id"].astype(str) == target_app_id]
+        input_words = user_words
+    
+        # Check if any of the user's words exist in the app's keywords with Rank 250
+        words_with_rank_250 = set()
+        for word in input_words:
+            for _, row in target_df.iterrows():
+                keyword_words = set(re.split(r'\s+', row["Keyword"].lower()))
+                if word in keyword_words and int(row["Rank"]) == 250:
+                    words_with_rank_250.add(word)
+    
+        if words_with_rank_250:
+            st.write("These words in your input have Rank 250 for this competitor:")
+            st.write(", ".join(sorted(words_with_rank_250)))
         else:
-            # Filter safely
-            app_df = df[df["Application Id"].astype(str) == selected_app_id_input]
-    
-            # Get ranked keywords only
-            ranked_keyword_words = set()
-            for _, row in app_df.iterrows():
-                if int(row["Rank"]) == 250:
-                    keyword_text = row["Keyword"].lower()
-                    keyword_cleaned = re.sub(r'[^a-zA-Z\\s]', '', keyword_text)
-                    keyword_words = set(re.split(r'[ ,]+', keyword_cleaned))
-                    keyword_words = {w for w in keyword_words if w and w not in stop_words}
-                    ranked_keyword_words.update(keyword_words)
-    
-            used_words = sorted(user_words & ranked_keyword_words)
-    
-            st.write("#### Words from user input that actively contributed to rankings (Rank ≠ 250):")
-            if used_words:
-                st.write(", ".join(used_words))
-            else:
-                st.info("No user input words matched ranked keywords.")
+            st.write("No words with Rank 250 found for this competitor in your input.")
+    elif target_app_id:
+        st.warning("Application ID not found in uploaded data.")
 
 
