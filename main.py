@@ -316,16 +316,16 @@ if uploaded_files:
     st.write(user_words)
     
     if target_app_id and target_app_id in pivot_df.columns:
-        # Filter rows where that app's rank is 250
+        # ✅ Filter where the target app has Rank == 250
         filtered_keywords = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
     
-        # Tokenize keywords into words
+        # ✅ Split keywords into words
         app_250_words = set()
         for kw in filtered_keywords:
             words = re.split(r'\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
-        # Compare with user words
+        # ✅ Compare with user words
         common_words = sorted(user_words & app_250_words)
     
         if common_words:
