@@ -317,9 +317,7 @@ if uploaded_files:
     
         # Filter rows for selected app
         target_df = df[df["Application Id"].astype(str) == target_app_id]
-    
-        st.write(f"Showing data for App ID: **{target_app_id}**")
-        st.write("⬇️ Raw Keyword + Rank Info:")
+
         st.dataframe(target_df[["Keyword", "Rank"]])
     
         # Step 1: Clean up Rank column
