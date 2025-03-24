@@ -335,14 +335,12 @@ if uploaded_files:
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
         # Step 4: Find new relevant words
-        nonCommonWords=app_250_words - existing_app_words
-        common_words = user_words & nonCommonWords
-        st.write(user_words)
+        new_common_words = app_250_words & user_words - existing_app_words
         
         # Step 5: Display
-        if common_words:
+        if new_common_words:
             st.success("✅ Common words (not already in app_results):")
-            st.write(", ".join(common_words))
+            st.write(", ".join(new_common_words))
         else:
             st.warning("🚫 No new common words found.")
     else:
