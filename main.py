@@ -348,7 +348,9 @@ if uploaded_files:
         
         # Remove known words from result
         new_common_words = sorted(common_words - existing_app_words)
-        st.write(new_common_words)
+        st.write(common_words)
+        st.write(existing_app_words)
+
         
         # Display
         if new_common_words:
