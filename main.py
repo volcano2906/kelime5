@@ -335,7 +335,8 @@ if uploaded_files:
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
         # Step 4: Find new relevant words
-        common_words = user_words & app_250_words
+        nonCommonWords=app_250_words - existing_app_words
+        common_words = user_words & nonCommonWords
         st.write(user_words)
         
         new_common_words = sorted(common_words - existing_app_words)
