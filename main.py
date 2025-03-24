@@ -285,7 +285,7 @@ if uploaded_files:
     
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
-        app_word_set = set(filtered_shared_words)
+        app_word_set = set(shared_words)
     
         # Collect all additional words from keywords with Rank ≠ 250 and Rank_Count ≠ 1
         for _, row in app_df.iterrows():
