@@ -339,11 +339,10 @@ if uploaded_files:
         common_words = user_words & nonCommonWords
         st.write(user_words)
         
-        new_common_words = sorted(common_words - existing_app_words)
         # Step 5: Display
-        if new_common_words:
+        if common_words:
             st.success("✅ Common words (not already in app_results):")
-            st.write(", ".join(new_common_words))
+            st.write(", ".join(common_words))
         else:
             st.warning("🚫 No new common words found.")
     else:
