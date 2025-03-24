@@ -331,7 +331,8 @@ if uploaded_files:
         # Step 3: Get words from app_results[target_app_id] if available
         existing_app_words = set()
         if target_app_id in app_results:
-            existing_app_words = set(re.split(r'[,\s]+', app_results[target_app_id].lower()))
+            result_str = app_results[target_app_id].lower()
+            existing_app_words = set(re.split(r'[,\s]+', result_str))
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
         # Step 4: Find new relevant words
