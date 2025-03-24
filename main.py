@@ -335,13 +335,25 @@ if uploaded_files:
             words = re.split(r'\\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
+        # Step 4: Find common words
         common_words = user_words & app_250_words
-    
-        if common_words:
-            st.write("✅ Common words between your input and keywords with Rank = 250:")
-            st.write(", ".join(sorted(common_words)))
+        
+        # NEW: Filter out words already in app_results[app_id]
+        existing_app_words = set()
+        
+        if target_app_id in app_results:
+            existing_app_words = set(re.split(r'[,\s]+', app_results[target_app_id].lower()))
+            existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
+        
+        # Remove known words from result
+        new_common_words = sorted(common_words - existing_app_words)
+        
+        # Display
+        if new_common_words:
+            st.success("✅ Common words (not already in app's result string):")
+            st.write(", ".join(new_common_words))
         else:
-            st.write("🚫 No common words found between your input and this app’s Rank 250 keywords.")
+            st.warning("🚫 No new common words found that are missing from the app's final result string.")
     else:
         if target_app_id:
             st.warning("❌ Application ID not found in data.")
