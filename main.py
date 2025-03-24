@@ -311,8 +311,8 @@ if uploaded_files:
 # Anaiz2
 
     target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
-    st.write(target_app_id)
-    st.write(pivot_df.columns)
+    st.write(type(target_app_id))
+    st.write(type(pivot_df.columns))
     # Proceed only if target ID is valid
     if target_app_id and target_app_id.strip() in pivot_df.columns:
         target_app_id = target_app_id.strip()
