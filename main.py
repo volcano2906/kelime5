@@ -306,48 +306,39 @@ if uploaded_files:
         highlighted_string = ", ".join(highlighted_words)
         st.markdown(f"**{app_id}**: {highlighted_string}", unsafe_allow_html=True)
 
-    target_app_id = st.text_input("Enter Application ID to Find Overlap with Rank = 250 Keywords", "")
 
+
+# Anaiz2
+
+    target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
+    
     if target_app_id and target_app_id.strip() in df["Application Id"].astype(str).values:
         target_app_id = target_app_id.strip()
-        df["Application Id"] = df["Application Id"].astype(str)
-        target_df = df[df["Application Id"] == target_app_id]
-
-        # Clean Rank: extract digits and convert to int
-        target_df["Rank"] = target_df["Rank"].astype(str).str.extract(r'(\d+)')
+    
+        # Filter rows for selected app
+        target_df = df[df["Application Id"].astype(str) == target_app_id]
+    
+        st.write(f"Showing data for App ID: **{target_app_id}**")
+        st.write("⬇️ Raw Keyword + Rank Info:")
+        st.dataframe(target_df[["Keyword", "Rank"]])
+    
+        # Step 1: Clean up Rank column
+        target_df["Rank"] = target_df["Rank"].astype(str).str.extract(r'(\\d+)')
         target_df["Rank"] = pd.to_numeric(target_df["Rank"], errors='coerce').fillna(250).astype(int)
-
-        # Step 1: Filter keywords with Rank = 250
+    
+        # Step 2: Filter for Rank = 250
         keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
         st.write("🎯 Keywords with Rank = 250:")
         st.write(keywords_with_250)
-
-        # Step 2: Extract words from those keywords
+    
+        # Step 3: If needed, split into words
         app_250_words = set()
         for kw in keywords_with_250:
-            words = re.split(r'\s+', kw.lower())
+            words = re.split(r'\\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
-
-        st.write("📦 Words in Rank 250 Keywords (App):")
-        st.write(", ".join(sorted(app_250_words)))
-
-        # Step 3: Clean user input into words
-        # Girilen kelimeleri temizle ve set olarak sakla
-        user_input_text = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
-        user_input_text = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text).strip()
-        user_words = re.split(r'[ ,]+', user_input_text)
-        user_words = {word for word in user_words if word and word not in stop_words}
-
-        st.write("🧠 Your Input Words:")
-        st.write(", ".join(sorted(user_words)))
-
-        # Step 4: Compare
-        common_words = user_words & app_250_words
-
-        if common_words:
-            st.success("✅ Common Words Found:")
-            st.write(", ".join(sorted(common_words)))
-        else:
-            st.warning("🚫 No common words found between your input and Rank 250 keywords.")
-    elif target_app_id:
-        st.error("❌ Application ID not found in uploaded file.")
+    
+        st.write("🧠 Words in those keywords (Rank=250):")
+        st.write(", ".join(sorted(app_250_words)) if app_250_words else "⚠️ No words found.")
+    else:
+        if target_app_id:
+            st.warning("❌ Application ID not found in data.")
