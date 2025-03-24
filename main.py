@@ -320,15 +320,10 @@ if uploaded_files:
 
         st.dataframe(target_df[["Keyword", "Rank"]])
     
-        # Step 1: Clean up Rank column
-        target_df["Rank"] = target_df["Rank"].astype(str).str.extract(r'(\d+)')
-        target_df["Rank"] = pd.to_numeric(target_df["Rank"], errors='coerce').fillna(250).astype(int)
     
         # Step 2: Filter for Rank = 250
         keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
     
-        # Step 2: Filter for Rank = 250
-        keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
         st.write(user_words)
         st.write(keywords_with_250)
     
