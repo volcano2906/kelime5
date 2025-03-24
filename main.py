@@ -340,6 +340,7 @@ if uploaded_files:
         
         # NEW: Filter out words already in app_results[app_id]
         existing_app_words = set()
+        app_results = {str(app_id): result for app_id, result in app_results.items()}
         
         if target_app_id in app_results:
             existing_app_words = set(re.split(r'[,\s]+', app_results[target_app_id].lower()))
