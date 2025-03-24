@@ -344,12 +344,11 @@ if uploaded_files:
         
         if target_app_id in app_results:
             existing_app_words = set(re.split(r'[,\s]+', app_results[target_app_id].lower()))
-            st.write(existing_app_words)
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
         
-        st.write(existing_app_words)
         # Remove known words from result
         new_common_words = sorted(common_words - existing_app_words)
+        st.write(new_common_words)
         
         # Display
         if new_common_words:
