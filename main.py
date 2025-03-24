@@ -350,7 +350,6 @@ if uploaded_files:
         
         # Display
         if new_common_words:
-            st.success("✅ Common words (not already in app's result string):")
             st.write(", ".join(new_common_words))
         else:
             st.warning("🚫 No new common words found that are missing from the app's final result string.")
