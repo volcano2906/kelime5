@@ -317,10 +317,6 @@ if uploaded_files:
     
         # Filter rows for selected app
         target_df = df[df["Application Id"].astype(str) == target_app_id]
-
-        st.dataframe(target_df[["Keyword", "Rank"]])
-    
-    
         # Step 2: Filter for Rank = 250
         keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
     
