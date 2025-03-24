@@ -285,15 +285,57 @@ if uploaded_files:
     
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
-        app_word_set = set(shared_words)  # start with shared words
+        app_word_set = set(filtered_shared_words)
     
+        # Collect all additional words from keywords with Rank ≠ 250 and Rank_Count ≠ 1
         for _, row in app_df.iterrows():
             if int(row["Rank"]) != 250 and row["Rank_Count"] != 1:
                 keyword = row["Keyword"]
                 miss_words = get_miss_from_common(keyword, shared_words)
                 app_word_set.update(miss_words)
-        
-        app_results[app_id] = ", ".join(sorted(app_word_set))
+    
+        # Filter dictionary-valid words
+        final_word_set = {
+            word for word in app_word_set
+            if (word in english_vocab or word in allowed_short_words)
+            and re.match("^[a-zA-Z]+$", word)
+        }
+    
+        # Word usage tracking: total and valid rank counts
+        word_counts_total = defaultdict(int)
+        word_counts_valid = defaultdict(int)
+    
+        for _, row in app_df.iterrows():
+            keyword_words = re.split(r'\s+', row["Keyword"].lower())
+            keyword_words = [w for w in keyword_words if w and w not in stop_words]
+    
+            for word in keyword_words:
+                if word in final_word_set:
+                    word_counts_total[word] += 1
+                    if int(row["Rank"]) != 250:
+                        word_counts_valid[word] += 1
+    
+        # Format result string with percentages
+        word_strings = []
+        for word in sorted(final_word_set):
+            total = word_counts_total.get(word, 0)
+            valid = word_counts_valid.get(word, 0)
+    
+            if total > 0:
+                percent = int(round((valid / total) * 100))
+                word_strings.append(f"{word} ({percent}%)")
+            else:
+                word_strings.append(word)
+    
+        # Save final result string
+        app_results[app_id] = ", ".join(word_strings)
+    
+        # Highlight with user_words (exact match)
+        highlighted = [
+            f\"<span style='color:green'>{w}</span>\" if w.split()[0].strip('()%') in user_words else w
+            for w in word_strings
+        ]
+        st.markdown(f\"**{app_id}**: {', '.join(highlighted)}\", unsafe_allow_html=True)
     
     # Display result
     st.write("### Result Strings by Competitor (Application Id)")
