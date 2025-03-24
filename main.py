@@ -301,32 +301,32 @@ if uploaded_files:
             and re.match("^[a-zA-Z]+$", word)
         }
     
-        # Word usage tracking: total and valid rank counts
+        # Word usage tracking
         word_counts_total = defaultdict(int)
         word_counts_valid = defaultdict(int)
-    
+        
         for _, row in app_df.iterrows():
             keyword_words = re.split(r'\s+', row["Keyword"].lower())
             keyword_words = [w for w in keyword_words if w and w not in stop_words]
-    
+        
             for word in keyword_words:
-                if word in final_word_set:
+                if word in app_word_set:
                     word_counts_total[word] += 1
                     if int(row["Rank"]) != 250:
                         word_counts_valid[word] += 1
-    
+        
         # Format result string with percentages
         word_strings = []
-        for word in sorted(final_word_set):
+        for word in sorted(app_word_set):
             total = word_counts_total.get(word, 0)
             valid = word_counts_valid.get(word, 0)
-    
+        
             if total > 0:
                 percent = int(round((valid / total) * 100))
                 word_strings.append(f"{word} ({percent}%)")
             else:
                 word_strings.append(word)
-    
+        
         # Save final result string
         app_results[app_id] = ", ".join(word_strings)
     
