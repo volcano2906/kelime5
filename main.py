@@ -312,54 +312,38 @@ if uploaded_files:
 
     target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
     
-    if target_app_id and target_app_id.strip() in df["Application Id"].astype(str).values:
+    # Proceed only if target ID is valid
+    if target_app_id and target_app_id.strip() in pivot_df.columns:
         target_app_id = target_app_id.strip()
-        
-        # Step 1: Filter rows for selected app
-        target_df = df[df["Application Id"].astype(str) == target_app_id]
-        
-        # ✅ Step 2: Clean Rank column and extract digits
-        target_df["Rank"] = target_df["Rank"].astype(str).str.extract(r'(\d+)')
-        target_df["Rank"] = pd.to_numeric(target_df["Rank"], errors='coerce').fillna(250).astype(int)
-        
-        # ✅ Step 3: Filter for Rank == 250
-        keywords_with_250 = target_df[target_df["Rank"] == 250]["Keyword"]
-        
-        # Debug print
-        st.write("✅ Keywords with Rank = 250:")
-        st.write(keywords_with_250)
-            
-        st.write(user_words)
+    
+        # Step 1: Get keywords where this app has Rank = 250
+        keywords_with_250 = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
+    
+        st.write("🎯 Keywords with Rank = 250 from pivot_df:")
         st.write(keywords_with_250)
     
-        # Step 3: If needed, split into words
+        # Step 2: Extract words from those keywords
         app_250_words = set()
         for kw in keywords_with_250:
-            words = re.split(r'\\s+', kw.lower())
+            words = re.split(r'\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
-        # Step 4: Find common words
-        common_words = user_words & app_250_words
-        
-        # NEW: Filter out words already in app_results[app_id]
+        # Step 3: Get words from app_results[target_app_id] if available
         existing_app_words = set()
-        app_results = {str(app_id): result for app_id, result in app_results.items()}
-        
         if target_app_id in app_results:
             existing_app_words = set(re.split(r'[,\s]+', app_results[target_app_id].lower()))
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
-        
-        # Remove known words from result
+    
+        # Step 4: Find new relevant words
+        common_words = user_words & app_250_words
         new_common_words = sorted(common_words - existing_app_words)
-        st.write(common_words)
-        st.write(existing_app_words)
-
-        
-        # Display
+    
+        # Step 5: Display
         if new_common_words:
+            st.success("✅ Common words (not already in app_results):")
             st.write(", ".join(new_common_words))
         else:
-            st.warning("🚫 No new common words found that are missing from the app's final result string.")
+            st.warning("🚫 No new common words found.")
     else:
         if target_app_id:
-            st.warning("❌ Application ID not found in data.")
+            st.warning("❌ Application ID not found in pivot_df columns.")
