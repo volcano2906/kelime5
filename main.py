@@ -30,7 +30,7 @@ long_description = col2.text_input("Long Description (Maksimum 4000 karakter)", 
 
 # Girilen kelimeleri temizle ve set olarak sakla
 user_input_text = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
-user_input_text = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text).strip()
+user_input_text = re.sub(r'[^\w\s]', ' ', user_input_text, flags=re.UNICODE).strip()
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
 
@@ -216,7 +216,7 @@ if uploaded_files:
     
     # 5. Clean ngrams the same way as df["Keyword_cleaned"]
     def clean_ngram(ngram):
-        return re.sub(r'[^a-zA-Z\\s]', '', ngram.lower()).strip()
+        return re.sub(r'[^a-zA-Z\\s]', '',flags=re.UNICODE, ngram.lower()).strip()
     
     def find_missing_items(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
@@ -310,7 +310,7 @@ if uploaded_files:
 # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
-    user_input_text_2 = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text_2).strip()
+    user_input_text_2 = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text_2,flags=re.UNICODE).strip()
     user_words_2 = re.split(r'[ ,]+', user_input_text_2)
     user_words_2 = {word for word in user_words_2 if word and word not in stop_words}
     target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
