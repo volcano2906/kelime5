@@ -282,13 +282,12 @@ if uploaded_files:
     
     # Generate result string per app
     app_results = {}
-    
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
         app_word_set = set(shared_words)  # start with shared words
     
         for _, row in app_df.iterrows():
-            if int(row["Rank"]) != 250 and row["Rank_Count"] != 1:
+            if int(row["Rank"]) != 250:
                 keyword = row["Keyword"]
                 miss_words = get_miss_from_common(keyword, shared_words)
                 app_word_set.update(miss_words)
@@ -297,7 +296,6 @@ if uploaded_files:
     
     # Display result
     st.write("### Result Strings by Competitor (Application Id)")
-    st.write(shared_words)
     for app_id, word_string in app_results.items():
         words = word_string.split(", ")
         highlighted_words = [
