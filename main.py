@@ -16,7 +16,7 @@ st.set_page_config(layout="wide")
 st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 
 # Show the uploader inside the placeholder
-uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], encoding='utf-8', accept_multiple_files=True)
 
 # Kullanıcıdan 4 Title, 4 Subtitle ve KW girişi
 st.subheader("Anahtar Kelime Karşılaştırma")
