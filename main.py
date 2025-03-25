@@ -216,7 +216,7 @@ if uploaded_files:
     
     # 5. Clean ngrams the same way as df["Keyword_cleaned"]
     def clean_ngram(ngram):
-        return re.sub(r'[^a-zA-Z\\s]', '',flags=re.UNICODE, ngram.lower()).strip()
+        return re.sub(r'[^a-zA-Z\\s]', '', ngram.lower(), flags=re.UNICODE).strip()
     
     def find_missing_items(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
