@@ -216,7 +216,7 @@ if uploaded_files:
     
     # 5. Clean ngrams the same way as df["Keyword_cleaned"]
     def clean_ngram(ngram):
-        return re.sub(r'[^a-zA-Z\\s]', '', ngram.lower(), flags=re.UNICODE).strip()
+        return re.sub(r'[^\w\s]', '', ngram.lower(), flags=re.UNICODE).strip()
     
     def find_missing_items(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
@@ -310,7 +310,7 @@ if uploaded_files:
 # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
-    user_input_text_2 = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text_2,flags=re.UNICODE).strip()
+    user_input_text_2 = re.sub(r'[^\w\s]', ' ', user_input_text_2,flags=re.UNICODE).strip()
     user_words_2 = re.split(r'[ ,]+', user_input_text_2)
     user_words_2 = {word for word in user_words_2 if word and word not in stop_words}
     target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
