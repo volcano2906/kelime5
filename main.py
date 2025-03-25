@@ -309,7 +309,11 @@ if uploaded_files:
 
 
 # Anaiz2
-
+    previousMeta = st.text_input("Please write previous all metadata", "")
+    user_input_text_2 = f"{previousMeta}".lower()
+    user_input_text_2 = re.sub(r'[^a-zA-Z\s]', ' ', user_input_text_2).strip()
+    user_words_2 = re.split(r'[ ,]+', user_input_text_2)
+    user_words_2 = {word for word in user_words_2 if word and word not in stop_words}
     target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
     pivot_df.columns = pivot_df.columns.astype(str)
     # Proceed only if target ID is valid
@@ -335,7 +339,7 @@ if uploaded_files:
             existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
         # Step 4: Find new relevant words
-        new_common_words = app_250_words & user_words - existing_app_words
+        new_common_words = app_250_words & user_words_2 - existing_app_words
         
         # Step 5: Display
         if new_common_words:
