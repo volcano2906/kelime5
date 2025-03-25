@@ -282,7 +282,7 @@ if uploaded_files:
     
     # Generate result string per app
     app_results = {}
-    
+    st.write(shared_words)
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
         app_word_set = set(shared_words)  # start with shared words
