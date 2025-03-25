@@ -282,7 +282,7 @@ if uploaded_files:
     
     # Generate result string per app
     app_results = {}
-    st.write(shared_words)
+    
     for app_id in df["Application Id"].unique():
         app_df = df[df["Application Id"] == app_id]
         app_word_set = set(shared_words)  # start with shared words
@@ -297,6 +297,7 @@ if uploaded_files:
     
     # Display result
     st.write("### Result Strings by Competitor (Application Id)")
+    st.write(shared_words)
     for app_id, word_string in app_results.items():
         words = word_string.split(", ")
         highlighted_words = [
