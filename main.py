@@ -131,8 +131,8 @@ if uploaded_files:
     st.write(result_string)
 
     for word in unique_words:
-    matching_rows = df[df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)]
-    matching_rows = matching_rows[matching_rows["Volume"] > 5]
+        matching_rows = df[df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)]
+        matching_rows = matching_rows[matching_rows["Volume"] > 5]
 
     if not matching_rows.empty:
         entries = [f'{row["Keyword"]} ({row["Volume"]})' for _, row in matching_rows.iterrows()]
