@@ -130,6 +130,7 @@ if uploaded_files:
     # Display result
     st.write(result_string)
 
+    dfFiltered = df.copy()
     word_to_keywords = {}
     
     for word in unique_words:
