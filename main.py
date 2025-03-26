@@ -130,16 +130,23 @@ if uploaded_files:
     # Display result
     st.write(result_string)
 
-    # unique_words içindeki her kelime için df'de arama
+    # unique_words içindeki her kelime için df'de arama (duplikatsız)
     word_to_keywords = {}
     
     for word in unique_words:
-        matching_rows = df[df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)]
-        matching_rows = matching_rows[matching_rows["Volume"] > 5]
+        # Anahtar kelimelerde geçenleri bul (case insensitive)
+        matching_rows = df[
+            df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)
+            & (df["Volume"] > 5)
+        ]
     
         if not matching_rows.empty:
-            entries = [f'{row["Keyword"]} ({row["Volume"]})' for _, row in matching_rows.iterrows()]
-            word_to_keywords[word] = entries
+            # Duplikatsız olarak (keyword, volume) çiftlerini set'e al
+            entries = {
+                f'{row["Keyword"]} ({int(row["Volume"])})'
+                for _, row in matching_rows.iterrows()
+            }
+            word_to_keywords[word] = sorted(entries)
     
     # Gösterim
     st.write("### 📌 Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
