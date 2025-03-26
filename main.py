@@ -151,14 +151,28 @@ if uploaded_files:
     # Gösterim
     st.write("📌Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
     for word, keyword_list in word_to_keywords.items():
-        # Eğer kullanıcı inputunda bu kelime varsa yeşil yap
+        # 1️⃣ Başlık kelimesini yeşile boya (eğer user_words içinde varsa)
         if word in user_words:
             display_word = f"<span style='color:green'>{word}</span>"
         else:
             display_word = word
     
-        # HTML ile renklendirme yapılması için markdown'u güvenli hale getiriyoruz
-        st.markdown(f"**{display_word}** → {', '.join(keyword_list)}", unsafe_allow_html=True)
+        # 2️⃣ keyword_list'teki keyword'ler içinde geçen kelimeyi bul ve yeşile boya
+        highlighted_keywords = []
+        for item in keyword_list:
+            keyword_text = item  # Örn: "bmi calculator (40)"
+            keyword_only = re.sub(r'\s*\(\d+\)$', '', item)  # "bmi calculator"
+    
+            # Eğer user_words'ten biri kelime içinde tam eşleşiyorsa → yeşile boya
+            for uw in user_words:
+                if re.search(rf'\b{re.escape(uw)}\b', keyword_only, flags=re.IGNORECASE):
+                    keyword_text = keyword_text.replace(
+                        uw, f"<span style='color:green'>{uw}</span>"
+                    )
+            highlighted_keywords.append(keyword_text)
+    
+        # 3️⃣ Göster
+        st.markdown(f"**{display_word}** → {', '.join(highlighted_keywords)}", unsafe_allow_html=True)
 
     # Step: Generate extra words per keyword
     def find_extra_words_not_in_shared_set(keyword, reference_words):
