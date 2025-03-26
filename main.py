@@ -151,7 +151,14 @@ if uploaded_files:
     # Gösterim
     st.write("📌Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
     for word, keyword_list in word_to_keywords.items():
-        st.markdown(f"**{word}** → {', '.join(keyword_list)}")
+        # Eğer kullanıcı inputunda bu kelime varsa yeşil yap
+        if word in user_words:
+            display_word = f"<span style='color:green'>{word}</span>"
+        else:
+            display_word = word
+    
+        # HTML ile renklendirme yapılması için markdown'u güvenli hale getiriyoruz
+        st.markdown(f"**{display_word}** → {', '.join(keyword_list)}", unsafe_allow_html=True)
 
     # Step: Generate extra words per keyword
     def find_extra_words_not_in_shared_set(keyword, reference_words):
