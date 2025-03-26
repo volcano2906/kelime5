@@ -130,6 +130,7 @@ if uploaded_files:
     # Display result
     st.write(result_string)
 
+    word_to_keywords = {}
     for word in unique_words:
         matching_rows = df[df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)]
         matching_rows = matching_rows[matching_rows["Volume"] > 5]
