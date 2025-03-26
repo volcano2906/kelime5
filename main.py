@@ -131,18 +131,20 @@ if uploaded_files:
     st.write(result_string)
 
     word_to_keywords = {}
+    
     for word in unique_words:
-        matching_rows = df[df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)]
-        matching_rows = matching_rows[matching_rows["Volume"] > 5]
-
-    if not matching_rows.empty:
-        entries = [f'{row["Keyword"]} ({row["Volume"]})' for _, row in matching_rows.iterrows()]
-        word_to_keywords[word] = entries
-
-    # Gösterim
-    st.write("### 📌 Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
-    for word, keyword_list in word_to_keywords.items():
-        st.markdown(f"**{word}** → {', '.join(keyword_list)}")
+        # Anahtar kelime içinde geçen tüm satırları full df'den ara
+        keyword_mask = df["Keyword"].str.contains(rf'\b{re.escape(word)}\b', flags=re.IGNORECASE, regex=True)
+        
+        # Bu kelimeyi içeren keyword'lerin listesini al
+        matching_keywords = df[keyword_mask]["Keyword"].unique()
+        
+        # Şimdi eşleşen keyword'leri dfFiltered içinde ara (Volume > 5 olanlar)
+        matches = dfFiltered[dfFiltered["Keyword"].isin(matching_keywords)]
+        
+        if not matches.empty:
+            entries = [f'{row["Keyword"]} ({row["Volume"]})' for _, row in matches.iterrows()]
+            word_to_keywords[word] = entries
 
     # Step: Generate extra words per keyword
     def find_extra_words_not_in_shared_set(keyword, reference_words):
