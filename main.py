@@ -149,7 +149,7 @@ if uploaded_files:
             word_to_keywords[word] = sorted(entries)
     
     # Gösterim
-    st.write("### 📌 Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
+    st.write("Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
     for word, keyword_list in word_to_keywords.items():
         st.markdown(f"**{word}** → {', '.join(keyword_list)}")
 
