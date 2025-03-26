@@ -33,7 +33,6 @@ user_input_text = f"{title1} {subtitle1} {kw_input} {long_description}".lower()
 user_input_text = re.sub(r'[^\w\s]', ' ', user_input_text, flags=re.UNICODE).strip()
 user_words = re.split(r'[ ,]+', user_input_text)
 user_words = {word for word in user_words if word and word not in stop_words}
-st.write(user_words)
 
 # Create a placeholder for the uploader
 uploader_placeholder = st.empty()
