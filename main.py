@@ -58,8 +58,41 @@ def update_rank(rank):
 
 if uploaded_files:
     # Dosyaları oku ve birleştir
-    df_list = [pd.read_csv(file) for file in uploaded_files]
-    df = pd.concat(df_list, ignore_index=True).drop_duplicates()
+    df_list = []
+    
+    for file in uploaded_files:
+        if file.name.endswith(".csv"):
+            # Dosyanın encoding'ini otomatik algıla
+            raw_data = file.read()
+            result = chardet.detect(raw_data)
+            encoding = result["encoding"] if result["encoding"] else "utf-8"
+    
+            # Dosyayı tekrar oku (çünkü read() yukarıda bitirdi)
+            file.seek(0)
+            try:
+                df_read = pd.read_csv(file, encoding=encoding)
+            except Exception as e:
+                st.error(f"CSV dosyası okunamadı: {file.name} ({str(e)})")
+                continue
+    
+        elif file.name.endswith(".xlsx"):
+            try:
+                df_read = pd.read_excel(file, engine="openpyxl")
+            except Exception as e:
+                st.error(f"Excel dosyası okunamadı: {file.name} ({str(e)})")
+                continue
+    
+        else:
+            st.warning(f"❌ Desteklenmeyen dosya formatı: {file.name}")
+            continue
+    
+        df_list.append(df_read)
+    
+    # Dosyaları birleştir
+    if df_list:
+        df = pd.concat(df_list, ignore_index=True).drop_duplicates()
+    else:
+        st.stop()
     dfCopyAnaliz=df.copy()
     
     # Anahtar kelime hacmi 5 olanları filtrele
