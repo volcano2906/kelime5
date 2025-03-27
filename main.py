@@ -16,7 +16,12 @@ st.set_page_config(layout="wide")
 st.title("Uygulama ID'lerine Göre Rank Edilmiş Anahtar Kelimeler ve Puanlama")
 
 # Show the uploader inside the placeholder
-uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+#uploaded_files = st.file_uploader("CSV dosyanızı yükleyin", type=["csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader(
+    "Dosyanızı yükleyin (.csv veya .xlsx destekleniyor)", 
+    type=["csv", "xlsx"], 
+    accept_multiple_files=True
+)
 
 # Kullanıcıdan 4 Title, 4 Subtitle ve KW girişi
 st.subheader("Anahtar Kelime Karşılaştırma")
@@ -52,7 +57,7 @@ def update_rank(rank):
 
 if uploaded_files:
     # Dosyaları oku ve birleştir
-    df_list = [pd.read_csv(file, encoding='utf-8') for file in uploaded_files]
+    df_list = [pd.read_csv(file) for file in uploaded_files]
     df = pd.concat(df_list, ignore_index=True).drop_duplicates()
     dfCopyAnaliz=df.copy()
     
