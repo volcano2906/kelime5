@@ -179,7 +179,7 @@ if uploaded_files:
     result_string = ", ".join(highlighted_result_words)
     
     # 5️⃣ ekranda göster
-    st.markdown("### ✅ Ortak Kelimeler (Tüm Rakiplerde Geçenler)")
+    st.markdown("✅ Ortak Kelimeler (Tüm Rakiplerde Geçenler)")
     st.markdown(result_string, unsafe_allow_html=True)
 
     # unique_words içindeki her kelime için df'de arama (duplikatsız)
