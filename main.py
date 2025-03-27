@@ -4,6 +4,7 @@ import re
 from nltk.corpus import stopwords
 from collections import Counter
 import nltk
+import chardet
 
 # Stopwords'leri yükle
 nltk.download('stopwords')
