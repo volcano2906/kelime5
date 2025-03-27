@@ -156,18 +156,31 @@ if uploaded_files:
         # Kolonları yeniden sıralama
 
     #
+    # 1️⃣ Tüm rakiplerde geçen anahtar kelimeleri bul
     competitor_count = df["Application Id"].nunique()
     keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
     keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
+    
+    # 2️⃣ unique_words seti oluştur (stopwords hariç)
     unique_words = set()
     for keyword in keywords_in_all_competitors:
-            words = re.split(r'\s+', keyword.lower())  # Split by spaces
-            unique_words.update([word for word in words if word not in stop_words])
-
-    # Convert unique words to a comma-separated string
-    result_string = ", ".join(sorted(unique_words))
-    # Display result
-    st.write(result_string)
+        words = re.split(r'\s+', keyword.lower())  # boşluklara göre ayır
+        unique_words.update([word for word in words if word and word not in stop_words])
+    
+    # 3️⃣ user_words ile karşılaştırıp renkli hale getir
+    highlighted_result_words = []
+    for word in sorted(unique_words):
+        if word in user_words:
+            highlighted_result_words.append(f"<span style='color:green'>{word}</span>")
+        else:
+            highlighted_result_words.append(word)
+    
+    # 4️⃣ result_string oluştur (renkli)
+    result_string = ", ".join(highlighted_result_words)
+    
+    # 5️⃣ ekranda göster
+    st.markdown("### ✅ Ortak Kelimeler (Tüm Rakiplerde Geçenler)")
+    st.markdown(result_string, unsafe_allow_html=True)
 
     # unique_words içindeki her kelime için df'de arama (duplikatsız)
     word_to_keywords = {}
