@@ -406,31 +406,39 @@ if uploaded_files:
 
         st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
         for user_word in sorted(user_words):
-            # 1. user_word içeren keyword'leri bul
+            # 1. user_word içeren keyword'leri filtrele
             filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
-        
-            # 2. Sadece 2 kelimelik (bigram) keyword'ler
             filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len() == 2]
         
-            # 3. En az 2 farklı Application Id tarafından rank edilmiş olanlar
+            # 2. En az 2 farklı uygulamada rank edilmiş keyword'leri bul
             app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
             valid_keywords = app_counts[app_counts > 1].index.tolist()
             filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
         
-            # 4. user_word ile geçen diğer kelimeleri topla
-            co_word_counter = Counter()
-            for kw in filtered_df["Keyword"]:
-                words = kw.lower().split()
-                other_words = [w for w in words if w != user_word and w not in stop_words]
-                co_word_counter.update(other_words)
+            # 3. Keyword frekanslarını hesapla
+            keyword_freq = Counter(filtered_df["Keyword"].str.lower())
         
-            # 5. Gösterim
-            if co_word_counter:
-                st.markdown(f"**<span style='color:green'>{user_word}</span>** ile birlikte geçen en sık kelimeler:", unsafe_allow_html=True)
-                for word, freq in co_word_counter.most_common():
-                    st.markdown(f"- `{word}`: {freq} kez")
+            # 4. Her keyword için gösterim hazırla
+            display_keywords = []
+            for kw, freq in keyword_freq.items():
+                words = kw.split()
+                colored_words = []
+                for w in words:
+                    if w == user_word:
+                        colored_words.append(f"<span style='color:green'>{w}</span>")
+                    else:
+                        colored_words.append(f"<span style='color:green'>{w}</span>")
+                colored_kw = " ".join(colored_words)
+                display_keywords.append(f"{colored_kw} ({freq})")
+        
+            # 5. Sonuçları göster
+            if display_keywords:
+                st.markdown(
+                    f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(display_keywords)}",
+                    unsafe_allow_html=True
+                )
             else:
-                st.markdown(f"<span style='color:gray'>{user_word}</span> ile eşleşen uygun keyword bulunamadı.", unsafe_allow_html=True)
+                st.markdown(f"<span style='color:gray'>{user_word}</span> → eşleşme bulunamadı.", unsafe_allow_html=True)
 
     
     # Anaiz2
