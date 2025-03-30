@@ -404,41 +404,41 @@ if uploaded_files:
 
 
 
-        st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
-        for user_word in sorted(user_words):
-            # 1. user_word içeren keyword'leri filtrele
-            filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
-            filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len() == 2]
-        
-            # 2. En az 2 farklı uygulamada rank edilmiş keyword'leri bul
-            app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
-            valid_keywords = app_counts[app_counts > 1].index.tolist()
-            filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
-        
-            # 3. Keyword frekanslarını hesapla
-            keyword_freq = Counter(filtered_df["Keyword"].str.lower())
-        
-            # 4. Her keyword için gösterim hazırla
-            display_keywords = []
-            for kw, freq in keyword_freq.items():
-                words = kw.split()
-                colored_words = []
-                for w in words:
-                    if w == user_word:
-                        colored_words.append(f"<span style='color:green'>{w}</span>")
-                    else:
-                        colored_words.append(f"<span style='color:green'>{w}</span>")
-                colored_kw = " ".join(colored_words)
-                display_keywords.append(f"{colored_kw} ({freq})")
-        
-            # 5. Sonuçları göster
-            if display_keywords:
-                st.markdown(
-                    f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(display_keywords)}",
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(f"<span style='color:gray'>{user_word}</span> → eşleşme bulunamadı.", unsafe_allow_html=True)
+    st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
+    for user_word in sorted(user_words):
+        # 1. user_word içeren keyword'leri filtrele
+        filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
+        filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len() == 2]
+    
+        # 2. En az 2 farklı uygulamada rank edilmiş keyword'leri bul
+        app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
+        valid_keywords = app_counts[app_counts > 1].index.tolist()
+        filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
+    
+        # 3. Keyword frekanslarını hesapla
+        keyword_freq = Counter(filtered_df["Keyword"].str.lower())
+    
+        # 4. Her keyword için gösterim hazırla
+        display_keywords = []
+        for kw, freq in keyword_freq.items():
+            words = kw.split()
+            colored_words = []
+            for w in words:
+                if w == user_word:
+                    colored_words.append(f"<span style='color:green'>{w}</span>")
+                else:
+                    colored_words.append(f"<span style='color:green'>{w}</span>")
+            colored_kw = " ".join(colored_words)
+            display_keywords.append(f"{colored_kw} ({freq})")
+    
+        # 5. Sonuçları göster
+        if display_keywords:
+            st.markdown(
+                f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(display_keywords)}",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(f"<span style='color:gray'>{user_word}</span> → eşleşme bulunamadı.", unsafe_allow_html=True)
 
     
     # Anaiz2
