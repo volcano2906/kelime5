@@ -403,7 +403,37 @@ if uploaded_files:
 
 
 
-# Anaiz2
+
+        st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
+        for user_word in sorted(user_words):
+            # 1. user_word içeren keyword'leri bul
+            filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
+        
+            # 2. Sadece 2 kelimelik (bigram) keyword'ler
+            filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len() == 2]
+        
+            # 3. En az 2 farklı Application Id tarafından rank edilmiş olanlar
+            app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
+            valid_keywords = app_counts[app_counts > 1].index.tolist()
+            filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
+        
+            # 4. user_word ile geçen diğer kelimeleri topla
+            co_word_counter = Counter()
+            for kw in filtered_df["Keyword"]:
+                words = kw.lower().split()
+                other_words = [w for w in words if w != user_word and w not in stop_words]
+                co_word_counter.update(other_words)
+        
+            # 5. Gösterim
+            if co_word_counter:
+                st.markdown(f"**<span style='color:green'>{user_word}</span>** ile birlikte geçen en sık kelimeler:", unsafe_allow_html=True)
+                for word, freq in co_word_counter.most_common():
+                    st.markdown(f"- `{word}`: {freq} kez")
+            else:
+                st.markdown(f"<span style='color:gray'>{user_word}</span> ile eşleşen uygun keyword bulunamadı.", unsafe_allow_html=True)
+
+    
+    # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
     user_input_text_2 = re.sub(r'[^\w\s]', ' ', user_input_text_2,flags=re.UNICODE).strip()
@@ -446,32 +476,3 @@ if uploaded_files:
         if target_app_id:
             st.warning("❌ Application ID not found in pivot_df columns.")
 
-
-    st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
-
-    for user_word in sorted(user_words):
-        # 1. user_word içeren keyword'leri bul
-        filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
-    
-        # 2. Sadece 2 kelimelik (bigram) keyword'ler
-        filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len() == 2]
-    
-        # 3. En az 2 farklı Application Id tarafından rank edilmiş olanlar
-        app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
-        valid_keywords = app_counts[app_counts > 1].index.tolist()
-        filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
-    
-        # 4. user_word ile geçen diğer kelimeleri topla
-        co_word_counter = Counter()
-        for kw in filtered_df["Keyword"]:
-            words = kw.lower().split()
-            other_words = [w for w in words if w != user_word and w not in stop_words]
-            co_word_counter.update(other_words)
-    
-        # 5. Gösterim
-        if co_word_counter:
-            st.markdown(f"**<span style='color:green'>{user_word}</span>** ile birlikte geçen en sık kelimeler:", unsafe_allow_html=True)
-            for word, freq in co_word_counter.most_common():
-                st.markdown(f"- `{word}`: {freq} kez")
-        else:
-            st.markdown(f"<span style='color:gray'>{user_word}</span> ile eşleşen uygun keyword bulunamadı.", unsafe_allow_html=True)
