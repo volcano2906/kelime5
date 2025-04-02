@@ -419,12 +419,13 @@ if uploaded_files:
         valid_keywords = app_counts[app_counts > 1].index.tolist()
         filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
     
-        # 3. Keyword frekanslarını say
-        keyword_freq = Counter(filtered_df["Keyword"].str.lower())
-    
-        # 4. Gösterim için hazırla
+        # 3. Keyword frekanslarını say (önce listele, sonra counter)
+        keyword_list = filtered_df["Keyword"].str.lower().tolist()
+        keyword_freq = Counter(keyword_list)
+        
+        # 4. Gösterim için hazırla (frekansa göre sıralı)
         display_keywords = []
-        for kw, freq in keyword_freq.most_common():
+        for kw, freq in keyword_freq.most_common():  # ✔️ şimdi sıralı çalışacak
             words = kw.split()
             colored_words = []
             for w in words:
