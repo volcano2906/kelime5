@@ -424,7 +424,7 @@ if uploaded_files:
     
         # 4. Gösterim için hazırla
         display_keywords = []
-        for kw, freq in keyword_freq.items():
+        for kw, freq in keyword_freq.most_common():
             words = kw.split()
             colored_words = []
             for w in words:
