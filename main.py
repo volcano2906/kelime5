@@ -288,7 +288,9 @@ if uploaded_files:
     if exclude_single_app_keywords:
         freq_df = freq_df[freq_df.groupby("Keyword")["Application Id"].transform("nunique") > 1]
     if keyword_filter_text:
-        freq_df = freq_df[freq_df["Keyword"].str.contains(keyword_filter_text, case=False, na=False)]
+        keyword_filters = [kw.strip().lower() for kw in re.split(r'[,\n]+', keyword_filter_text) if kw.strip()]
+        pattern = '|'.join([re.escape(kw) for kw in keyword_filters])  # regex pattern: baby|baby generator|kids
+        freq_df = freq_df[freq_df["Keyword"].str.lower().str.contains(pattern, na=False)]
     
     # 3. Word splitting functions
     def extract_words(text):
