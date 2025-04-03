@@ -201,30 +201,49 @@ if uploaded_files:
             word_to_keywords[word] = sorted(entries)
     
     # Gösterim
-    st.write("📌Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5)")
-    for word, keyword_list in word_to_keywords.items():
-        # 1️⃣ Başlık kelimesini yeşile boya (eğer user_words içinde varsa)
-        if word in user_words:
-            display_word = f"<span style='color:green'>{word}</span>"
-        else:
-            display_word = word
+    st.write("📌 Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5 + App Count)")
     
-        # 2️⃣ keyword_list'teki keyword'ler içinde geçen kelimeyi bul ve yeşile boya
+    for word in sorted(word_to_keywords.keys()):
+        # 1️⃣ Başlık kelimesini yeşile boya
+        display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
+    
+        # 2️⃣ keyword listesinde volume ve app count bilgisiyle filtrele
+        entries = []
+        for kw_text in word_to_keywords[word]:
+            keyword_only = re.sub(r'\s*\(\d+\)$', '', kw_text).strip().lower()
+            # ilgili satırları df'den bul
+            matches = df[df["Keyword"].str.lower() == keyword_only]
+            if not matches.empty:
+                volume = matches["Volume"].iloc[0]
+                app_count = matches["Application Id"].nunique()
+                entries.append({
+                    "keyword": keyword_only,
+                    "volume": volume,
+                    "app_count": app_count
+                })
+    
+        # 3️⃣ Volume → A-Z sıralama
+        sorted_entries = sorted(entries, key=lambda x: (-x["volume"], x["keyword"]))
+    
+        # 4️⃣ Gösterim için hazırla (kelimeleri yeşil yap)
         highlighted_keywords = []
-        for item in keyword_list:
-            keyword_text = item  # Örn: "bmi calculator (40)"
-            keyword_only = re.sub(r'\s*\(\d+\)$', '', item)  # "bmi calculator"
+        for item in sorted_entries:
+            words = item["keyword"].split()
+            highlighted_words = [
+                f"<span style='color:green'>{w}</span>" if w in user_words else w
+                for w in words
+            ]
+            label = f"{' '.join(highlighted_words)} (Vol: {item['volume']}, Apps: {item['app_count']})"
+            highlighted_keywords.append(label)
     
-            # Eğer user_words'ten biri kelime içinde tam eşleşiyorsa → yeşile boya
-            for uw in user_words:
-                if re.search(rf'\b{re.escape(uw)}\b', keyword_only, flags=re.IGNORECASE):
-                    keyword_text = keyword_text.replace(
-                        uw, f"<span style='color:green'>{uw}</span>"
-                    )
-            highlighted_keywords.append(keyword_text)
-    
-        # 3️⃣ Göster
-        st.markdown(f"**{display_word}** → {', '.join(highlighted_keywords)}", unsafe_allow_html=True)
+        # 5️⃣ Yazdır
+        if highlighted_keywords:
+            st.markdown(
+                f"<b>{display_word}</b> → {', '.join(highlighted_keywords)}",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(f"<span style='color:gray'>{display_word}</span> → eşleşme bulunamadı.", unsafe_allow_html=True)
 
     # Step: Generate extra words per keyword
     def find_extra_words_not_in_shared_set(keyword, reference_words):
