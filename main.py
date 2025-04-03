@@ -232,7 +232,7 @@ if uploaded_files:
                 f"<span style='color:green'>{w}</span>" if w in user_words else w
                 for w in words
             ]
-            label = f"{' '.join(highlighted_words)} (Vol: {item['volume']}, Apps: {item['app_count']})"
+            label = f"{' '.join(highlighted_words)} ({item['volume']}, {item['app_count']})"
             highlighted_keywords.append(label)
     
         # 5️⃣ Yazdır
