@@ -201,16 +201,14 @@ if uploaded_files:
             word_to_keywords[word] = sorted(entries)
     
     # Gösterim
-    st.write("📌 Kelime Geçen Anahtar Kelimeler ve Hacimleri (Volume > 5 + App Count)")
+    st.write("📌 Kelime Geçen Anahtar Kelimeler ve Hacimleri (App Count, Volume, A-Z)")
+
     for word in sorted(word_to_keywords.keys()):
-        # 1️⃣ Başlık kelimesini yeşile boya
         display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
     
-        # 2️⃣ keyword listesinde volume ve app count bilgisiyle filtrele
         entries = []
         for kw_text in word_to_keywords[word]:
             keyword_only = re.sub(r'\s*\(\d+\)$', '', kw_text).strip().lower()
-            # ilgili satırları df'den bul
             matches = df[df["Keyword"].str.lower() == keyword_only]
             if not matches.empty:
                 volume = matches["Volume"].iloc[0]
@@ -221,10 +219,13 @@ if uploaded_files:
                     "app_count": app_count
                 })
     
-        # 3️⃣ Volume → A-Z sıralama
-        sorted_entries = sorted(entries, key=lambda x: (-x["volume"], x["keyword"]))
+        # 🔁 Sıralama: app_count > volume > A-Z
+        sorted_entries = sorted(
+            entries,
+            key=lambda x: (-x["app_count"], -x["volume"], x["keyword"])
+        )
     
-        # 4️⃣ Gösterim için hazırla (kelimeleri yeşil yap)
+        # Gösterim
         highlighted_keywords = []
         for item in sorted_entries:
             words = item["keyword"].split()
@@ -232,10 +233,9 @@ if uploaded_files:
                 f"<span style='color:green'>{w}</span>" if w in user_words else w
                 for w in words
             ]
-            label = f"{' '.join(highlighted_words)} ({item['volume']}, {item['app_count']})"
+            label = f"{' '.join(highlighted_words)} (Vol: {item['volume']}, Apps: {item['app_count']})"
             highlighted_keywords.append(label)
     
-        # 5️⃣ Yazdır
         if highlighted_keywords:
             st.markdown(
                 f"<b>{display_word}</b> → {', '.join(highlighted_keywords)}",
