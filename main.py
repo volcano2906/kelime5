@@ -108,7 +108,6 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
-    @st.cache_data(show_spinner=False)
     def detect_languages_once(df_input):
         from langdetect import detect
         from langdetect.lang_detect_exception import LangDetectException
