@@ -5,8 +5,6 @@ from nltk.corpus import stopwords
 from collections import Counter
 import nltk
 import chardet
-from langdetect import detect
-from langdetect.lang_detect_exception import LangDetectException
 
 # Stopwords'leri yükle
 nltk.download('stopwords')
@@ -108,34 +106,6 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
-    def detect_languages_once(df_input):
-        from langdetect import detect
-        from langdetect.lang_detect_exception import LangDetectException
-    
-        def detect_language_safe(text):
-            try:
-                return detect(text)
-            except LangDetectException:
-                return "unknown"
-    
-        unique_keywords = df_input["Keyword"].dropna().astype(str).str.strip().unique()
-        lang_map = {kw: detect_language_safe(kw) for kw in unique_keywords}
-        df_input = df_input.copy()
-        df_input["Keyword_clean"] = df_input["Keyword"].astype(str).str.strip()
-        df_input["Language"] = df_input["Keyword_clean"].map(lang_map)
-        return df_input
-
-    df = detect_languages_once(df)
-    language_options = sorted(df["Language"].unique())
-    st.write(" ".join(language_options))
-    # 2️⃣ Kullanıcıdan manuel dil kodu al (örnek: 'en', 'tr', 'th')
-    selected_lang_code = st.text_input("🔤 Filtrelemek istediğiniz dil kodunu girin (örn: en, tr)", value="en").strip()
-    
-    # 3️⃣ Filtreleme işlemi
-    if selected_lang_code:
-        df = df[df["Language"] == selected_lang_code]
-    else:
-        df=df
 
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
