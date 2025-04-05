@@ -127,15 +127,14 @@ if uploaded_files:
 
     df = detect_languages_once(df)
     language_options = sorted(df["Language"].unique())
-    default_selected = "en"
-
-    selected_languages = st.multiselect(
-        "📚 Hangi Dildeki Anahtar Kelimeleri Görmek İstersiniz?",
-        options=language_options,
-        default=language_options
-    )
+    # 2️⃣ Kullanıcıdan manuel dil kodu al (örnek: 'en', 'tr', 'th')
+    selected_lang_code = st.text_input("🔤 Filtrelemek istediğiniz dil kodunu girin (örn: en, tr)", value="en").strip()
     
-    df = df[df["Language"].isin(selected_languages)]
+    # 3️⃣ Filtreleme işlemi
+    if selected_lang_code:
+        df = df[df["Language"] == selected_lang_code]
+    else:
+        st.info("Lütfen bir dil kodu girin. Örnekler: en, tr, th, ja, zh-cn")
 
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
