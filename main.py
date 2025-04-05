@@ -5,6 +5,8 @@ from nltk.corpus import stopwords
 from collections import Counter
 import nltk
 import chardet
+from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 
 # Stopwords'leri yükle
 nltk.download('stopwords')
@@ -105,7 +107,20 @@ if uploaded_files:
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
+
+        # 2️⃣ Keyword dilini algıla
+    df["Language"] = df["Keyword"].astype(str).apply(detect_language_safe)
     
+    # 3️⃣ Mevcut dillerin listesini al (sıralı ve eşsiz)
+    language_options = sorted(df["Language"].unique())
+    
+    # 4️⃣ Kullanıcıya çoklu dil seçimi sun
+    selected_languages = st.multiselect(
+        "📚 Hangi Dildeki Anahtar Kelimeleri Görmek İstersiniz?",
+        options=language_options,
+        default=language_options  # hepsi varsayılan seçili olsun
+    )
+    df = df[df["Language"].isin(selected_languages)]
     # Eksik kelimeleri bul
     #def find_missing_keywords(keyword):
      #   words = set(re.split(r'[ ,]+', keyword.lower()))
