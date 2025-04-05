@@ -127,7 +127,7 @@ if uploaded_files:
 
     df = detect_languages_once(df)
     language_options = sorted(df["Language"].unique())
-    default_selected = ["en"] if "en" in language_options else language_options
+    default_selected = "en"
 
     selected_languages = st.multiselect(
         "📚 Hangi Dildeki Anahtar Kelimeleri Görmek İstersiniz?",
