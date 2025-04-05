@@ -146,12 +146,7 @@ if uploaded_files:
         pattern = r'(^|[\s,])' + re.escape(keyword) + r'($|[\s,])'
         return "Yes" if re.search(pattern, user_input_text) else "No"
 
-    df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)
-
-    
-    # Step 3: Apply to DataFrame
-    
-    
+    df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
