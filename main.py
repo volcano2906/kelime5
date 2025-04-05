@@ -108,6 +108,12 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
+    def detect_language_safe(text):
+        try:
+            return detect(text)
+        except LangDetectException:
+            return "unknown"
+
         # 2️⃣ Keyword dilini algıla
     df["Language"] = df["Keyword"].astype(str).apply(detect_language_safe)
     
