@@ -135,10 +135,7 @@ if uploaded_files:
         default=language_options
     )
     
-    filtered_df = df[df["Language"].isin(selected_languages)]
-    
-    st.dataframe(filtered_df[["Keyword", "Volume", "Application Id", "Language"]], use_container_width=True)
-
+    df = df[df["Language"].isin(selected_languages)]
 
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
