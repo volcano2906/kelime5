@@ -3,3 +3,4 @@ nltk
 scikit-learn
 deep_translator
 chardet
+langid
