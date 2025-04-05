@@ -135,7 +135,7 @@ if uploaded_files:
     if selected_lang_code:
         df = df[df["Language"] == selected_lang_code]
     else:
-        st.info("Lütfen bir dil kodu girin. Örnekler: en, tr, th, ja, zh-cn")
+        df=df
 
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
