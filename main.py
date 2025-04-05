@@ -108,30 +108,36 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
-    def detect_language_safe(text):
-        try:
-            return detect(text)
-        except LangDetectException:
-            return "unknown"
+    @st.cache_data(show_spinner=False)
+    def detect_languages_once(df_input):
+        from langdetect import detect
+        from langdetect.lang_detect_exception import LangDetectException
+    
+        def detect_language_safe(text):
+            try:
+                return detect(text)
+            except LangDetectException:
+                return "unknown"
+    
+        unique_keywords = df_input["Keyword"].dropna().astype(str).str.strip().unique()
+        lang_map = {kw: detect_language_safe(kw) for kw in unique_keywords}
+        df_input = df_input.copy()
+        df_input["Keyword_clean"] = df_input["Keyword"].astype(str).str.strip()
+        df_input["Language"] = df_input["Keyword_clean"].map(lang_map)
+        return df_input
 
-        # 2️⃣ Keyword dilini algıla
-    df["Language"] = df["Keyword"].astype(str).apply(detect_language_safe)
-    
-    # 3️⃣ Mevcut dillerin listesini al (sıralı ve eşsiz)
+    df = detect_languages_once(df)
     language_options = sorted(df["Language"].unique())
-    
-    # 4️⃣ Kullanıcıya çoklu dil seçimi sun
+
     selected_languages = st.multiselect(
         "📚 Hangi Dildeki Anahtar Kelimeleri Görmek İstersiniz?",
         options=language_options,
-        default=language_options  # hepsi varsayılan seçili olsun
+        default=language_options
     )
-    df = df[df["Language"].isin(selected_languages)]
-    # Eksik kelimeleri bul
-    #def find_missing_keywords(keyword):
-     #   words = set(re.split(r'[ ,]+', keyword.lower()))
-      #  missing_words = words - user_words
-      #  return ','.join(missing_words) if missing_words else "-"
+    
+    filtered_df = df[df["Language"].isin(selected_languages)]
+    
+    st.dataframe(filtered_df[["Keyword", "Volume", "Application Id", "Language"]], use_container_width=True)
 
 
     def find_missing_keywords(keyword):
