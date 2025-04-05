@@ -106,13 +106,12 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
-    # 1️⃣ Kullanıcıdan çıkarılacak exact kelimeleri al (örnek: essay writer test)
-    exclude_exact_words_raw = st.text_input("❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşlukla ayırın)", "")
-    
-    # 2️⃣ Temizle ve kelimelere ayır
-    exclude_words = set(exclude_exact_words_raw.lower().split())
-    
-    exclude_exact_words_raw = st.text_input("❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşlukla ayırın)", "")
+    # 1️⃣ Kullanıcıdan exact match için filtre kelimeleri al — key ekliyoruz
+    exclude_exact_words_raw = st.text_input(
+        "❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşlukla ayırın)", 
+        "", 
+        key="exact_filter_input"
+    )
     
     # 2️⃣ Eğer kullanıcı bir şey girdiyse filtre uygula
     if exclude_exact_words_raw.strip():
@@ -122,10 +121,13 @@ if uploaded_files:
             keyword_words = set(keyword.lower().split())
             return not keyword_words.isdisjoint(exclude_set)  # Eşleşme varsa True → filtrele
     
-        df = df[~df["Keyword"].astype(str).apply(lambda kw: contains_excluded_word(kw, exclude_words))        ]
-        st.success(f"{', '.join(exclude_words)} kelimeleri geçen keyword'ler filtrelendi.")
+        df = df[
+            ~df["Keyword"].astype(str).apply(lambda kw: contains_excluded_word(kw, exclude_words))
+        ]
+    
+        st.success(f"❌ Şu kelimeleri içeren keyword'ler filtrelendi: {', '.join(exclude_words)}")
     else:
-        df=df
+        st.info("ℹ️ Exact match filtresi uygulanmadı. Kelime girilmedi.")
 
 
 
