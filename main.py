@@ -127,7 +127,7 @@ if uploaded_files:
 
     df = detect_languages_once(df)
     language_options = sorted(df["Language"].unique())
-    st.write(language_options)
+    st.write(" ".join(language_options))
     # 2️⃣ Kullanıcıdan manuel dil kodu al (örnek: 'en', 'tr', 'th')
     selected_lang_code = st.text_input("🔤 Filtrelemek istediğiniz dil kodunu girin (örn: en, tr)", value="en").strip()
     
