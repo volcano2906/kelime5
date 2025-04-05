@@ -282,12 +282,21 @@ if uploaded_files:
         on="Keyword",
         how="left"
     )
+        # 🔍 Her satırda user_words'ten kaç kelime geçtiğini hesapla
+    def count_user_word_matches(keyword, user_words_set):
+        keyword_lower = keyword.lower()
+        return sum(1 for w in user_words_set if w in keyword_lower)
+    
+    # ⚡ Uygula
+    pivot_df["matchCount"] = pivot_df["Keyword"].astype(str).apply(
+        lambda kw: count_user_word_matches(kw, user_words)
+    )
 
     
-    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon"]
+    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
-    for col in pivot_df.columns[7:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
+    for col in pivot_df.columns[8:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
         pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna(250).astype(int)
 
     # Sonuçları gösterme
