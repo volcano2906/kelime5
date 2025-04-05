@@ -106,6 +106,28 @@ if uploaded_files:
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
 
+    # 1️⃣ Kullanıcıdan çıkarılacak exact kelimeleri al (örnek: essay writer test)
+    exclude_exact_words_raw = st.text_input("❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşlukla ayırın)", "")
+    
+    # 2️⃣ Temizle ve kelimelere ayır
+    exclude_words = set(exclude_exact_words_raw.lower().split())
+    
+    exclude_exact_words_raw = st.text_input("❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşlukla ayırın)", "")
+    
+    # 2️⃣ Eğer kullanıcı bir şey girdiyse filtre uygula
+    if exclude_exact_words_raw.strip():
+        exclude_words = set(exclude_exact_words_raw.lower().split())
+    
+        def contains_excluded_word(keyword, exclude_set):
+            keyword_words = set(keyword.lower().split())
+            return not keyword_words.isdisjoint(exclude_set)  # Eşleşme varsa True → filtrele
+    
+        df = df[~df["Keyword"].astype(str).apply(lambda kw: contains_excluded_word(kw, exclude_words))        ]
+        st.success(f"{', '.join(exclude_words)} kelimeleri geçen keyword'ler filtrelendi.")
+    else:
+        df=df
+
+
 
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
