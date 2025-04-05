@@ -126,8 +126,6 @@ if uploaded_files:
         ]
     
         st.success(f"❌ Şu kelimeleri içeren keyword'ler filtrelendi: {', '.join(exclude_words)}")
-    else:
-        st.info("ℹ️ Exact match filtresi uygulanmadı. Kelime girilmedi.")
 
 
 
