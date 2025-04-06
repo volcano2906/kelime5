@@ -113,24 +113,27 @@ if uploaded_files:
         key="exact_filter_input"
     )
     
-    # 2️⃣ Eğer kullanıcı bir şey girdiyse filtre uygula
+    # 2️⃣ Eğer kullanıcı bir şey girdiyse → hem virgül hem boşluğa göre böl
     if exclude_exact_words_raw.strip():
-            exclude_words = set(
-                word.strip().lower()
-                for word in re.split(r'[,\s]+', exclude_exact_words_raw)
-                if word.strip()
-            )
+        # 🔁 Re ile split: boşluk, virgül, virgül+boşluk
+        exclude_words = set(
+            word.strip().lower()
+            for word in re.split(r'[,\s]+', exclude_exact_words_raw)
+            if word.strip()
+        )
     
         def contains_excluded_word(keyword, exclude_set):
             keyword_words = set(keyword.lower().split())
-            return not keyword_words.isdisjoint(exclude_set)  # Eşleşme varsa True → filtrele
+            return not keyword_words.isdisjoint(exclude_set)
     
+        # 3️⃣ Uygula (df üzerinde)
         df = df[
             ~df["Keyword"].astype(str).apply(lambda kw: contains_excluded_word(kw, exclude_words))
         ]
     
-        st.success(f"❌ Şu kelimeleri içeren keyword'ler filtrelendi: {', '.join(exclude_words)}")
-
+        st.success(f"❌ Filtrelenen kelimeler (tam eşleşme): {', '.join(exclude_words)}")
+    else:
+        st.info("ℹ️ Exact match filtresi uygulanmadı. Kelime girilmedi.")
 
 
     def find_missing_keywords(keyword):
