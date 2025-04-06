@@ -115,7 +115,11 @@ if uploaded_files:
     
     # 2️⃣ Eğer kullanıcı bir şey girdiyse filtre uygula
     if exclude_exact_words_raw.strip():
-        exclude_words = set(exclude_exact_words_raw.lower().split())
+            exclude_words = set(
+                word.strip().lower()
+                for word in re.split(r'[,\s]+', exclude_exact_words_raw)
+                if word.strip()
+            )
     
         def contains_excluded_word(keyword, exclude_set):
             keyword_words = set(keyword.lower().split())
