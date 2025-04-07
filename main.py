@@ -454,7 +454,7 @@ if uploaded_files:
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
-        # 1. user_word içeren 2 kelimelik keyword'leri filtrele
+        # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
         filtered_df = df[
             df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)
         ]
@@ -462,38 +462,38 @@ if uploaded_files:
             filtered_df["Keyword"].str.split().str.len().isin([2, 3])
         ]
     
-        # 2. En az 2 farklı uygulamada rank edilmiş olanları bul
+        # 2. En az 2 farklı app'te rank edilenleri bul
         app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
         valid_keywords = app_counts[app_counts > 1].index.tolist()
         filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
     
-        # 3. Keyword frekanslarını say ve sırala (hem count hem alfabetik)
+        # 3. Frekansları say
         keyword_list = filtered_df["Keyword"].str.lower().tolist()
         keyword_freq = Counter(keyword_list)
-        
-        # önce (keyword, freq) çiftlerini al → sonra iki kriterle sırala
-        sorted_keywords = sorted(
-            keyword_freq.items(),
-            key=lambda x: (-x[1], x[0])  # önce frekans (büyükten), sonra alfabetik (küçükten)
-        )
-        
-        # 4. Gösterim için hazırla
-        display_keywords = []
-        for kw, freq in sorted_keywords:
-            words = kw.split()
-            colored_words = []
-            for w in words:
-                if w in user_words:
-                    colored_words.append(f"<span style='color:green'>{w}</span>")
-                else:
-                    colored_words.append(w)
-            colored_kw = " ".join(colored_words)
-            display_keywords.append(f"{colored_kw} ({freq})")
     
-        # 5. Başlık kelimesini de yeşil göster
-        if display_keywords:
+        # 4. Frekansa göre gruplama yap
+        freq_groups = defaultdict(list)
+        for kw, freq in keyword_freq.items():
+            freq_groups[freq].append(kw)
+    
+        # 5. Grupları büyükten küçüğe sırala, içindekileri A-Z sırala
+        grouped_output = []
+        for freq in sorted(freq_groups.keys(), reverse=True):
+            group_words = sorted(freq_groups[freq])
+            # user_words içindekileri yeşile boya
+            highlighted = []
+            for word in group_words:
+                parts = [
+                    f"<span style='color:green'>{w}</span>" if w in user_words else w
+                    for w in word.split()
+                ]
+                highlighted.append(" ".join(parts))
+            grouped_output.append(f"{freq} ({', '.join(highlighted)})")
+    
+        # 6. Final çıktı
+        if grouped_output:
             st.markdown(
-                f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(display_keywords)}",
+                f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(grouped_output)}",
                 unsafe_allow_html=True
             )
         else:
