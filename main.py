@@ -5,6 +5,7 @@ from nltk.corpus import stopwords
 from collections import Counter
 import nltk
 import chardet
+from collections import defaultdict
 
 # Stopwords'leri yükle
 nltk.download('stopwords')
