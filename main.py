@@ -455,12 +455,8 @@ if uploaded_files:
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
         # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
-        filtered_df = df[
-            df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)
-        ]
-        filtered_df = filtered_df[
-            filtered_df["Keyword"].str.split().str.len().isin([2, 3])
-        ]
+        filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
+        filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len().isin([2, 3])]
     
         # 2. En az 2 farklı app'te rank edilenleri bul
         app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
