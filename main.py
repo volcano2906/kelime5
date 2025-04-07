@@ -458,7 +458,9 @@ if uploaded_files:
         filtered_df = df[
             df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)
         ]
-        filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len() == 2]
+        filtered_df = filtered_df[
+            filtered_df["Keyword"].str.split().str.len().isin([2, 3])
+        ]
     
         # 2. En az 2 farklı uygulamada rank edilmiş olanları bul
         app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
