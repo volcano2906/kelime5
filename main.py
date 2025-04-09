@@ -322,6 +322,7 @@ if uploaded_files:
 
     # 1. Clean original keywords from df for exact match lookup
     # Daha temiz ve eşleşebilir versiyon
+    st.write("text")
     df["Keyword_cleaned"] = df["Keyword"].astype(str).str.lower()
     df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r"[^\w\s]", "", regex=True).str.strip()
     df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r"\s+", " ", regex=True)
