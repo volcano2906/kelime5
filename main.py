@@ -363,8 +363,8 @@ if uploaded_files:
         all_trigrams.extend(extract_ngrams(keyword, 3))
     
     # 5. Clean ngrams the same way as df["Keyword_cleaned"]
-    def clean_ngram(ngram):
-        return re.sub(r'[^\w\s]', '', ngram.lower(), flags=re.UNICODE).strip()
+    def clean_ngram(text):
+        return re.sub(r"[^\w\s]", "", text.lower()).strip()
     
     def find_missing_items(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
