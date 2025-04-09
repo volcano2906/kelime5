@@ -321,8 +321,10 @@ if uploaded_files:
     keyword_filter_text = st.text_input("Include only keywords containing (case-insensitive):", "")
 
     # 1. Clean original keywords from df for exact match lookup
-    df["Keyword_cleaned"] = df["Keyword"].str.lower().str.replace(r'[^a-zA-Z\\s]', '', regex=True).str.strip()
-    df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r'\\s+', ' ', regex=True)
+    # Daha temiz ve eşleşebilir versiyon
+    df["Keyword_cleaned"] = df["Keyword"].astype(str).str.lower()
+    df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r"[^\w\s]", "", regex=True).str.strip()
+    df["Keyword_cleaned"] = df["Keyword_cleaned"].str.replace(r"\s+", " ", regex=True)
     
     volume_lookup = df[["Keyword_cleaned", "Volume"]].drop_duplicates()
     
