@@ -329,7 +329,8 @@ if uploaded_files:
 
     
     # 2. Filtreleme uygulama
-    freq_df = dfCopyAnaliz.copy()
+    #freq_df = dfCopyAnaliz.copy()
+    freq_df = df.copy()
     if exclude_low_volume_freq:
         freq_df = freq_df[freq_df["Volume"] != 5]
     if exclude_single_app_keywords:
