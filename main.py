@@ -482,7 +482,7 @@ if uploaded_files:
     
     # ✅ Step 6: Display results
     st.write("### 🔢 Word Scores per App (Based on Matched Keywords)")
-    
+    st.write("test")
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, (avg_score, count) in word_dict.items():
