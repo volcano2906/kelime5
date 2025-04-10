@@ -489,17 +489,17 @@ if uploaded_files:
             if count <= 1 or avg_score == 0.1:
                 continue  # ❌ Skip: too few keywords or only fallback scores
             display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            word_scores.append((avg_score, f"{display_word} ({avg_score} / {count})"))
-        
-        word_scores.sort(reverse=True)
+            word_scores.append((count, word, f"{display_word} ({avg_score} / {count})"))  # include word to break ties
+    
+        # 🔢 Sort by count descending, then by word (alphabetically)
+        word_scores.sort(key=lambda x: (-x[0], x[1]))
     
         if word_scores:
             st.markdown(
-                f"**{app_id}** → {', '.join([item[1] for item in word_scores])}",
+                f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
                 unsafe_allow_html=True
             )
-        
-      
+          
 
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
