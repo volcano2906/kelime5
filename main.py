@@ -413,7 +413,7 @@ if uploaded_files:
 
     # Step 1: Get shared words across all competitors (same as before)
    # 1️⃣ Filter Volume > 5
-    df_filtered = df[df["Volume"] < 5].copy()
+    df_filtered = df[df["Volume"] > 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
     # 2️⃣ Yardımcı fonksiyonlar
@@ -454,6 +454,7 @@ if uploaded_files:
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, scores in word_dict.items():
+            st.write(word)
             avg_score = round(sum(scores) / len(scores), 3)
             word_scores.append((word, avg_score))
         
