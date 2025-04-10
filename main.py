@@ -455,6 +455,7 @@ if uploaded_files:
     # 📊 Step 5: Calculate per-word score based on matched keyword set
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
     all_apps = df_filtered["Application Id"].unique()
+    st.write("test")
     
     for word in all_words:
         # Get all keywords across apps that contain the word
@@ -482,7 +483,6 @@ if uploaded_files:
     
     # ✅ Step 6: Display results
     st.write("### 🔢 Word Scores per App (Based on Matched Keywords)")
-    st.write("test")
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, (avg_score, count) in word_dict.items():
