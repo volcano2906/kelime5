@@ -455,7 +455,7 @@ if uploaded_files:
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         if word_dict[word]=="davetiyesi":
-            for word, scores in word_dict.items():
+           for word, scores in word_dict.items():
                 avg_score = round(sum(scores) / len(scores), 3)
                 word_scores.append((word, avg_score))
             
