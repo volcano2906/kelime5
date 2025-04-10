@@ -445,22 +445,22 @@ if uploaded_files:
         keyword = row["Keyword"]
         words = extract_words(keyword)
         score = rank_to_score(row["Rank"])
-        
         for word in words:
             competitor_word_scores[app_id][word].append(score)
+            if words=="davetiyesi":
+               st.write(words)
     
     # 4️⃣ HTML ile sıralı ve yeşil vurgulu çıktı hazırla
     app_word_result = {}
     
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
-        if word_dict[word]=="davetiyesi":
-           for word, scores in word_dict.items():
-                avg_score = round(sum(scores) / len(scores), 3)
-                word_scores.append((word, avg_score))
-            
-            # Skora göre sırala (büyükten küçüğe)
-            word_scores.sort(key=lambda x: -x[1])
+        for word, scores in word_dict.items():
+            avg_score = round(sum(scores) / len(scores), 3)
+            word_scores.append((word, avg_score))
+        
+        # Skora göre sırala (büyükten küçüğe)
+        word_scores.sort(key=lambda x: -x[1])
         
         # Görsel çıktı için hazırla
         display_items = []
