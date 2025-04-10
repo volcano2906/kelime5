@@ -417,8 +417,9 @@ if uploaded_files:
     # df should already exist and be cleaned
     # ✅ Use only keywords with Volume ≤ 5
     # 📌 Step 1: Filter volume
+    # 📌 Step 1: Filter volume
     df_filtered = df[df["Volume"] <= 5].copy()
-    df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
+    df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
     
     # 🧠 Step 2: Define scoring function
     def rank_to_score(rank):
@@ -439,57 +440,52 @@ if uploaded_files:
         else:
             return 0.1
     
-    # 🧩 Step 3: Collect all unique words from all keywords
-    all_words = set()
-    for kw in df_filtered["Keyword"]:
-        all_words.update(re.findall(r'\b\w+\b', kw.lower()))
+    # 🧩 Step 3: Build reverse index: word → set(keywords)
+    word_to_keywords = defaultdict(set)
+    for kw in df_filtered["Keyword"].drop_duplicates():
+        for word in re.findall(r'\b\w+\b', kw):
+            word_to_keywords[word].add(kw)
     
-    # Step 4: Precompute keyword list per app
+    # 🗃 Step 4: Group keywords by app for lookup
     app_keywords = defaultdict(list)
     for _, row in df_filtered.iterrows():
         app_id = row["Application Id"]
-        keyword = row["Keyword"].lower()
+        keyword = row["Keyword"]
         rank = row["Rank"]
         app_keywords[app_id].append((keyword, rank))
     
-    # 📊 Step 5: Calculate per-word score based on matched keyword set
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
     all_apps = df_filtered["Application Id"].unique()
-    st.write("test")
+    competitor_word_scores = defaultdict(lambda: defaultdict(list))
     
-    for word in all_words:
-        # Get all keywords across apps that contain the word
-        matched_keywords = df_filtered[df_filtered["Keyword"].str.contains(rf'\b{re.escape(word)}\b', case=False, regex=True)]["Keyword"].str.lower().unique()
-        
-        if not matched_keywords.any():
-            continue  # skip word if it's not in any keyword
+    # 🚀 Step 5: Fast scoring logic
+    for word, matched_keywords in word_to_keywords.items():
+        if len(matched_keywords) <= 1:
+            continue  # skip low-volume words
     
         for app_id in all_apps:
-            app_kw_list = app_keywords[app_id]
+            app_kw_dict = dict(app_keywords[app_id])
             word_points = []
+    
             for mk in matched_keywords:
-                # Look for a matching keyword in this app
-                found = False
-                for keyword, rank in app_kw_list:
-                    if keyword == mk:
-                        score = rank_to_score(rank)
-                        word_points.append(score)
-                        found = True
-                        break
-                if not found:
-                    word_points.append(0.1)  # fallback if keyword not ranked by this app
+                if mk in app_kw_dict:
+                    score = rank_to_score(app_kw_dict[mk])
+                    word_points.append(score)
+                else:
+                    word_points.append(0.1)  # fallback if app didn't rank that keyword
+    
             avg_score = round(sum(word_points) / len(word_points), 3)
             competitor_word_scores[app_id][word] = (avg_score, len(word_points))
     
-    # ✅ Step 6: Display results
-    st.write("### 🔢 Word Scores per App (Based on Matched Keywords)")
+    # 🎯 Step 6: Display
+    st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
+    
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, (avg_score, count) in word_dict.items():
             if count <= 1 or avg_score == 0.1:
-                continue  # ❌ Skip low-signal words
+                continue  # filter out weak signals
     
-            # 🎨 Color logic
+            # 🎨 Coloring
             if word in user_words:
                 display_word = f"<span style='color:green'>{word}</span>"
             elif avg_score < 0.2:
@@ -499,7 +495,7 @@ if uploaded_files:
     
             word_scores.append((count, word, f"{display_word} ({avg_score} / {count})"))
     
-        # Sort by count (desc), then word (asc)
+        # Sort: count ↓ then word A–Z
         word_scores.sort(key=lambda x: (-x[0], x[1]))
     
         if word_scores:
@@ -507,7 +503,6 @@ if uploaded_files:
                 f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
                 unsafe_allow_html=True
             )
-              
 
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
