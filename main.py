@@ -413,7 +413,7 @@ if uploaded_files:
 
     # Step 1: Get shared words across all competitors (same as before)
    # 1️⃣ Filter Volume > 5
-    df_filtered = df[df["Volume"] > 5].copy()
+    df_filtered = df[df["Volume"] < 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
     # 2️⃣ Yardımcı fonksiyonlar
