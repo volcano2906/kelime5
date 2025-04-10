@@ -412,19 +412,18 @@ if uploaded_files:
 
 
     # Step 1: Get shared words across all competitors (same as before)
-   # 1️⃣ Filter Volume > 5
+    # 📌 Step 1: Filter volume
+    
+
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
-    # 2️⃣ Yardımcı fonksiyonlar
-    def extract_words(text):
-        return re.findall(r'\b\w+\b', text.lower())
-    
+    # 🧠 Step 2: Define scoring function
     def rank_to_score(rank):
         try:
             rank = int(float(rank))
         except:
-            rank = 250
+            return 0.1  # fallback if invalid
         if 1 <= rank <= 10:
             return 0.9
         elif 11 <= rank <= 20:
@@ -433,62 +432,62 @@ if uploaded_files:
             return 0.7
         elif 41 <= rank <= 60:
             return 0.5
+        elif 61 <= rank <= 100:
+            return 0.2
         else:
-            return 0.3
+            return 0.1
     
-    # 3️⃣ Skorları topla
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
-    st.write(competitor_word_scores)
+    # 🧩 Step 3: Collect all unique words from all keywords
+    all_words = set()
+    for kw in df_filtered["Keyword"]:
+        all_words.update(re.findall(r'\b\w+\b', kw.lower()))
     
+    # 🗃 Step 4: Group keywords by app for easy lookup
+    app_keywords = defaultdict(list)
     for _, row in df_filtered.iterrows():
         app_id = row["Application Id"]
-        keyword = row["Keyword"]
-        words = extract_words(keyword)
-        score = rank_to_score(row["Rank"])
-        for word in words:
-            competitor_word_scores[app_id][word].append(score)
-            if words=="davetiyesi":
-               st.write(words)
+        keyword = row["Keyword"].lower()
+        rank = row["Rank"]
+        app_keywords[app_id].append((keyword, rank))
     
-    # 4️⃣ HTML ile sıralı ve yeşil vurgulu çıktı hazırla
-    app_word_result = {}
+    # 📊 Step 5: Calculate scores per app per word (with fallback 0.1)
+    competitor_word_scores = defaultdict(lambda: defaultdict(list))
+    all_apps = df_filtered["Application Id"].unique()
+    
+    for app_id in all_apps:
+        keywords = app_keywords[app_id]
+    
+        for word in all_words:
+            matched = False
+            for keyword, rank in keywords:
+                if re.search(rf'\b{re.escape(word)}\b', keyword):
+                    score = rank_to_score(rank)
+                    competitor_word_scores[app_id][word].append(score)
+                    matched = True
+            if not matched:
+                competitor_word_scores[app_id][word].append(0.1)  # fallback score
+    
+    # ✅ Step 6: Display results
+    st.write("### 🔢 Word Scores per App (With Fallbacks + Green User Words)")
     
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
-        for word, scores in word_dict.items():
-            avg_score = round(sum(scores) / len(scores), 3)
-            word_scores.append((word, avg_score))
-        
-        # Skora göre sırala (büyükten küçüğe)
-        word_scores.sort(key=lambda x: -x[1])
-        
-        # Görsel çıktı için hazırla
-        display_items = []
-        for word, avg_score in word_scores:
-            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            display_items.append(f"{display_word} ({avg_score})")
-        
-        app_word_result[app_id] = ", ".join(display_items)
     
-    # 5️⃣ Gösterim
-    st.write("### 🔢 Kelimeler (Skora Göre Azalan) – User Word'ler Yeşil")
-    for app_id, word_dict in competitor_word_scores.items():
-        word_scores = []
         for word, scores in word_dict.items():
             avg_score = round(sum(scores) / len(scores), 3)
             count = len(scores)
-            word_scores.append((word, avg_score, count))
-        
-        # Skora göre sırala (büyükten küçüğe)
-        word_scores.sort(key=lambda x: -x[1])
+            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
+            word_scores.append((avg_score, f"{display_word} ({avg_score} / {count})"))
     
-        # Hazırla ve user_words'te varsa yeşil boya
-        display_items = []
-        for word, avg_score, count in word_scores:
-            word_display = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            display_items.append(f"{word_display} ({avg_score} / {count})")
-        
-        st.markdown(f"**{app_id}** → {', '.join(display_items)}", unsafe_allow_html=True)
+        # Sort by score descending
+        word_scores.sort(reverse=True)
+    
+        # Display
+        st.markdown(
+            f"**{app_id}** → {', '.join([item[1] for item in word_scores])}",
+            unsafe_allow_html=True
+        )
+       
 
 
 
