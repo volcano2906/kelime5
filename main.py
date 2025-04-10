@@ -414,7 +414,8 @@ if uploaded_files:
     # Step 1: Get shared words across all competitors (same as before)
     # 📌 Step 1: Filter volume
     
-   # df should already exist and be cleaned
+    # df should already exist and be cleaned
+    # df should already exist and be cleaned
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
@@ -468,9 +469,8 @@ if uploaded_files:
         st.markdown(f"### 📊 Word: {word_display}", unsafe_allow_html=True)
         for app_id, score in sorted_apps:
             st.markdown(f"**{app_id}** → {score} / {len(matched_keywords)} keywords", unsafe_allow_html=True)
-       
-
-
+    
+      
 
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
