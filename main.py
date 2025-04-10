@@ -454,7 +454,6 @@ if uploaded_files:
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, scores in word_dict.items():
-            st.write(word)
             avg_score = round(sum(scores) / len(scores), 3)
             word_scores.append((word, avg_score))
         
