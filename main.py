@@ -490,21 +490,20 @@ if uploaded_files:
                 continue  # filter out weak signals
     
             # 🎨 Coloring
-            # 🎨 Coloring + Bold
             color = ""
             if word in user_words:
                 color = "green"
             elif avg_score < 0.2:
                 color = "red"
             
-            # bold if word is common across all apps
+            # Check if word is shared by all apps
             is_common = len(word_to_apps[word]) == len(all_apps)
             
             styled_word = word
             if color:
                 styled_word = f"<span style='color:{color}'>{styled_word}</span>"
             if is_common:
-                styled_word = f"<b>{styled_word}</b>"
+                styled_word = f"<u>{styled_word}</u>"
             
             display_word = styled_word
     
