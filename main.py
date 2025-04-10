@@ -438,6 +438,7 @@ if uploaded_files:
     
     # 3️⃣ Skorları topla
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
+    sw.write(competitor_word_scores)
     
     for _, row in df_filtered.iterrows():
         app_id = row["Application Id"]
@@ -476,8 +477,6 @@ if uploaded_files:
             avg_score = round(sum(scores) / len(scores), 3)
             count = len(scores)
             word_scores.append((word, avg_score, count))
-            if word == "davetiyesi":
-               st.write(word_dict)
         
         # Skora göre sırala (büyükten küçüğe)
         word_scores.sort(key=lambda x: -x[1])
