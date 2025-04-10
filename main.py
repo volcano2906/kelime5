@@ -484,13 +484,16 @@ if uploaded_files:
     # ✅ Step 6: Display results
     st.write("### 🔢 Word Scores per App (Based on Matched Keywords)")
     for app_id, word_dict in competitor_word_scores.items():
-        word_scores = []
-        for word, (avg_score, count) in word_dict.items():
-            if count <= 1:
-                continue  # ✅ Skip if word matched only one keyword
-            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            word_scores.append((avg_score, f"{display_word} ({avg_score} / {count})"))
-        word_scores.sort(reverse=True)
+    word_scores = []
+    for word, (avg_score, count) in word_dict.items():
+        if count <= 1 or avg_score == 0.1:
+            continue  # ❌ Skip: too few keywords or only fallback scores
+        display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
+        word_scores.append((avg_score, f"{display_word} ({avg_score} / {count})"))
+    
+    word_scores.sort(reverse=True)
+
+    if word_scores:
         st.markdown(
             f"**{app_id}** → {', '.join([item[1] for item in word_scores])}",
             unsafe_allow_html=True
