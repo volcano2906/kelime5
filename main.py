@@ -442,6 +442,13 @@ if uploaded_files:
     
     # 🧩 Step 3: Build reverse index: word → set(keywords)
     word_to_keywords = defaultdict(set)
+    word_to_apps = defaultdict(set)
+
+    for _, row in df_filtered.iterrows():
+        kw = row["Keyword"]
+        app_id = row["Application Id"]
+        for word in re.findall(r'\b\w+\b', kw):
+            word_to_apps[word].add(app_id)
     for kw in df_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
             word_to_keywords[word].add(kw)
@@ -486,12 +493,23 @@ if uploaded_files:
                 continue  # filter out weak signals
     
             # 🎨 Coloring
+            # 🎨 Coloring + Bold
+            color = ""
             if word in user_words:
-                display_word = f"<span style='color:green'>{word}</span>"
+                color = "green"
             elif avg_score < 0.2:
-                display_word = f"<span style='color:red'>{word}</span>"
-            else:
-                display_word = word
+                color = "red"
+            
+            # bold if word is common across all apps
+            is_common = len(word_to_apps[word]) == len(all_apps)
+            
+            styled_word = word
+            if color:
+                styled_word = f"<span style='color:{color}'>{styled_word}</span>"
+            if is_common:
+                styled_word = f"<b>{styled_word}</b>"
+            
+            display_word = styled_word
     
             word_scores.append((count, word, f"{display_word} ({avg_score} / {count})"))
     
