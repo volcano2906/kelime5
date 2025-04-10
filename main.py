@@ -415,10 +415,11 @@ if uploaded_files:
     # 📌 Step 1: Filter volume
     
     # df should already exist and be cleaned
-    # df should already exist and be cleaned
+    # ✅ Use only keywords with Volume ≤ 5
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
+    # ✅ Scoring rules
     def rank_to_score(rank):
         try:
             rank = int(float(rank))
@@ -437,8 +438,12 @@ if uploaded_files:
         else:
             return 0.1
     
-    # ✅ Loop for each word in user_words
-    for target_word in sorted(user_words):
+    # ✅ Extract all unique words from the Keyword column
+    all_keywords_text = " ".join(df_filtered["Keyword"].tolist()).lower()
+    all_words = sorted(set(re.findall(r'\b\w+\b', all_keywords_text)))
+    
+    # ✅ Start scoring logic
+    for target_word in all_words:
         matched_keywords = df_filtered[
             df_filtered["Keyword"].str.contains(rf'\b{re.escape(target_word)}\b', case=False, regex=True)
         ]["Keyword"].unique().tolist()
@@ -452,7 +457,10 @@ if uploaded_files:
         for app_id in apps:
             total_points = 0
             for keyword in matched_keywords:
-                row = df_filtered[(df_filtered["Application Id"] == app_id) & (df_filtered["Keyword"] == keyword)]
+                row = df_filtered[
+                    (df_filtered["Application Id"] == app_id) & 
+                    (df_filtered["Keyword"] == keyword)
+                ]
                 if not row.empty:
                     rank = row.iloc[0]["Rank"]
                     score = rank_to_score(rank)
@@ -463,10 +471,9 @@ if uploaded_files:
             avg_score = round(total_points / len(matched_keywords), 3)
             app_word_scores[app_id] = avg_score
     
-        # ✅ Output sorted
+        # ✅ Sort and display results
         sorted_apps = sorted(app_word_scores.items(), key=lambda x: -x[1])
-        word_display = f"<span style='color:green'>{target_word}</span>" if target_word in user_words else target_word
-        st.markdown(f"### 📊 Word: {word_display}", unsafe_allow_html=True)
+        st.markdown(f"### 📊 Word: <span style='color:green'>{target_word}</span>", unsafe_allow_html=True)
         for app_id, score in sorted_apps:
             st.markdown(f"**{app_id}** → {score} / {len(matched_keywords)} keywords", unsafe_allow_html=True)
     
