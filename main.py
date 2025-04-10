@@ -412,28 +412,11 @@ if uploaded_files:
 
 
     # Step 1: Get shared words across all competitors (same as before)
-    dfCommonAnaliz=df.copy()
-    competitor_count = df["Application Id"].nunique()
-    keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
-    keywords_in_all_competitors = keyword_rank_counts[keyword_rank_counts == competitor_count].index.tolist()
-    # Add Rank_Count column to df (based on how many times each keyword appears)
-    df["Rank_Count"] = df.groupby("Keyword")["Application Id"].transform("count")
-    shared_words = set()
-    for keyword in keywords_in_all_competitors:
-        words = re.split(r'\s+', keyword.lower())
-        shared_words.update([word for word in words if word and word not in stop_words])
-    
-    def get_miss_from_common(keyword, shared_words):
-        keyword_words = set(re.split(r'\s+', keyword.lower()))
-        keyword_words = {w for w in keyword_words if w and w not in stop_words}
-        return keyword_words - shared_words
-    
-
-    # 1️⃣ Filter Volume > 5
+   # 1️⃣ Filter Volume > 5
     df_filtered = df[df["Volume"] > 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
-    # 2️⃣ Helper functions
+    # 2️⃣ Yardımcı fonksiyonlar
     def extract_words(text):
         return re.findall(r'\b\w+\b', text.lower())
     
@@ -453,7 +436,7 @@ if uploaded_files:
         else:
             return 0.3
     
-    # 3️⃣ Score collector
+    # 3️⃣ Skorları topla
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
     
     for _, row in df_filtered.iterrows():
@@ -465,21 +448,28 @@ if uploaded_files:
         for word in words:
             competitor_word_scores[app_id][word].append(score)
     
-    # 4️⃣ Build HTML output
+    # 4️⃣ HTML ile sıralı ve yeşil vurgulu çıktı hazırla
     app_word_result = {}
     
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, scores in word_dict.items():
             avg_score = round(sum(scores) / len(scores), 3)
-            # Green if in user_words
-            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            word_scores.append(f"{display_word} ({avg_score})")
+            word_scores.append((word, avg_score))
         
-        app_word_result[app_id] = ", ".join(sorted(word_scores))
+        # Skora göre sırala (büyükten küçüğe)
+        word_scores.sort(key=lambda x: -x[1])
+        
+        # Görsel çıktı için hazırla
+        display_items = []
+        for word, avg_score in word_scores:
+            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
+            display_items.append(f"{display_word} ({avg_score})")
+        
+        app_word_result[app_id] = ", ".join(display_items)
     
-    # 5️⃣ Display
-    st.write("### 🟢 User Words Highlighted in Green per Competitor")
+    # 5️⃣ Gösterim
+    st.write("### 🔢 Kelimeler (Skora Göre Azalan) – User Word'ler Yeşil")
     for app_id, word_string in app_word_result.items():
         st.markdown(f"**{app_id}** → {word_string}", unsafe_allow_html=True)
 
