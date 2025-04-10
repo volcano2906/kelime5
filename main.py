@@ -428,35 +428,65 @@ if uploaded_files:
         keyword_words = {w for w in keyword_words if w and w not in stop_words}
         return keyword_words - shared_words
     
-    # Generate result string per app
-    app_results = {}
-    for app_id in df["Application Id"].unique():
-        app_df = df[df["Application Id"] == app_id]
-        app_word_set = set(shared_words)  # start with shared words
+
+    # 1️⃣ Filter Volume > 5
+    df_filtered = df[df["Volume"] > 5].copy()
+    df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
-        for _, row in app_df.iterrows():
-            if int(row["Rank"]) < 20:
-                keyword = row["Keyword"]
-                miss_words = get_miss_from_common(keyword, shared_words)
-                app_word_set.update(miss_words)
+    # 2️⃣ Helper functions
+    def extract_words(text):
+        return re.findall(r'\b\w+\b', text.lower())
+    
+    def rank_to_score(rank):
+        try:
+            rank = int(float(rank))
+        except:
+            rank = 250
+        if 1 <= rank <= 10:
+            return 0.9
+        elif 11 <= rank <= 20:
+            return 0.8
+        elif 21 <= rank <= 40:
+            return 0.7
+        elif 41 <= rank <= 60:
+            return 0.5
+        else:
+            return 0.3
+    
+    # 3️⃣ Score collector
+    competitor_word_scores = defaultdict(lambda: defaultdict(list))
+    
+    for _, row in df_filtered.iterrows():
+        app_id = row["Application Id"]
+        keyword = row["Keyword"]
+        words = extract_words(keyword)
+        score = rank_to_score(row["Rank"])
         
-        app_results[app_id] = ", ".join(sorted(app_word_set))
+        for word in words:
+            competitor_word_scores[app_id][word].append(score)
     
-    # Display result
-    st.write("### Result Strings by Competitor (Application Id)")
-    for app_id, word_string in app_results.items():
-        words = word_string.split(", ")
-        highlighted_words = [
-            f"<span style='color:green'>{word}</span>" if word in user_words else word
-            for word in words
-        ]
-        highlighted_string = ", ".join(highlighted_words)
-        st.markdown(f"**{app_id}**: {highlighted_string}", unsafe_allow_html=True)
+    # 4️⃣ Build HTML output
+    app_word_result = {}
+    
+    for app_id, word_dict in competitor_word_scores.items():
+        word_scores = []
+        for word, scores in word_dict.items():
+            avg_score = round(sum(scores) / len(scores), 3)
+            # Green if in user_words
+            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
+            word_scores.append(f"{display_word} ({avg_score})")
+        
+        app_word_result[app_id] = ", ".join(sorted(word_scores))
+    
+    # 5️⃣ Display
+    st.write("### 🟢 User Words Highlighted in Green per Competitor")
+    for app_id, word_string in app_word_result.items():
+        st.markdown(f"**{app_id}** → {word_string}", unsafe_allow_html=True)
 
 
 
 
-    st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 Kelimelik Keyword'ler)")
+    st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
         # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
         filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
