@@ -415,15 +415,16 @@ if uploaded_files:
     # 📌 Step 1: Filter volume
     
     st.write("test")
+    # ✅ Use only volume ≤ 5
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
-    # 🧠 Step 2: Define scoring function
+    # ✅ Your scoring function
     def rank_to_score(rank):
         try:
             rank = int(float(rank))
         except:
-            return 0.1  # fallback if invalid
+            return 0.1
         if 1 <= rank <= 10:
             return 0.9
         elif 11 <= rank <= 20:
@@ -437,35 +438,37 @@ if uploaded_files:
         else:
             return 0.1
     
-    # 🧩 Step 3: Collect all unique words from all keywords
-    all_words = set()
-    for kw in df_filtered["Keyword"]:
-        all_words.update(re.findall(r'\b\w+\b', kw.lower()))
+    # ✅ User-defined word (you can loop through many if needed)
+    target_word = "davetiyesi"
     
-    # 🗃 Step 4: Group keywords by app for easy lookup
-    app_keywords = defaultdict(list)
-    for _, row in df_filtered.iterrows():
-        app_id = row["Application Id"]
-        keyword = row["Keyword"].lower()
-        rank = row["Rank"]
-        app_keywords[app_id].append((keyword, rank))
+    # ✅ Step 1: Find keywords that contain the target word (exact match)
+    matched_keywords = df_filtered[
+        df_filtered["Keyword"].str.contains(rf'\b{re.escape(target_word)}\b', case=False, regex=True)
+    ]["Keyword"].unique().tolist()
     
-    # 📊 Step 5: Calculate scores per app per word (with fallback 0.1)
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
-    all_apps = df_filtered["Application Id"].unique()
+    # ✅ Step 2: For each app, check each keyword
+    apps = df_filtered["Application Id"].unique()
+    app_word_scores = {}
     
-    for app_id in all_apps:
-        keywords = app_keywords[app_id]
+    for app_id in apps:
+        total_points = 0
+        for keyword in matched_keywords:
+            keyword_rows = df_filtered[(df_filtered["Application Id"] == app_id) & (df_filtered["Keyword"] == keyword)]
+            if not keyword_rows.empty:
+                rank = keyword_rows.iloc[0]["Rank"]
+                score = rank_to_score(rank)
+            else:
+                score = 0.1
+            total_points += score
     
-        for word in all_words:
-            matched = False
-            for keyword, rank in keywords:
-                if re.search(rf'\b{re.escape(word)}\b', keyword):
-                    score = rank_to_score(rank)
-                    competitor_word_scores[app_id][word].append(score)
-                    matched = True
-            if not matched:
-                competitor_word_scores[app_id][word].append(0.1)  # fallback score
+        avg_score = round(total_points / len(matched_keywords), 3)
+        app_word_scores[app_id] = avg_score
+    
+    # ✅ Step 3: Display (sorted)
+    sorted_apps = sorted(app_word_scores.items(), key=lambda x: -x[1])
+    st.markdown(f"### 📊 Keyword Analysis for: <span style='color:green'>{target_word}</span>", unsafe_allow_html=True)
+    for app_id, score in sorted_apps:
+        st.markdown(f"**{app_id}** → {score} / {len(matched_keywords)} keywords", unsafe_allow_html=True)
     
     # ✅ Step 6: Display results
     st.write("### 🔢 Word Scores per App (With Fallbacks + Green User Words)")
