@@ -487,11 +487,19 @@ if uploaded_files:
         word_scores = []
         for word, (avg_score, count) in word_dict.items():
             if count <= 1 or avg_score == 0.1:
-                continue  # ❌ Skip: too few keywords or only fallback scores
-            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            word_scores.append((count, word, f"{display_word} ({avg_score} / {count})"))  # include word to break ties
+                continue  # ❌ Skip low-signal words
     
-        # 🔢 Sort by count descending, then by word (alphabetically)
+            # 🎨 Color logic
+            if word in user_words:
+                display_word = f"<span style='color:green'>{word}</span>"
+            elif avg_score < 0.2:
+                display_word = f"<span style='color:red'>{word}</span>"
+            else:
+                display_word = word
+    
+            word_scores.append((count, word, f"{display_word} ({avg_score} / {count})"))
+    
+        # Sort by count (desc), then word (asc)
         word_scores.sort(key=lambda x: (-x[0], x[1]))
     
         if word_scores:
@@ -499,7 +507,7 @@ if uploaded_files:
                 f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
                 unsafe_allow_html=True
             )
-          
+              
 
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
