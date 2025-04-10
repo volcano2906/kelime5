@@ -414,12 +414,10 @@ if uploaded_files:
     # Step 1: Get shared words across all competitors (same as before)
     # 📌 Step 1: Filter volume
     
-    st.write("test")
-    # ✅ Use only volume ≤ 5
+   # df should already exist and be cleaned
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str)
     
-    # ✅ Your scoring function
     def rank_to_score(rank):
         try:
             rank = int(float(rank))
@@ -438,58 +436,38 @@ if uploaded_files:
         else:
             return 0.1
     
-    # ✅ User-defined word (you can loop through many if needed)
-    target_word = "davetiyesi"
+    # ✅ Loop for each word in user_words
+    for target_word in sorted(user_words):
+        matched_keywords = df_filtered[
+            df_filtered["Keyword"].str.contains(rf'\b{re.escape(target_word)}\b', case=False, regex=True)
+        ]["Keyword"].unique().tolist()
     
-    # ✅ Step 1: Find keywords that contain the target word (exact match)
-    matched_keywords = df_filtered[
-        df_filtered["Keyword"].str.contains(rf'\b{re.escape(target_word)}\b', case=False, regex=True)
-    ]["Keyword"].unique().tolist()
+        if not matched_keywords:
+            continue
     
-    # ✅ Step 2: For each app, check each keyword
-    apps = df_filtered["Application Id"].unique()
-    app_word_scores = {}
+        apps = df_filtered["Application Id"].unique()
+        app_word_scores = {}
     
-    for app_id in apps:
-        total_points = 0
-        for keyword in matched_keywords:
-            keyword_rows = df_filtered[(df_filtered["Application Id"] == app_id) & (df_filtered["Keyword"] == keyword)]
-            if not keyword_rows.empty:
-                rank = keyword_rows.iloc[0]["Rank"]
-                score = rank_to_score(rank)
-            else:
-                score = 0.1
-            total_points += score
+        for app_id in apps:
+            total_points = 0
+            for keyword in matched_keywords:
+                row = df_filtered[(df_filtered["Application Id"] == app_id) & (df_filtered["Keyword"] == keyword)]
+                if not row.empty:
+                    rank = row.iloc[0]["Rank"]
+                    score = rank_to_score(rank)
+                else:
+                    score = 0.1
+                total_points += score
     
-        avg_score = round(total_points / len(matched_keywords), 3)
-        app_word_scores[app_id] = avg_score
+            avg_score = round(total_points / len(matched_keywords), 3)
+            app_word_scores[app_id] = avg_score
     
-    # ✅ Step 3: Display (sorted)
-    sorted_apps = sorted(app_word_scores.items(), key=lambda x: -x[1])
-    st.markdown(f"### 📊 Keyword Analysis for: <span style='color:green'>{target_word}</span>", unsafe_allow_html=True)
-    for app_id, score in sorted_apps:
-        st.markdown(f"**{app_id}** → {score} / {len(matched_keywords)} keywords", unsafe_allow_html=True)
-    
-    # ✅ Step 6: Display results
-    st.write("### 🔢 Word Scores per App (With Fallbacks + Green User Words)")
-    
-    for app_id, word_dict in competitor_word_scores.items():
-        word_scores = []
-    
-        for word, scores in word_dict.items():
-            avg_score = round(sum(scores) / len(scores), 3)
-            count = len(scores)
-            display_word = f"<span style='color:green'>{word}</span>" if word in user_words else word
-            word_scores.append((avg_score, f"{display_word} ({avg_score} / {count})"))
-    
-        # Sort by score descending
-        word_scores.sort(reverse=True)
-    
-        # Display
-        st.markdown(
-            f"**{app_id}** → {', '.join([item[1] for item in word_scores])}",
-            unsafe_allow_html=True
-        )
+        # ✅ Output sorted
+        sorted_apps = sorted(app_word_scores.items(), key=lambda x: -x[1])
+        word_display = f"<span style='color:green'>{target_word}</span>" if target_word in user_words else target_word
+        st.markdown(f"### 📊 Word: {word_display}", unsafe_allow_html=True)
+        for app_id, score in sorted_apps:
+            st.markdown(f"**{app_id}** → {score} / {len(matched_keywords)} keywords", unsafe_allow_html=True)
        
 
 
