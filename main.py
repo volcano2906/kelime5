@@ -470,8 +470,23 @@ if uploaded_files:
     
     # 5️⃣ Gösterim
     st.write("### 🔢 Kelimeler (Skora Göre Azalan) – User Word'ler Yeşil")
-    for app_id, word_string in app_word_result.items():
-        st.markdown(f"**{app_id}** → {word_string}", unsafe_allow_html=True)
+    for app_id, word_dict in competitor_word_scores.items():
+        word_scores = []
+        for word, scores in word_dict.items():
+            avg_score = round(sum(scores) / len(scores), 3)
+            count = len(scores)
+            word_scores.append((word, avg_score, count))
+        
+        # Skora göre sırala (büyükten küçüğe)
+        word_scores.sort(key=lambda x: -x[1])
+    
+        # Hazırla ve user_words'te varsa yeşil boya
+        display_items = []
+        for word, avg_score, count in word_scores:
+            word_display = f"<span style='color:green'>{word}</span>" if word in user_words else word
+            display_items.append(f"{word_display} ({avg_score} / {count})")
+        
+        st.markdown(f"**{app_id}** → {', '.join(display_items)}", unsafe_allow_html=True)
 
 
 
