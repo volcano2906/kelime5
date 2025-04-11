@@ -438,7 +438,7 @@ if uploaded_files:
             return 0.1
     
     # 🧩 Step 3: Build reverse index: word → set(keywords)
-    word_to_keywords = defaultdict(set)
+    word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
 
     for _, row in df_filtered.iterrows():
@@ -448,7 +448,7 @@ if uploaded_files:
             word_to_apps[word].add(app_id)
     for kw in df_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
-            word_to_keywords[word].add(kw)
+            word_to_kwset[word].add(kw)
     
     # 🗃 Step 4: Group keywords by app for lookup
     app_keywords = defaultdict(list)
@@ -462,7 +462,7 @@ if uploaded_files:
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
     
     # 🚀 Step 5: Fast scoring logic
-    for word, matched_keywords in word_to_keywords.items():
+    for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
             continue  # skip low-volume words
     
