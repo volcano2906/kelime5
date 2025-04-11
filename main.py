@@ -532,7 +532,7 @@ if uploaded_files:
     st.write("Unique words in keywords:", len(word_to_kwset))
     for word, matched_keywords in word_to_kwset.items():
         if len(word_to_appids[word]) == len(all_apps) and len(matched_keywords) > 1:
-            common_words.append(word)
+            universal_common_words.append(word)
     
     # Sort alphabetically
     universal_common_words = sorted(universal_common_words)
