@@ -206,7 +206,7 @@ if uploaded_files:
     #missing
     # ✅ Final Step: Print All Common Words
     common_words = [
-        word for word, kws in word_to_keywords.items()
+        word for word, kws in word_to_kwset.items()
         if len(word_to_apps[word]) == len(all_apps) and len(kws) > 1
     ]
     
