@@ -258,7 +258,7 @@ if uploaded_files:
     
     # 2️⃣ unique_words seti oluştur (stopwords hariç)
     unique_words = set()
-    for keyword in keywords_in_all_competitors:
+    for keyword in common_words:
         words = re.split(r'\s+', keyword.lower())  # boşluklara göre ayır
         unique_words.update([word for word in words if word and word not in stop_words])
     
