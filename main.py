@@ -109,7 +109,7 @@ if uploaded_files:
 
     # 1️⃣ Kullanıcıdan exact match için filtre kelimeleri al — key ekliyoruz
     exclude_exact_words_raw = st.text_input(
-        "❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşlukla ayırın)", 
+        "❌ Exact Match ile Elemek İstediğiniz Kelimeler (boşluk, virgül)", 
         "", 
         key="exact_filter_input"
     )
