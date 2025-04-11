@@ -524,7 +524,7 @@ if uploaded_files:
 
     st.write("common")
     common_words = []
-    st.write("Rows after volume filter:", len(word_to_keywords)
+    st.write("Unique words in keywords:", len(word_to_keywords))
     for word, matched_keywords in word_to_keywords.items():
         if len(word_to_apps[word]) == len(all_apps) and len(matched_keywords) > 1:
             common_words.append(word)
