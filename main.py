@@ -421,9 +421,9 @@ if uploaded_files:
 
     st.write("test")
     #tek analiz işi
-    df_filtered = df[df["Volume"] <= 5].copy()
-    st.write("Rows after volume filter:", df_filtered.shape[0])
-    df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
+    df_vol_filtered = df[df["Volume"] <= 5].copy()
+    st.write("Rows after volume filter:", df_vol_filtered.shape[0])
+    df_vol_filtered["Keyword"] = df_vol_filtered["Keyword"].astype(str).str.lower()
     
     # 🧠 Step 2: Define scoring function
     def rank_to_score(rank):
@@ -445,36 +445,36 @@ if uploaded_files:
             return 0.1
     
     # 🧩 Step 3: Build reverse index: word → set(keywords)
-    word_to_keywords = defaultdict(set)
-    word_to_apps = defaultdict(set)
+    word_to_kwset = defaultdict(set)
+    word_to_appids = defaultdict(set)
 
-    for _, row in df_filtered.iterrows():
+    for _, row in df_vol_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
         for word in re.findall(r'\b\w+\b', kw):
-            word_to_apps[word].add(app_id)
-    for kw in df_filtered["Keyword"].drop_duplicates():
+            word_to_appids[word].add(app_id)
+    for kw in df_vol_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
-            word_to_keywords[word].add(kw)
+            word_to_kwset[word].add(kw)
     
     # 🗃 Step 4: Group keywords by app for lookup
-    app_keywords = defaultdict(list)
-    for _, row in df_filtered.iterrows():
+    app_id_to_keywords	 = defaultdict(list)
+    for _, row in df_vol_filtered.iterrows():
         app_id = row["Application Id"]
         keyword = row["Keyword"]
         rank = row["Rank"]
-        app_keywords[app_id].append((keyword, rank))
+        app_id_to_keywords	[app_id].append((keyword, rank))
     
-    all_apps = df_filtered["Application Id"].unique()
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
+    all_apps = df_vol_filtered["Application Id"].unique()
+    app_word_score_summary = defaultdict(lambda: defaultdict(list))
     
     # 🚀 Step 5: Fast scoring logic
-    for word, matched_keywords in word_to_keywords.items():
+    for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
             continue  # skip low-volume words
     
         for app_id in all_apps:
-            app_kw_dict = dict(app_keywords[app_id])
+            app_kw_dict = dict(app_id_to_keywords	[app_id])
             word_points = []
     
             for mk in matched_keywords:
@@ -485,14 +485,14 @@ if uploaded_files:
                     word_points.append(0.1)  # fallback if app didn't rank that keyword
     
             avg_score = round(sum(word_points) / len(word_points), 3)
-            competitor_word_scores[app_id][word] = (avg_score, len(word_points))
+            app_word_score_summary[app_id][word] = (avg_score, len(word_points))
 
   
     
     # 🎯 Step 6: Display
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
     
-    for app_id, word_dict in competitor_word_scores.items():
+    for app_id, word_dict in app_word_score_summary.items():
         word_scores = []
         for word, (avg_score, count) in word_dict.items():
             if count <= 1 or avg_score == 0.1:
@@ -506,7 +506,7 @@ if uploaded_files:
                 color = "red"
             
             # Check if word is shared by all apps
-            is_common = len(word_to_apps[word]) == len(all_apps)
+            is_common = len(word_to_appids[word]) == len(all_apps)
             
             styled_word = word
             if color:
@@ -528,19 +528,19 @@ if uploaded_files:
             )
 
     st.write("common")
-    common_words = []
-    st.write("Unique words in keywords:", len(word_to_keywords))
-    for word, matched_keywords in word_to_keywords.items():
-        if len(word_to_apps[word]) == len(all_apps) and len(matched_keywords) > 1:
+    universal_common_words = []
+    st.write("Unique words in keywords:", len(word_to_kwset))
+    for word, matched_keywords in word_to_kwset.items():
+        if len(word_to_appids[word]) == len(all_apps) and len(matched_keywords) > 1:
             common_words.append(word)
     
     # Sort alphabetically
-    common_words = sorted(common_words)
+    universal_common_words = sorted(universal_common_words)
     
     # 🔽 Display result
-    if common_words:
+    if universal_common_words:
         st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
-        st.write(", ".join(common_words))
+        st.write(", ".join(universal_common_words))
     else:
         st.warning("No common words found across all apps with more than 1 keyword.")
 
