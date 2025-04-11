@@ -518,6 +518,7 @@ if uploaded_files:
                 unsafe_allow_html=True
             )
 
+    st.write("common")
     common_words = []
 
     for word, matched_keywords in word_to_keywords.items():
