@@ -136,7 +136,8 @@ if uploaded_files:
     else:
         st.info("ℹ️ Exact match filtresi uygulanmadı. Kelime girilmedi.")
 
-
+    df_filtered = df[df["Volume"] <= 5].copy()
+    st.write("Rows after volume filter:", df_filtered.shape[0])
     #missing bulma
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
@@ -417,8 +418,7 @@ if uploaded_files:
 
     st.write("test")
     #tek analiz işi
-    df_filtered = df[df["Volume"] <= 5].copy()
-    st.write("Rows after volume filter:", df_filtered.shape[0])
+
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
     
     # 🧠 Step 2: Define scoring function
