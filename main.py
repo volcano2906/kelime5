@@ -266,7 +266,7 @@ if uploaded_files:
     
     # 4️⃣ result_string oluştur (renkli)
     result_string = ", ".join(highlighted_result_words)
-
+    universal_common_words = []
     # Sort alphabetically
     universal_common_words = sorted(universal_common_words)
     
@@ -534,7 +534,7 @@ if uploaded_files:
             )
 
     st.write("common")
-    universal_common_words = []
+   
     st.write("Unique words in keywords:", len(word_to_kwset))
     for word, matched_keywords in word_to_kwset.items():
         if len(word_to_appids[word]) == len(all_apps) and len(matched_keywords) > 1:
