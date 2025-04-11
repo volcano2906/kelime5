@@ -209,7 +209,16 @@ if uploaded_files:
     common_words = sorted(common_words)
     if common_words:
         st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
-        st.write(", ".join(common_words))
+    
+        highlighted = []
+        for word in common_words:
+            if word in user_words:
+                highlighted.append(f"<span style='color:green'>{word}</span>")
+            else:
+                highlighted.append(word)
+    
+        st.markdown(", ".join(highlighted), unsafe_allow_html=True)
+    
     else:
         st.warning("⚠️ No common words found across all apps with more than 1 keyword.")
         
