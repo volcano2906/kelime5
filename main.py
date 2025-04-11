@@ -266,6 +266,16 @@ if uploaded_files:
     
     # 4️⃣ result_string oluştur (renkli)
     result_string = ", ".join(highlighted_result_words)
+
+    # Sort alphabetically
+    universal_common_words = sorted(universal_common_words)
+    
+    # 🔽 Display result
+    if universal_common_words:
+        st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
+        st.write(", ".join(universal_common_words))
+    else:
+        st.warning("No common words found across all apps with more than 1 keyword.")
     
     # 5️⃣ ekranda göster
     st.markdown("📌 Ortak Kelimeler (Tüm Rakiplerde Geçenler)")
@@ -483,11 +493,7 @@ if uploaded_files:
 
     # 📌 Step 1: Filter volume
 
-
-    st.write("test")
     #tek analiz işi
-
-  
     
     # 🎯 Step 6: Display
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
@@ -534,16 +540,6 @@ if uploaded_files:
         if len(word_to_appids[word]) == len(all_apps) and len(matched_keywords) > 1:
             universal_common_words.append(word)
     
-    # Sort alphabetically
-    universal_common_words = sorted(universal_common_words)
-    
-    # 🔽 Display result
-    if universal_common_words:
-        st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
-        st.write(", ".join(universal_common_words))
-    else:
-        st.warning("No common words found across all apps with more than 1 keyword.")
-
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
