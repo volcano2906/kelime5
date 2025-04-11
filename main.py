@@ -243,8 +243,22 @@ if uploaded_files:
     # Boş değerleri "null" olarak değiştir
     pivot_df.fillna("null", inplace=True)
         # Kolonları yeniden sıralama
-
-    #
+    common_words = []
+    st.write("Unique words in keywords:", len(word_to_keywords))
+    for word, matched_keywords in word_to_keywords.items():
+        if len(word_to_apps[word]) == len(all_apps) and len(matched_keywords) > 1:
+            common_words.append(word)
+    
+    # Sort alphabetically
+    common_words = sorted(common_words)
+    
+    # 🔽 Display result
+    if common_words:
+        st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
+        st.write(", ".join(common_words))
+    else:
+        st.warning("No common words found across all apps with more than 1 keyword.")
+    
     # 1️⃣ Tüm rakiplerde geçen anahtar kelimeleri bul
     competitor_count = df["Application Id"].nunique()
     keyword_rank_counts = df.groupby("Keyword")["Application Id"].nunique()
@@ -266,17 +280,6 @@ if uploaded_files:
     
     # 4️⃣ result_string oluştur (renkli)
     result_string = ", ".join(highlighted_result_words)
-    universal_common_words = []
-    # Sort alphabetically
-    universal_common_words = sorted(universal_common_words)
-    
-    # 🔽 Display result
-    if universal_common_words:
-        st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
-        st.write(", ".join(universal_common_words))
-    else:
-        st.warning("No common words found across all apps with more than 1 keyword.")
-    
     # 5️⃣ ekranda göster
     st.markdown("📌 Ortak Kelimeler (Tüm Rakiplerde Geçenler)")
     st.markdown(result_string, unsafe_allow_html=True)
