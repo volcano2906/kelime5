@@ -136,71 +136,8 @@ if uploaded_files:
     else:
         st.info("ℹ️ Exact match filtresi uygulanmadı. Kelime girilmedi.")
 
-    df_filtered = df[df["Volume"] <= 5].copy()
-    df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
-    
-    # 🧠 Step 2: Define scoring function
-    def rank_to_score(rank):
-        try:
-            rank = int(float(rank))
-        except:
-            return 0.1
-        if 1 <= rank <= 10:
-            return 0.9
-        elif 11 <= rank <= 20:
-            return 0.8
-        elif 21 <= rank <= 40:
-            return 0.7
-        elif 41 <= rank <= 60:
-            return 0.5
-        elif 61 <= rank <= 100:
-            return 0.2
-        else:
-            return 0.1
-    
-    # 🧩 Step 3: Build reverse index: word → set(keywords)
-    word_to_keywords = defaultdict(set)
-    word_to_apps = defaultdict(set)
-
-    for _, row in df_filtered.iterrows():
-        kw = row["Keyword"]
-        app_id = row["Application Id"]
-        for word in re.findall(r'\b\w+\b', kw):
-            word_to_apps[word].add(app_id)
-    for kw in df_filtered["Keyword"].drop_duplicates():
-        for word in re.findall(r'\b\w+\b', kw):
-            word_to_keywords[word].add(kw)
-    
-    # 🗃 Step 4: Group keywords by app for lookup
-    app_keywords = defaultdict(list)
-    for _, row in df_filtered.iterrows():
-        app_id = row["Application Id"]
-        keyword = row["Keyword"]
-        rank = row["Rank"]
-        app_keywords[app_id].append((keyword, rank))
-    
-    all_apps = df_filtered["Application Id"].unique()
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
-    
-    # 🚀 Step 5: Fast scoring logic
-    for word, matched_keywords in word_to_keywords.items():
-        if len(matched_keywords) <= 1:
-            continue  # skip low-volume words
-    
-        for app_id in all_apps:
-            app_kw_dict = dict(app_keywords[app_id])
-            word_points = []
-    
-            for mk in matched_keywords:
-                if mk in app_kw_dict:
-                    score = rank_to_score(app_kw_dict[mk])
-                    word_points.append(score)
-                else:
-                    word_points.append(0.1)  # fallback if app didn't rank that keyword
-    
-            avg_score = round(sum(word_points) / len(word_points), 3)
-            competitor_word_scores[app_id][word] = (avg_score, len(word_points))
-
+    #tek analiz işi
+    st.write("test")
     
     def find_missing_keywords(keyword):
         words = set(re.split(r'[ ,]+', keyword.lower()))
