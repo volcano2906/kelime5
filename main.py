@@ -518,6 +518,22 @@ if uploaded_files:
                 unsafe_allow_html=True
             )
 
+    common_words = []
+
+    for word, matched_keywords in word_to_keywords.items():
+        if len(word_to_apps[word]) == len(all_apps) and len(matched_keywords) > 1:
+            common_words.append(word)
+    
+    # Sort alphabetically
+    common_words = sorted(common_words)
+    
+    # 🔽 Display result
+    if common_words:
+        st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
+        st.write(", ".join(common_words))
+    else:
+        st.warning("No common words found across all apps with more than 1 keyword.")
+
 
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
