@@ -262,20 +262,6 @@ if uploaded_files:
         words = re.split(r'\s+', keyword.lower())  # boşluklara göre ayır
         unique_words.update([word for word in words if word and word not in stop_words])
     
-    # 3️⃣ user_words ile karşılaştırıp renkli hale getir
-    highlighted_result_words = []
-    for word in sorted(unique_words):
-        if word in user_words:
-            highlighted_result_words.append(f"<span style='color:green'>{word}</span>")
-        else:
-            highlighted_result_words.append(word)
-    
-    # 4️⃣ result_string oluştur (renkli)
-    result_string = ", ".join(highlighted_result_words)
-    
-    # 5️⃣ ekranda göster
-    st.markdown("📌 Ortak Kelimeler (Tüm Rakiplerde Geçenler)")
-    st.markdown(result_string, unsafe_allow_html=True)
 
     # unique_words içindeki her kelime için df'de arama (duplikatsız)
     word_to_keywords = {}
