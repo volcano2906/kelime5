@@ -491,22 +491,26 @@ if uploaded_files:
 
     # 📌 Step 1: Filter volume
     # 1. İlk 15 monogram (tek kelime)
-    top_unigrams = word_freq["Word"].head(20).tolist()
+    # 1️⃣ Monogram (ilk 15)
+    top_unigrams = word_freq.head(20)
+    top_unigrams_str = [f"{row['Word']} ({row['Volume']})" for _, row in top_unigrams.iterrows()]
     
-    # 2. İlk 10 bigram
-    top_bigrams = bigram_freq["Bigram"].head(15).tolist()
+    # 2️⃣ Bigram (ilk 10)
+    top_bigrams = bigram_freq.head(15)
+    top_bigrams_str = [f"{row['Bigram']} ({row['Volume']})" for _, row in top_bigrams.iterrows()]
     
-    # 3. İlk 5 trigram
-    top_trigrams = trigram_freq["Trigram"].head(5).tolist()
+    # 3️⃣ Trigram (ilk 5)
+    top_trigrams = trigram_freq.head(5)
+    top_trigrams_str = [f"{row['Trigram']} ({row['Volume']})" for _, row in top_trigrams.iterrows()]
     
-    # 4. Tümünü birleştir
-    combined_keywords = top_unigrams + top_bigrams + top_trigrams
+    # 4️⃣ Hepsini birleştir
+    combined_keywords = top_unigrams_str + top_bigrams_str + top_trigrams_str
     
-    # 5. String formatına çevir
+    # 5️⃣ String formatına çevir
     combined_string = ", ".join(combined_keywords)
     
-    # 6. Göster
-    st.write("### 🧠 En Sık Geçen Anahtar Kelimeler (Top Combined)")
+    # 6️⃣ Göster
+    st.write("### 🧠 En Sık Geçen Anahtar Kelimeler + Hacim (Top Combined)")
     st.write(combined_string)
     
     # 🎯 Step 6: Display
