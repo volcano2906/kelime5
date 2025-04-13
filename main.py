@@ -443,26 +443,32 @@ if uploaded_files:
         return ','.join(missing_words) if missing_words else "-"
     
     # 6. Create cleaned version of ngrams for matching
+    # 🔤 Unigrams
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
     word_freq["Keyword_cleaned"] = word_freq["Word"].apply(clean_ngram)
     word_freq = word_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
     word_freq["Volume"] = word_freq["Volume"].fillna("none")
     word_freq["Missing Keywords"] = word_freq["Word"].apply(find_missing_items)
     word_freq.drop(columns=["Keyword_cleaned"], inplace=True)
+    word_freq = word_freq.sort_values("Frequency", ascending=False)
     
+    # 🧩 Bigrams
     bigram_freq = pd.DataFrame(Counter(all_bigrams).items(), columns=["Bigram", "Frequency"])
     bigram_freq["Keyword_cleaned"] = bigram_freq["Bigram"].apply(clean_ngram)
     bigram_freq = bigram_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
     bigram_freq["Volume"] = bigram_freq["Volume"].fillna("none")
     bigram_freq["Missing Keywords"] = bigram_freq["Bigram"].apply(find_missing_items)
     bigram_freq.drop(columns=["Keyword_cleaned"], inplace=True)
+    bigram_freq = bigram_freq.sort_values("Frequency", ascending=False)
     
+    # 🧠 Trigrams
     trigram_freq = pd.DataFrame(Counter(all_trigrams).items(), columns=["Trigram", "Frequency"])
     trigram_freq["Keyword_cleaned"] = trigram_freq["Trigram"].apply(clean_ngram)
     trigram_freq = trigram_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
     trigram_freq["Volume"] = trigram_freq["Volume"].fillna("none")
     trigram_freq["Missing Keywords"] = trigram_freq["Trigram"].apply(find_missing_items)
     trigram_freq.drop(columns=["Keyword_cleaned"], inplace=True)
+    trigram_freq = trigram_freq.sort_values("Frequency", ascending=False)
 
     # Sonuçları yatay olarak gösterme
     st.write("### Eksik Kelimeler İçin Frekans Analizi")
