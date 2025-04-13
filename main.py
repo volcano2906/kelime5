@@ -489,10 +489,24 @@ if uploaded_files:
 
 
     # 📌 Step 1: Filter volume
-
-
-    st.write("test")
-
+    # 1. İlk 15 monogram (tek kelime)
+    top_unigrams = word_freq["Word"].head(15).tolist()
+    
+    # 2. İlk 10 bigram
+    top_bigrams = bigram_freq["Bigram"].head(10).tolist()
+    
+    # 3. İlk 5 trigram
+    top_trigrams = trigram_freq["Trigram"].head(5).tolist()
+    
+    # 4. Tümünü birleştir
+    combined_keywords = top_unigrams + top_bigrams + top_trigrams
+    
+    # 5. String formatına çevir
+    combined_string = ", ".join(combined_keywords)
+    
+    # 6. Göster
+    st.write("### 🧠 En Sık Geçen Anahtar Kelimeler (Top Combined)")
+    st.write(combined_string)
     
     # 🎯 Step 6: Display
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
