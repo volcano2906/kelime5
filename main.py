@@ -491,10 +491,10 @@ if uploaded_files:
 
     # 📌 Step 1: Filter volume
     # 1. İlk 15 monogram (tek kelime)
-    top_unigrams = word_freq["Word"].head(15).tolist()
+    top_unigrams = word_freq["Word"].head(20).tolist()
     
     # 2. İlk 10 bigram
-    top_bigrams = bigram_freq["Bigram"].head(10).tolist()
+    top_bigrams = bigram_freq["Bigram"].head(15).tolist()
     
     # 3. İlk 5 trigram
     top_trigrams = trigram_freq["Trigram"].head(5).tolist()
