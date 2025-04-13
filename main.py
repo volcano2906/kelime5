@@ -444,6 +444,7 @@ if uploaded_files:
     
     # 6. Create cleaned version of ngrams for matching
     # 🔤 Unigrams
+    st.write("anaiz")
     word_freq = pd.DataFrame(Counter(all_words).items(), columns=["Word", "Frequency"])
     word_freq["Keyword_cleaned"] = word_freq["Word"].apply(clean_ngram)
     word_freq = word_freq.merge(volume_lookup, how="left", on="Keyword_cleaned")
