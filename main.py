@@ -492,6 +492,7 @@ if uploaded_files:
     # 📌 Step 1: Filter volume
     # 1. İlk 15 monogram (tek kelime)
     # 1️⃣ Monogram (ilk 15)
+    st.write("test3")
     top_unigrams = word_freq.head(20)
     top_unigrams_str = [f"{row['Word']} ({row['Volume']})" for _, row in top_unigrams.iterrows()]
     
