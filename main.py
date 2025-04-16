@@ -186,7 +186,11 @@ if uploaded_files:
     # 🚀 Step 5: Fast scoring logic
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
-            continue  # skip low-volume words
+            continue  # skip low-keyword coverage
+    
+        # 🔍 Yeni filtre: sadece 1 uygulamada geçiyorsa atla
+        if len(word_to_apps[word]) <= 1:
+            continue  # sadece 1 app'te geçiyorsa rekabet değeri yok
     
         for app_id in all_apps:
             app_kw_dict = dict(app_keywords[app_id])
