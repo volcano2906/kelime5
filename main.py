@@ -367,6 +367,30 @@ if uploaded_files:
         lambda kw: count_user_word_matches(kw, user_words)
     )
 
+    # 🎯 Total_Score için slider oluştur
+    min_score, max_score = int(pivot_df["Total_Score"].min()), int(pivot_df["Total_Score"].max())
+    score_range = st.slider(
+        "🎚️ Total Score Aralığı Seçin", 
+        min_value=min_score, 
+        max_value=max_score, 
+        value=(min_score, max_score)
+    )
+    
+    # 🎯 Rank_Count için slider oluştur
+    min_rank_count, max_rank_count = int(pivot_df["Rank_Count"].min()), int(pivot_df["Rank_Count"].max())
+    rank_count_range = st.slider(
+        "🎚️ Rank Count Aralığı Seçin", 
+        min_value=min_rank_count, 
+        max_value=max_rank_count, 
+        value=(min_rank_count, max_rank_count)
+    )
+    
+    # 🧹 Filtreyi pivot_df'e uygula
+    filtered_pivot_df = pivot_df[
+        (pivot_df["Total_Score"] >= score_range[0]) & (pivot_df["Total_Score"] <= score_range[1]) &
+        (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])
+    ]
+
     
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
