@@ -367,29 +367,37 @@ if uploaded_files:
         lambda kw: count_user_word_matches(kw, user_words)
     )
 
-    # 🎯 Total_Score için slider oluştur
-    min_score, max_score = int(pivot_df["Total_Score"].min()), int(pivot_df["Total_Score"].max())
-    score_range = st.slider(
-        "🎚️ Total Score Aralığı Seçin", 
-        min_value=min_score, 
-        max_value=max_score, 
-        value=(min_score, max_score)
-    )
+    col1, col2 = st.columns([1, 1])
     
-    # 🎯 Rank_Count için slider oluştur
-    min_rank_count, max_rank_count = int(pivot_df["Rank_Count"].min()), int(pivot_df["Rank_Count"].max())
-    rank_count_range = st.slider(
-        "🎚️ Rank Count Aralığı Seçin", 
-        min_value=min_rank_count, 
-        max_value=max_rank_count, 
-        value=(min_rank_count, max_rank_count)
-    )
+    # 🧮 Total Score aralığı
+    with col1:
+        min_score, max_score = int(pivot_df["Total_Score"].min()), int(pivot_df["Total_Score"].max())
+        score_range = st.slider(
+            "Total Score",
+            min_value=min_score,
+            max_value=max_score,
+            value=(min_score, max_score),
+            step=1,
+            label_visibility="collapsed",
+            help="🎯 Total Score filtrele"
+        )
     
-    # 🧹 Filtreyi pivot_df'e uygula
-    filtered_pivot_df = pivot_df[
-        (pivot_df["Total_Score"] >= score_range[0]) & (pivot_df["Total_Score"] <= score_range[1]) &
-        (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])
-    ]
+    # 📊 Rank Count aralığı
+    with col2:
+        min_rank_count, max_rank_count = int(pivot_df["Rank_Count"].min()), int(pivot_df["Rank_Count"].max())
+        rank_count_range = st.slider(
+            "Rank Count",
+            min_value=min_rank_count,
+            max_value=max_rank_count,
+            value=(min_rank_count, max_rank_count),
+            step=1,
+            label_visibility="collapsed",
+            help="📊 Rank Count filtrele"
+        )
+
+    pivot_df = pivot_df[
+    (pivot_df["Total_Score"] >= score_range[0]) & (pivot_df["Total_Score"] <= score_range[1]) &
+    (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])]
 
     
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
