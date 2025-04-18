@@ -558,33 +558,43 @@ if uploaded_files:
     # 🎯 Step 6: Display
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
     
+    # 🎛️ Slider ayarları
+    min_score_val = min(v[0] for app in competitor_word_scores.values() for v in app.values())
+    max_score_val = max(v[0] for app in competitor_word_scores.values() for v in app.values())
+    min_count_val = min(v[1] for app in competitor_word_scores.values() for v in app.values())
+    max_count_val = max(v[1] for app in competitor_word_scores.values() for v in app.values())
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        score_threshold = st.slider("⭐ Minimum Ortalama Skor", min_value=round(min_score_val, 2), max_value=round(max_score_val, 2), value=0.2)
+    with col2:
+        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=min_count_val, max_value=max_count_val, value=2)
+    
+    # 🔍 Uygulama bazlı analiz
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
         for word, (avg_score, count) in word_dict.items():
-            if count <= 1 or avg_score == 0.1:
-                continue  # filter out weak signals
+            if count < count_threshold or avg_score < score_threshold:
+                continue  # zayıf verileri atla
     
-            # 🎨 Coloring
+            # 🎨 Renk ve alt çizgi
             color = ""
             if word in user_words:
                 color = "green"
             elif avg_score < 0.2:
                 color = "red"
-            
-            # Check if word is shared by all apps
+    
             is_common = len(word_to_apps[word]) == len(all_apps)
-            
+    
             styled_word = word
             if color:
                 styled_word = f"<span style='color:{color}'>{styled_word}</span>"
             if is_common:
                 styled_word = f"<u>{styled_word}</u>"
-            
-            display_word = styled_word
     
-            word_scores.append((count, word, f"{display_word} ({avg_score} / {count})"))
+            word_scores.append((count, word, f"{styled_word} ({avg_score} / {count})"))
     
-        # Sort: count ↓ then word A–Z
+        # 🔢 Sort by keyword count (desc), then alphabetically
         word_scores.sort(key=lambda x: (-x[0], x[1]))
     
         if word_scores:
