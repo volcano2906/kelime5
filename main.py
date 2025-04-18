@@ -169,9 +169,19 @@ if uploaded_files:
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
+        
+        word_count = len(re.findall(r'\b\w+\b', kw))
+        if word_count not in [2, 3]:
+            continue  # sadece 2 veya 3 kelimelikleri dahil et
+    
         for word in re.findall(r'\b\w+\b', kw):
             word_to_apps[word].add(app_id)
+    
     for kw in df_filtered["Keyword"].drop_duplicates():
+        word_count = len(re.findall(r'\b\w+\b', kw))
+        if word_count not in [2, 3]:
+            continue
+    
         for word in re.findall(r'\b\w+\b', kw):
             word_to_kwset[word].add(kw)
     
