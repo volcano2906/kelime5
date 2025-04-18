@@ -164,8 +164,6 @@ if uploaded_files:
     # 🧩 Step 3: Build reverse index: word → set(keywords)
     word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
-
-    st.write("dw32d")
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
