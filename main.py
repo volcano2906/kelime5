@@ -569,7 +569,6 @@ if uploaded_files:
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
     
     # 🎛️ Slider ayarları
-    st.writer("dwd")
     min_score_val = min(v[0] for app in competitor_word_scores.values() for v in app.values())
     max_score_val = max(v[0] for app in competitor_word_scores.values() for v in app.values())
     min_count_val = min(v[1] for app in competitor_word_scores.values() for v in app.values())
