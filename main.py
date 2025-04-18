@@ -157,7 +157,7 @@ if uploaded_files:
             return 0.5
         elif 61 <= rank <= 100:
             return 0.2
-        elif 61 <= rank <= 249:
+        elif 101 <= rank <= 249:
             return 0.1
         else:
             return 0.01
