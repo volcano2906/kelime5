@@ -188,33 +188,33 @@ if uploaded_files:
 
     st.write("test2424")
     # 🚀 Step 5: Fast scoring logic
-for word, matched_keywords in word_to_kwset.items():
-    if len(matched_keywords) <= 1:
-        continue
-
-    if len(word_to_apps[word]) <= 1:
-        continue
-
-    total_points = []
-    for app_id in all_apps:
-        app_kw_dict = dict(app_keywords[app_id])
-        word_points = []
-
-        for mk in matched_keywords:
-            if mk in app_kw_dict:
-                score = rank_to_score(app_kw_dict[mk])
-                word_count_in_kw = len(re.findall(r'\b\w+\b', mk))
-                adjusted_score = score / word_count_in_kw  # ✅ burada ayarlıyoruz
-                word_points.append(adjusted_score)
-            else:
-                word_points.append(0.01)
-
-        avg_score = round(sum(word_points) / len(word_points), 2)
-        competitor_word_scores[app_id][word] = (avg_score, len(word_points))
-        total_points.append(avg_score)
-
-    if total_points:
-        word_avg_scores[word] = round(sum(total_points) / len(total_points), 2)
+    for word, matched_keywords in word_to_kwset.items():
+        if len(matched_keywords) <= 1:
+            continue
+    
+        if len(word_to_apps[word]) <= 1:
+            continue
+    
+        total_points = []
+        for app_id in all_apps:
+            app_kw_dict = dict(app_keywords[app_id])
+            word_points = []
+    
+            for mk in matched_keywords:
+                if mk in app_kw_dict:
+                    score = rank_to_score(app_kw_dict[mk])
+                    word_count_in_kw = len(re.findall(r'\b\w+\b', mk))
+                    adjusted_score = score / word_count_in_kw  # ✅ burada ayarlıyoruz
+                    word_points.append(adjusted_score)
+                else:
+                    word_points.append(0.01)
+    
+            avg_score = round(sum(word_points) / len(word_points), 2)
+            competitor_word_scores[app_id][word] = (avg_score, len(word_points))
+            total_points.append(avg_score)
+    
+        if total_points:
+            word_avg_scores[word] = round(sum(total_points) / len(total_points), 2)
 
 
     #missing
