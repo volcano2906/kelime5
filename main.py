@@ -185,10 +185,10 @@ if uploaded_files:
     
     all_apps = df_filtered["Application Id"].unique()
 
-    st.write("test4")
+    
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
-    
+    st.write("tefr")
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
             continue  # skip low-keyword coverage
