@@ -139,7 +139,6 @@ if uploaded_files:
     #puanalama
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
-    st.write("mahbup546")
     
     # 🧠 Step 2: Define scoring function
     def rank_to_score(rank):
@@ -166,7 +165,7 @@ if uploaded_files:
     word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
 
-    st.write("dwd")
+    st.write("dw32d")
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
@@ -197,7 +196,7 @@ if uploaded_files:
     all_apps = df_filtered["Application Id"].unique()
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
 
-    st.write("test2424")
+
     # 🚀 Step 5: Fast scoring logic
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
