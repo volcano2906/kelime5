@@ -185,7 +185,7 @@ if uploaded_files:
     
     all_apps = df_filtered["Application Id"].unique()
 
-    st.write("test")
+    st.write("test4")
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
     
