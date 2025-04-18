@@ -171,8 +171,6 @@ if uploaded_files:
         app_id = row["Application Id"]
         for word in re.findall(r'\b\w+\b', kw):
             word_to_apps[word].add(app_id)
-            if word == "text":
-               st.write(word_to_apps[word],kw)
     for kw in df_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
             word_to_kwset[word].add(kw)
