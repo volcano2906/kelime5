@@ -187,15 +187,17 @@ if uploaded_files:
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
 
     st.write("test5")
-    # 🚀 Step 5: Fast scoring logic
+    competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
+    word_avg_scores = {}
+    
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
             continue  # skip low-keyword coverage
     
-        # 🔍 Yeni filtre: sadece 1 uygulamada geçiyorsa atla
         if len(word_to_apps[word]) <= 1:
             continue  # sadece 1 app'te geçiyorsa rekabet değeri yok
     
+        total_points = []
         for app_id in all_apps:
             app_kw_dict = dict(app_keywords[app_id])
             word_points = []
@@ -205,26 +207,50 @@ if uploaded_files:
                     score = rank_to_score(app_kw_dict[mk])
                     word_points.append(score)
                 else:
-                    word_points.append(0.01)  # fallback if app didn't rank that keyword
+                    word_points.append(0.01)
     
             avg_score = round(sum(word_points) / len(word_points), 3)
             competitor_word_scores[app_id][word] = (avg_score, len(word_points))
-
-
-    #missing
-    # ✅ Final Step: Print All Common Words
-    common_words = [word for word, kws in word_to_kwset.items() if len(word_to_apps[word]) == len(all_apps) and len(kws) > 1]
-    common_words = sorted(common_words)
-    st.write("text")
-    if common_words:
-        st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
+            total_points.append(avg_score)
     
+        # Kelime genel ortalama skorunu sakla
+        if total_points:
+            word_avg_scores[word] = round(sum(total_points) / len(total_points), 3)
+
+    # ✅ Slider ayarları
+    common_words = [
+        word for word in word_avg_scores
+        if len(word_to_apps[word]) == len(all_apps) and len(word_to_kwset[word]) > 1
+    ]
+    
+    if common_words:
+        min_kws = min(len(word_to_kwset[w]) for w in common_words)
+        max_kws = max(len(word_to_kwset[w]) for w in common_words)
+        min_score = min(word_avg_scores[w] for w in common_words)
+        max_score = max(word_avg_scores[w] for w in common_words)
+    
+        col1, col2 = st.columns(2)
+        with col1:
+            kws_slider = st.slider("🔡 Keyword Sayısı (kelimenin geçtiği)", min_kws, max_kws, (min_kws, max_kws))
+        with col2:
+            score_slider = st.slider("⭐ Ortalama Puan Aralığı", float(min_score), float(max_score), (float(min_score), float(max_score)))
+    
+        # 🎯 Filtrelenmiş ortak kelimeler
+        filtered_common_words = [
+            w for w in common_words
+            if kws_slider[0] <= len(word_to_kwset[w]) <= kws_slider[1]
+            and score_slider[0] <= word_avg_scores[w] <= score_slider[1]
+        ]
+    
+        # ✅ Görsel çıktı
+        st.subheader("🟩 Common Words Across All Apps (Filtrelenmiş)")
         highlighted = []
-        for word in common_words:
+        for word in sorted(filtered_common_words):
+            label = f"{word} ({len(word_to_kwset[word])} keywords / avg {word_avg_scores[word]})"
             if word in user_words:
-                highlighted.append(f"<span style='color:green'>{word}</span>")
+                highlighted.append(f"<span style='color:green'>{label}</span>")
             else:
-                highlighted.append(word)
+                highlighted.append(label)
     
         st.markdown(", ".join(highlighted), unsafe_allow_html=True)
     
