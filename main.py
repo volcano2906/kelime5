@@ -184,9 +184,8 @@ if uploaded_files:
         app_keywords[app_id].append((keyword, rank))
     
     all_apps = df_filtered["Application Id"].unique()
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
 
-    st.write("test5")
+    st.write("test")
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
     
@@ -218,10 +217,7 @@ if uploaded_files:
             word_avg_scores[word] = round(sum(total_points) / len(total_points), 3)
 
     # ✅ Slider ayarları
-    common_words = [
-        word for word in word_avg_scores
-        if len(word_to_apps[word]) == len(all_apps) and len(word_to_kwset[word]) > 1
-    ]
+    common_words = [word for word in word_avg_scores if len(word_to_apps[word]) == len(all_apps) and len(word_to_kwset[word]) > 1]
     
     if common_words:
         min_kws = min(len(word_to_kwset[w]) for w in common_words)
