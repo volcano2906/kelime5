@@ -148,19 +148,19 @@ if uploaded_files:
         except:
             return 0.1
         if 1 <= rank <= 10:
-            return 0.9
+            return 1.8
         elif 11 <= rank <= 20:
-            return 0.8
+            return 1.6
         elif 21 <= rank <= 40:
-            return 0.7
+            return 1.4
         elif 41 <= rank <= 60:
-            return 0.5
+            return 1
         elif 61 <= rank <= 100:
-            return 0.2
+            return 0.4
         elif 101 <= rank <= 249:
-            return 0.1
+            return 0.2
         else:
-            return 0.01
+            return 0.02
     
     # 🧩 Step 3: Build reverse index: word → set(keywords)
     word_to_kwset = defaultdict(set)
