@@ -184,6 +184,7 @@ if uploaded_files:
         app_keywords[app_id].append((keyword, rank))
     
     all_apps = df_filtered["Application Id"].unique()
+    word_avg_scores = {}
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
 
     st.write("test2424")
