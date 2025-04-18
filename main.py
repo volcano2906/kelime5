@@ -207,7 +207,7 @@ if uploaded_files:
                     score = rank_to_score(app_kw_dict[mk])
                     word_points.append(score)
                 else:
-                    word_points.append(0.1)  # fallback if app didn't rank that keyword
+                    word_points.append(0.01)  # fallback if app didn't rank that keyword
     
             avg_score = round(sum(word_points) / len(word_points), 3)
             competitor_word_scores[app_id][word] = (avg_score, len(word_points))
