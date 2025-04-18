@@ -166,6 +166,7 @@ if uploaded_files:
     word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
 
+    st.write("dwd")
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
