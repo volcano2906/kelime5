@@ -156,7 +156,6 @@ if uploaded_files:
         elif 41 <= rank <= 60:
             return 0.5
         elif 61 <= rank <= 100:
-            st.write("text")
             return 0.2
         elif 101 <= rank <= 249:
             return 0.1
