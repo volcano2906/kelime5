@@ -139,6 +139,7 @@ if uploaded_files:
     #puanalama
     df_filtered = df[df["Volume"] <= 5].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
+    st.write("mahbup")
     
     # 🧠 Step 2: Define scoring function
     def rank_to_score(rank):
