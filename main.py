@@ -184,7 +184,8 @@ if uploaded_files:
     
     all_apps = df_filtered["Application Id"].unique()
     competitor_word_scores = defaultdict(lambda: defaultdict(list))
-    
+
+    st.write("test5")
     # 🚀 Step 5: Fast scoring logic
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
