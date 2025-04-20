@@ -595,7 +595,10 @@ if uploaded_files:
     
     # 🎯 Step 6: Display
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
-    
+
+    score_values = [v[0] for app in competitor_word_scores.values() for v in app.values()]
+    count_values = [int(v[1].split("-")[0]) for app in competitor_word_scores.values() for v in app.values()]
+
     # 🎛️ Slider ayarları
     min_score_val = min(v[0] for app in competitor_word_scores.values() for v in app.values())
     max_score_val = max(v[0] for app in competitor_word_scores.values() for v in app.values())
@@ -606,7 +609,7 @@ if uploaded_files:
     with col1:
         score_threshold = st.slider("⭐ Minimum Ortalama Skor", min_value=round(min_score_val, 2), max_value=round(max_score_val, 2), value=0.02)
     with col2:
-        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=min_count_val, max_value=max_count_val, value=2)
+        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=1, max_value=10000, value=2)
     
     # 🔍 Uygulama bazlı analiz
     for app_id, word_dict in competitor_word_scores.items():
