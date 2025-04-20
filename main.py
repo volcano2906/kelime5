@@ -222,7 +222,7 @@ if uploaded_files:
         for app_id in all_apps:
             app_kw_dict = dict(app_keywords[app_id])
             word_points = []
-            user_words = app_user_title_subtitle.get(app_id, set())
+            app_input_words = app_user_title_subtitle.get(app_id, set())
             app_specific_keyword_hits = 0
     
             for mk in matched_keywords:
@@ -232,7 +232,7 @@ if uploaded_files:
                     mk_words = set(re.findall(r'\b\w+\b', mk.lower()))
     
                     # 📉 Penalty if overlaps with app's input
-                    if mk_words & user_words:
+                    if mk_words & app_input_words:
                         score *= 0.75
     
                     word_points.append(score)
