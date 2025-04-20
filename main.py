@@ -619,11 +619,13 @@ if uploaded_files:
         max_count_val = max(count_values)
     else:
         min_score_val = 0.0
-        max_score_val = 1.8
-        min_count_val = 0
-        max_count_val = 10
+        max_score_val = 1
+        min_count_val = 1
+        max_count_val = 2000
     
     # 🎚️ Sliderlar küçük ve yan yana olacak şekilde
+    st.write(min_count_val)
+    st.write(max_count_val)
     col1, col2 = st.columns([1, 1])
     with col1:
         score_threshold = st.slider(
