@@ -607,7 +607,8 @@ if uploaded_files:
     count_values = [
         int(v[1].split("-")[0])  # sadece app'teki geçme sayısını al
         for app in competitor_word_scores.values()
-        for v in app.values()]
+        for v in app.values()
+    ]
     
     min_count_val = min(count_values)
     max_count_val = max(count_values)
