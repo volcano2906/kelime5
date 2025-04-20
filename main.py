@@ -613,103 +613,39 @@ if uploaded_files:
     with col2:
         count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=1, max_value=10000, value=2)
     
-    # 🔍 Uygulama bazlı analiz
-    # 🔍 Uygulama bazlı analiz – kelimelerin skor ve geçme sayısı ile gösterimi
-    st.subheader("📊 Uygulama Bazlı Kelime Analizi (Skor ve Geçme Sayısı)")
-    
+
+
     for app_id, word_dict in competitor_word_scores.items():
-        word_scores = []
-    
-        for word, (avg_score, count_str) in word_dict.items():
-            # 👇 "3-5" gibi formatı ayrıştır
-            try:
-                app_count, total_count = map(int, count_str.split("-"))
-            except Exception:
-                continue  # Hatalı veri varsa geç
-    
-            # 🔍 Filtreleme
-            if app_count < count_threshold or avg_score < score_threshold:
-                continue
-    
-            # 🎨 Görsel işaretlemeler
-            color = ""
-            if word in user_words:
-                color = "green"
-            elif avg_score < 0.2:
-                color = "red"
-    
-            is_common = len(word_to_apps[word]) == len(all_apps)
-    
-            styled_word = word
-            if color:
-                styled_word = f"<span style='color:{color}'>{styled_word}</span>"
-            if is_common:
-                styled_word = f"<u>{styled_word}</u>"
-    
-            # ✨ Gösterim formatı: essay (1.2 / 3-5)
-            display_text = f"{styled_word} ({avg_score} / {app_count}-{total_count})"
-    
-            # Sıralama için tuple olarak ekle
-            word_scores.append((app_count, word.lower(), display_text))
-    
-        # 🔢 Sırala: önce geçme sayısı (app içi), sonra alfabetik
-        word_scores.sort(key=lambda x: (-x[0], x[1]))
-    
-        # 🖼️ Ekrana yazdır
-        if word_scores:
-            st.markdown(
-                f"<b>{app_id}</b> → {', '.join([item[2] for item in word_scores])}",
-                unsafe_allow_html=True
-            )
-
-
-    
-    st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
-    st.write("rest")
-    for user_word in sorted(user_words):
-        st.write(user_word)
-        # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
-        filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
-        filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len().isin([2, 3])]
-    
-        # 2. En az 2 farklı app'te rank edilenleri bul
-        app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
-        valid_keywords = app_counts[app_counts > 1].index.tolist()
-        filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
-    
-        # 3. Frekansları say
-        keyword_list = filtered_df["Keyword"].str.lower().tolist()
-        keyword_freq = Counter(keyword_list)
-    
-        # 4. Frekansa göre gruplama yap
-        freq_groups = defaultdict(list)
-        for kw, freq in keyword_freq.items():
-            freq_groups[freq].append(kw)
-    
-        # 5. Grupları büyükten küçüğe sırala, içindekileri A-Z sırala
-        grouped_output = []
-        for freq in sorted(freq_groups.keys(), reverse=True):
-            group_words = sorted(freq_groups[freq])
-            # user_words içindekileri yeşile boya
-            highlighted = []
-            for word in group_words:
-                parts = [
-                    f"<span style='color:green'>{w}</span>" if w in user_words else w
-                    for w in word.split()
-                ]
-                highlighted.append(" ".join(parts))
-            grouped_output.append(f"{freq} ({', '.join(highlighted)})")
-    
-        # 6. Final çıktı
-        if grouped_output:
-            st.markdown(
-                f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(grouped_output)}",
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(f"<span style='color:gray'>{user_word}</span> → eşleşme bulunamadı.", unsafe_allow_html=True)
-
-    
+            word_scores = []
+            for word, (avg_score, count) in word_dict.items():
+                if count < count_threshold or avg_score < score_threshold:
+                    continue  # zayıf verileri atla
+        
+                # 🎨 Renk ve alt çizgi
+                color = ""
+                if word in user_words:
+                    color = "green"
+                elif avg_score < 0.2:
+                    color = "red"
+        
+                is_common = len(word_to_apps[word]) == len(all_apps)
+        
+                styled_word = word
+                if color:
+                    styled_word = f"<span style='color:{color}'>{styled_word}</span>"
+                if is_common:
+                    styled_word = f"<u>{styled_word}</u>"
+        
+                word_scores.append((count, word, f"{styled_word} ({avg_score} / {count})"))
+        
+            # 🔢 Sort by keyword count (desc), then alphabetically
+            word_scores.sort(key=lambda x: (-x[0], x[1]))
+        
+            if word_scores:
+                st.markdown(
+                    f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
+                    unsafe_allow_html=True
+                )    
     # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
