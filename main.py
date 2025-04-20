@@ -612,40 +612,58 @@ if uploaded_files:
         score_threshold = st.slider("⭐ Minimum Ortalama Skor", min_value=round(min_score_val, 2), max_value=round(max_score_val, 2), value=0.02)
     with col2:
         count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=1, max_value=10000, value=2)
+
+    # 🔍 Uygulama bazlı analiz – kelimelerin skor ve geçme sayısı ile gösterimi
+    st.subheader("📊 Uygulama Bazlı Kelime Analizi (Skor ve Geçme Sayısı)")
+    
+    for app_id, word_dict in competitor_word_scores.items():
+        word_scores = []
+    
+        for word, (avg_score, count_str) in word_dict.items():
+            # 👇 "3-5" gibi formatı ayrıştır
+            try:
+                app_count, total_count = map(int, count_str.split("-"))
+            except Exception:
+                continue  # Hatalı veri varsa geç
+    
+            # 🔍 Filtreleme
+            if app_count < count_threshold or avg_score < score_threshold:
+                continue
+    
+            # 🎨 Görsel işaretlemeler
+            color = ""
+            if word in user_words:
+                color = "green"
+            elif avg_score < 0.2:
+                color = "red"
+    
+            is_common = len(word_to_apps[word]) == len(all_apps)
+    
+            styled_word = word
+            if color:
+                styled_word = f"<span style='color:{color}'>{styled_word}</span>"
+            if is_common:
+                styled_word = f"<u>{styled_word}</u>"
+    
+            # ✨ Gösterim formatı: essay (1.2 / 3-5)
+            display_text = f"{styled_word} ({avg_score} / {app_count}-{total_count})"
+    
+            # Sıralama için tuple olarak ekle
+            word_scores.append((app_count, word.lower(), display_text))
+    
+        # 🔢 Sırala: önce geçme sayısı (app içi), sonra alfabetik
+        word_scores.sort(key=lambda x: (-x[0], x[1]))
+    
+        # 🖼️ Ekrana yazdır
+        if word_scores:
+            st.markdown(
+                f"<b>{app_id}</b> → {', '.join([item[2] for item in word_scores])}",
+                unsafe_allow_html=True
+            )
     
 
 
-    for app_id, word_dict in competitor_word_scores.items():
-            word_scores = []
-            for word, (avg_score, count) in word_dict.items():
-                if count < count_threshold or avg_score < score_threshold:
-                    continue  # zayıf verileri atla
-        
-                # 🎨 Renk ve alt çizgi
-                color = ""
-                if word in user_words:
-                    color = "green"
-                elif avg_score < 0.2:
-                    color = "red"
-        
-                is_common = len(word_to_apps[word]) == len(all_apps)
-        
-                styled_word = word
-                if color:
-                    styled_word = f"<span style='color:{color}'>{styled_word}</span>"
-                if is_common:
-                    styled_word = f"<u>{styled_word}</u>"
-        
-                word_scores.append((count, word, f"{styled_word} ({avg_score} / {count})"))
-        
-            # 🔢 Sort by keyword count (desc), then alphabetically
-            word_scores.sort(key=lambda x: (-x[0], x[1]))
-        
-            if word_scores:
-                st.markdown(
-                    f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
-                    unsafe_allow_html=True
-                )    
+
     # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
