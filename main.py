@@ -192,6 +192,7 @@ if uploaded_files:
     # ✅ Step 4: User Input per App
     # -------------------------------
     st.markdown("### 🧠 App Title + Subtitle")
+    st.write("test")
     
     # Gerekirse açıklamayı küçük tooltip şeklinde ver
     with st.expander("ℹ️ Her App için başlık ve açıklama girin (isteğe bağlı)", expanded=False):
