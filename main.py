@@ -673,39 +673,42 @@ if uploaded_files:
     
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
-        # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
-        filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
+        # 1️⃣ user_word içeren 2–3 kelimelik keyword'leri filtrele
+        filtered_df = df[
+            df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)
+        ]
         filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len().isin([2, 3])]
     
-        # 2. En az 2 farklı app'te rank edilenleri bul
+        # 2️⃣ En az 2 farklı uygulamada geçenleri seç
         app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
         valid_keywords = app_counts[app_counts > 1].index.tolist()
         filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
     
-        # 3. Frekansları say
+        # 3️⃣ Keyword frekanslarını say
         keyword_list = filtered_df["Keyword"].str.lower().tolist()
         keyword_freq = Counter(keyword_list)
     
-        # 4. Frekansa göre gruplama yap
+        # 4️⃣ Frekansa göre gruplandır
         freq_groups = defaultdict(list)
         for kw, freq in keyword_freq.items():
             freq_groups[freq].append(kw)
     
-        # 5. Grupları büyükten küçüğe sırala, içindekileri A-Z sırala
+        # 5️⃣ Grupları büyükten küçüğe sırala, kelimeleri A–Z sırala
         grouped_output = []
         for freq in sorted(freq_groups.keys(), reverse=True):
             group_words = sorted(freq_groups[freq])
-            # user_words içindekileri yeşile boya
+    
             highlighted = []
-            for word in group_words:
+            for keyword in group_words:
                 parts = [
                     f"<span style='color:green'>{w}</span>" if w in user_words else w
-                    for w in word.split()
+                    for w in keyword.split()
                 ]
                 highlighted.append(" ".join(parts))
+    
             grouped_output.append(f"{freq} ({', '.join(highlighted)})")
     
-        # 6. Final çıktı
+        # 6️⃣ Ekrana yaz
         if grouped_output:
             st.markdown(
                 f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(grouped_output)}",
