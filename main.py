@@ -228,8 +228,9 @@ if uploaded_files:
     st.write("test")
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
+           continue
         #if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
-            continue
+            
     
         total_points = []
     
