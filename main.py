@@ -657,6 +657,7 @@ if uploaded_files:
 
     
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
+    st.write("rest")
     for user_word in sorted(user_words):
         # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
         filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
