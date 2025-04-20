@@ -616,11 +616,18 @@ if uploaded_files:
     # 🔍 Uygulama bazlı analiz
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
-        for word, (avg_score, count) in word_dict.items():
-            if count < count_threshold or avg_score < score_threshold:
-                continue  # zayıf verileri atla
     
-            # 🎨 Renk ve alt çizgi
+        for word, (avg_score, count_str) in word_dict.items():
+            try:
+                app_count, total_count = map(int, count_str.split("-"))
+            except:
+                continue  # Hatalı format varsa geç
+    
+            # 🔍 Filtreleme
+            if app_count < count_threshold or avg_score < score_threshold:
+                continue
+    
+            # 🎨 Renkleme ve işaretleme
             color = ""
             if word in user_words:
                 color = "green"
@@ -635,9 +642,11 @@ if uploaded_files:
             if is_common:
                 styled_word = f"<u>{styled_word}</u>"
     
-            word_scores.append((count, word, f"{styled_word} ({avg_score} / {count})"))
+            # ✨ Format: kelime (puan / 3-5)
+            display_text = f"{styled_word} ({avg_score} / {app_count}-{total_count})"
+            word_scores.append((app_count, word, display_text))
     
-        # 🔢 Sort by keyword count (desc), then alphabetically
+        # 🔢 Sırala: önce app içi geçme sayısına göre, sonra alfabetik
         word_scores.sort(key=lambda x: (-x[0], x[1]))
     
         if word_scores:
