@@ -191,7 +191,7 @@ if uploaded_files:
     # -------------------------------
     # ✅ Step 4: User Input per App
     # -------------------------------
-    st.subheader("📝 App ID Bazlı Title & Subtitle Girişi")
+    st.markdown("### 📝 App Title + Subtitle Girişi (Yatay)")
     
     app_user_title_subtitle = {}
     all_apps = df_filtered["Application Id"].unique()
@@ -200,8 +200,21 @@ if uploaded_files:
     for i, app_id in enumerate(all_apps):
         app_id_str = str(app_id)
         key_unique = f"title_sub_{app_id_str}_{i}"  # 🔐 Benzersiz KEY
-        user_input = st.text_input(f"App ID: {app_id_str}", key=key_unique)
     
+        col1, col2 = st.columns([1, 5])  # Daha küçük ID, daha büyük input
+    
+        with col1:
+            st.markdown(f"**ID:** `{app_id_str}`")
+    
+        with col2:
+            user_input = st.text_input(
+                label="",
+                placeholder="Title + Subtitle (opsiyonel)",
+                key=key_unique,
+                label_visibility="collapsed"
+            )
+    
+        # Temizleme ve kelime setine çevirme
         cleaned_input = re.sub(r"[^\w\s]", " ", user_input, flags=re.UNICODE).lower()
         words = re.split(r"[ ,]+", cleaned_input.strip())
         user_title_subtitle = {w for w in words if w and w not in en_stopwords}
