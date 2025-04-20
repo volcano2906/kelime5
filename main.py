@@ -614,6 +614,7 @@ if uploaded_files:
         count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=1, max_value=10000, value=2)
 
     # 🔍 Uygulama bazlı analiz – kelimelerin skor ve geçme sayısı ile gösterimi
+    at.write("tetr")
     st.subheader("📊 Uygulama Bazlı Kelime Analizi (Skor ve Geçme Sayısı)")
     
     for app_id, word_dict in competitor_word_scores.items():
