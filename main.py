@@ -599,17 +599,35 @@ if uploaded_files:
     score_values = [v[0] for app in competitor_word_scores.values() for v in app.values()]
     count_values = [int(v[1].split("-")[0]) for app in competitor_word_scores.values() for v in app.values()]
 
-    # 🎛️ Slider ayarları
-    min_score_val = min(v[0] for app in competitor_word_scores.values() for v in app.values())
-    max_score_val = max(v[0] for app in competitor_word_scores.values() for v in app.values())
-    min_count_val = min(v[1] for app in competitor_word_scores.values() for v in app.values())
-    max_count_val = max(v[1] for app in competitor_word_scores.values() for v in app.values())
+    if score_values and count_values:
+        min_score_val = min(score_values)
+        max_score_val = max(score_values)
+        min_count_val = min(count_values)
+        max_count_val = max(count_values)
+    else:
+        min_score_val = 0.0
+        max_score_val = 1.8
+        min_count_val = 0
+        max_count_val = 10
     
-    col1, col2 = st.columns(2)
+    # 🎚️ Sliderlar küçük ve yan yana olacak şekilde
+    col1, col2 = st.columns([1, 1])
     with col1:
-        score_threshold = st.slider("⭐ Minimum Ortalama Skor", min_value=round(min_score_val, 2), max_value=round(max_score_val, 2), value=0.02)
+        score_threshold = st.slider(
+            "⭐ Minimum Ortalama Skor", 
+            min_value=round(min_score_val, 2), 
+            max_value=round(max_score_val, 2), 
+            value=round(min_score_val, 2), 
+            step=0.01
+        )
     with col2:
-        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=min_count_val, max_value=max_count_val, value=2)
+        count_threshold = st.slider(
+            "🔢 Minimum Keyword Sayısı", 
+            min_value=min_count_val, 
+            max_value=max_count_val, 
+            value=min_count_val, 
+            step=1
+        )
     
     # 🔍 Uygulama bazlı analiz
     for app_id, word_dict in competitor_word_scores.items():
