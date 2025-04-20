@@ -191,6 +191,7 @@ if uploaded_files:
     # -------------------------------
     # ✅ Step 4: User Input per App
     # -------------------------------
+    st.write("rest1")
     st.markdown("### 🧠 App Title + Subtitle")
     
     # Gerekirse açıklamayı küçük tooltip şeklinde ver
