@@ -141,7 +141,7 @@ if uploaded_files:
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
     st.write("mahbup546")
     
-    # 🧠 Step 2: Define scoring function
+   # 🧠 Step 1: Rank to Score
     def rank_to_score(rank):
         try:
             rank = int(float(rank))
@@ -161,61 +161,100 @@ if uploaded_files:
             return 0.2
         else:
             return 0.02
-    
-    # 🧩 Step 3: Build reverse index: word → set(keywords)
+
+    # 🧩 Step 2: Build reverse indexes
     word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
-
+    
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
         for word in re.findall(r'\b\w+\b', kw):
             word_to_apps[word].add(app_id)
+    
     for kw in df_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
             word_to_kwset[word].add(kw)
-    
-    # 🗃 Step 4: Group keywords by app for lookup
+
+    # 🗃 Step 3: Group keywords by app
     app_keywords = defaultdict(list)
     for _, row in df_filtered.iterrows():
         app_id = row["Application Id"]
         keyword = row["Keyword"]
         rank = row["Rank"]
         app_keywords[app_id].append((keyword, rank))
+    # 🧠 Step 4: User title-subtitle input per app
+    st.subheader("📝 Enter title & subtitle per App")
+    
+    app_user_title_subtitle = {}
     
     all_apps = df_filtered["Application Id"].unique()
-    word_avg_scores = {}
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
-
-    st.write("test2424")
-    # 🚀 Step 5: Fast scoring logic
-    for word, matched_keywords in word_to_kwset.items():
-        if len(matched_keywords) <= 1:
-            continue
     
-        if len(word_to_apps[word]) <= 1:
+    for app_id in all_apps:
+        raw_input = st.text_input(f"App ID: {app_id} → Title & Subtitle", key=f"title_sub_{app_id}")
+        cleaned = re.sub(r"[^\w\s]", " ", raw_input, flags=re.UNICODE).lower()
+        user_title_subtitle = set(re.split(r"[ ,]+", cleaned.strip()))
+        user_title_subtitle = {w for w in user_title_subtitle if w and w not in stopwords.words("english")}
+        app_user_title_subtitle[app_id] = user_title_subtitle
+
+    # 🧠 Step 4: User title-subtitle input per app
+    st.subheader("📝 Enter title & subtitle per App")
+    
+    app_user_title_subtitle = {}
+    
+    all_apps = df_filtered["Application Id"].unique()
+    
+    for app_id in all_apps:
+        raw_input = st.text_input(f"App ID: {app_id} → Title & Subtitle", key=f"title_sub_{app_id}")
+        cleaned = re.sub(r"[^\w\s]", " ", raw_input, flags=re.UNICODE).lower()
+        user_title_subtitle = set(re.split(r"[ ,]+", cleaned.strip()))
+        user_title_subtitle = {w for w in user_title_subtitle if w and w not in stopwords.words("english")}
+        app_user_title_subtitle[app_id] = user_title_subtitle
+
+    # 🚀 Step 5: Calculate scores per app and word with app-specific penalty
+    competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
+    word_avg_scores = {}
+    
+    for word, matched_keywords in word_to_kwset.items():
+        if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
             continue
     
         total_points = []
+    
         for app_id in all_apps:
-            app_kw_dict = dict(app_keywords[app_id])
             word_points = []
+            app_kw_dict = dict(app_keywords[app_id])
+            user_title_subtitle = app_user_title_subtitle.get(app_id, set())
+    
+            # 🔎 Bu app_id içinde bu kelime kaç keyword'de geçiyor?
+            app_specific_keyword_hits = 0
     
             for mk in matched_keywords:
                 if mk in app_kw_dict:
+                    app_specific_keyword_hits += 1
                     score = rank_to_score(app_kw_dict[mk])
-                    word_count_in_kw = len(re.findall(r'\b\w+\b', mk))
-                    adjusted_score = score / word_count_in_kw  # ✅ burada ayarlıyoruz
-                    word_points.append(adjusted_score)
+                    mk_words = set(re.findall(r'\b\w+\b', mk.lower()))
+    
+                    # Kullanıcı başlık-alt başlık ile eşleşme varsa cezalandır
+                    if mk_words & user_title_subtitle:
+                        score *= 0.75
+    
+                    word_points.append(score)
                 else:
                     word_points.append(0.01)
     
             avg_score = round(sum(word_points) / len(word_points), 2)
-            competitor_word_scores[app_id][word] = (avg_score, len(word_points))
+    
+            # 🔢 Oran hesapla: (app içindeki geçme) / (toplam matched keyword sayısı)
+            app_ratio = round(app_specific_keyword_hits / len(matched_keywords), 2)
+    
+            competitor_word_scores[app_id][word] = (avg_score, app_ratio)
             total_points.append(avg_score)
     
         if total_points:
             word_avg_scores[word] = round(sum(total_points) / len(total_points), 2)
+
+
 
 
     #missing
