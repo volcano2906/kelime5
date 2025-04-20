@@ -205,11 +205,11 @@ if uploaded_files:
     all_apps = df_filtered["Application Id"].unique()
     
     for app_id in all_apps:
-        raw_input = st.text_input(f"App ID: {app_id} → Title & Subtitle", key=f"title_sub_{app_id}")
-        cleaned = re.sub(r"[^\w\s]", " ", raw_input, flags=re.UNICODE).lower()
-        user_title_subtitle = set(re.split(r"[ ,]+", cleaned.strip()))
-        user_title_subtitle = {w for w in user_title_subtitle if w and w not in stopwords.words("english")}
-        app_user_title_subtitle[app_id] = user_title_subtitle
+        app_id_str = str(app_id)  # id'yi stringe çevir
+        raw_input = st.text_input(
+            f"App ID: {app_id_str} → Title & Subtitle",
+            key=f"title_sub_{app_id_str}"
+        )
 
     # 🚀 Step 5: Calculate scores per app and word with app-specific penalty
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
