@@ -204,11 +204,10 @@ if uploaded_files:
     
     all_apps = df_filtered["Application Id"].unique()
     
-    for app_id in all_apps:
-        app_id_str = str(app_id)  # id'yi stringe çevir
+    for i, app_id in enumerate(all_apps):
         raw_input = st.text_input(
-            f"App ID: {app_id_str} → Title & Subtitle",
-            key=f"title_sub_{app_id_str}"
+            f"App ID: {app_id} → Title & Subtitle",
+            key=f"title_sub_{app_id}_{i}"  # 🔑 KEY artık eşsiz
         )
 
     # 🚀 Step 5: Calculate scores per app and word with app-specific penalty
