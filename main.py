@@ -141,119 +141,81 @@ if uploaded_files:
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
     st.write("mahbup546")
     
-   # 🧠 Step 1: Rank to Score
+    # 🧠 Step 2: Define scoring function
     def rank_to_score(rank):
         try:
             rank = int(float(rank))
         except:
             return 0.1
         if 1 <= rank <= 10:
-            return 0.9
+            return 1.8
         elif 11 <= rank <= 20:
-            return 0.8
+            return 1.6
         elif 21 <= rank <= 40:
-            return 0.7
+            return 1.4
         elif 41 <= rank <= 60:
-            return 0.6
+            return 1
         elif 61 <= rank <= 100:
             return 0.4
         elif 101 <= rank <= 249:
             return 0.2
         else:
             return 0.02
-
-    # 🧩 Step 2: Build reverse indexes
+    
+    # 🧩 Step 3: Build reverse index: word → set(keywords)
     word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
-    
+
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
         for word in re.findall(r'\b\w+\b', kw):
             word_to_apps[word].add(app_id)
-    
     for kw in df_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
             word_to_kwset[word].add(kw)
-
-    # 🗃 Step 3: Group keywords by app
+    
+    # 🗃 Step 4: Group keywords by app for lookup
     app_keywords = defaultdict(list)
     for _, row in df_filtered.iterrows():
         app_id = row["Application Id"]
         keyword = row["Keyword"]
         rank = row["Rank"]
         app_keywords[app_id].append((keyword, rank))
-    # 🧠 Step 4: User title-subtitle input per app
-    st.subheader("📝 Enter title & subtitle per App")
-    
-    app_user_title_subtitle = {}
     
     all_apps = df_filtered["Application Id"].unique()
-    
-    for app_id in all_apps:
-        raw_input = st.text_input(f"App ID: {app_id} → Title & Subtitle", key=f"title_sub_{app_id}")
-        cleaned = re.sub(r"[^\w\s]", " ", raw_input, flags=re.UNICODE).lower()
-        user_title_subtitle = set(re.split(r"[ ,]+", cleaned.strip()))
-        user_title_subtitle = {w for w in user_title_subtitle if w and w not in stopwords.words("english")}
-        app_user_title_subtitle[app_id] = user_title_subtitle
-
-    # 🧠 Step 4: User title-subtitle input per app
-    st.subheader("📝 Enter title & subtitle per App")
-    
-    app_user_title_subtitle = {}
-    
-    all_apps = df_filtered["Application Id"].unique()
-    
-    for i, app_id in enumerate(all_apps):
-        raw_input = st.text_input(
-            f"App ID: {app_id} → Title & Subtitle",
-            key=f"title_sub_{app_id}_{i}"  # 🔑 KEY artık eşsiz
-        )
-
-    # 🚀 Step 5: Calculate scores per app and word with app-specific penalty
-    competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
-    
+    competitor_word_scores = defaultdict(lambda: defaultdict(list))
+
+    st.write("test2424")
+    # 🚀 Step 5: Fast scoring logic
     for word, matched_keywords in word_to_kwset.items():
-        if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
+        if len(matched_keywords) <= 1:
+            continue
+    
+        if len(word_to_apps[word]) <= 1:
             continue
     
         total_points = []
-    
         for app_id in all_apps:
-            word_points = []
             app_kw_dict = dict(app_keywords[app_id])
-            user_title_subtitle = app_user_title_subtitle.get(app_id, set())
-    
-            # 🔎 Bu app_id içinde bu kelime kaç keyword'de geçiyor?
-            app_specific_keyword_hits = 0
+            word_points = []
     
             for mk in matched_keywords:
                 if mk in app_kw_dict:
-                    app_specific_keyword_hits += 1
                     score = rank_to_score(app_kw_dict[mk])
-                    mk_words = set(re.findall(r'\b\w+\b', mk.lower()))
-    
-                    # Kullanıcı başlık-alt başlık ile eşleşme varsa cezalandır
-                    if mk_words & user_title_subtitle:
-                        score *= 0.75
-    
-                    word_points.append(score)
+                    word_count_in_kw = len(re.findall(r'\b\w+\b', mk))
+                    adjusted_score = score / word_count_in_kw  # ✅ burada ayarlıyoruz
+                    word_points.append(adjusted_score)
                 else:
                     word_points.append(0.01)
     
             avg_score = round(sum(word_points) / len(word_points), 2)
-    
-            # 🔢 Oran hesapla: (app içindeki geçme) / (toplam matched keyword sayısı)
-            app_ratio = round(app_specific_keyword_hits / len(matched_keywords), 2)
-    
-            competitor_word_scores[app_id][word] = (avg_score, app_ratio)
+            competitor_word_scores[app_id][word] = (avg_score, len(word_points))
             total_points.append(avg_score)
     
         if total_points:
             word_avg_scores[word] = round(sum(total_points) / len(total_points), 2)
-
-
 
 
     #missing
@@ -603,35 +565,26 @@ if uploaded_files:
     # 🎯 Step 6: Display
     st.write("### 🔢 Word Scores per App (Faster, Filtered, Colored)")
     
+    # 🎛️ Slider ayarları
     min_score_val = min(v[0] for app in competitor_word_scores.values() for v in app.values())
     max_score_val = max(v[0] for app in competitor_word_scores.values() for v in app.values())
-
+    min_count_val = min(v[1] for app in competitor_word_scores.values() for v in app.values())
+    max_count_val = max(v[1] for app in competitor_word_scores.values() for v in app.values())
     
     col1, col2 = st.columns(2)
     with col1:
         score_threshold = st.slider("⭐ Minimum Ortalama Skor", min_value=round(min_score_val, 2), max_value=round(max_score_val, 2), value=0.02)
     with col2:
-        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=1, max_value=10000, value=2)
-
-    # 🔍 Uygulama bazlı analiz – kelimelerin skor ve geçme sayısı ile gösterimi
-    at.write("tetr")
-    st.subheader("📊 Uygulama Bazlı Kelime Analizi (Skor ve Geçme Sayısı)")
+        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=min_count_val, max_value=max_count_val, value=2)
     
+    # 🔍 Uygulama bazlı analiz
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
+        for word, (avg_score, count) in word_dict.items():
+            if count < count_threshold or avg_score < score_threshold:
+                continue  # zayıf verileri atla
     
-        for word, (avg_score, count_str) in word_dict.items():
-            # 👇 "3-5" gibi formatı ayrıştır
-            try:
-                app_count, total_count = map(int, count_str.split("-"))
-            except Exception:
-                continue  # Hatalı veri varsa geç
-    
-            # 🔍 Filtreleme
-            if app_count < count_threshold or avg_score < score_threshold:
-                continue
-    
-            # 🎨 Görsel işaretlemeler
+            # 🎨 Renk ve alt çizgi
             color = ""
             if word in user_words:
                 color = "green"
@@ -646,25 +599,62 @@ if uploaded_files:
             if is_common:
                 styled_word = f"<u>{styled_word}</u>"
     
-            # ✨ Gösterim formatı: essay (1.2 / 3-5)
-            display_text = f"{styled_word} ({avg_score} / {app_count}-{total_count})"
+            word_scores.append((count, word, f"{styled_word} ({avg_score} / {count})"))
     
-            # Sıralama için tuple olarak ekle
-            word_scores.append((app_count, word.lower(), display_text))
-    
-        # 🔢 Sırala: önce geçme sayısı (app içi), sonra alfabetik
+        # 🔢 Sort by keyword count (desc), then alphabetically
         word_scores.sort(key=lambda x: (-x[0], x[1]))
     
-        # 🖼️ Ekrana yazdır
         if word_scores:
             st.markdown(
-                f"<b>{app_id}</b> → {', '.join([item[2] for item in word_scores])}",
+                f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
                 unsafe_allow_html=True
             )
+
     
+    st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
+    for user_word in sorted(user_words):
+        # 1. user_word içeren 2-3 kelimelik keyword'leri filtrele
+        filtered_df = df[df["Keyword"].str.contains(rf'\b{re.escape(user_word)}\b', case=False, regex=True)]
+        filtered_df = filtered_df[filtered_df["Keyword"].str.split().str.len().isin([2, 3])]
+    
+        # 2. En az 2 farklı app'te rank edilenleri bul
+        app_counts = filtered_df.groupby("Keyword")["Application Id"].nunique()
+        valid_keywords = app_counts[app_counts > 1].index.tolist()
+        filtered_df = filtered_df[filtered_df["Keyword"].isin(valid_keywords)]
+    
+        # 3. Frekansları say
+        keyword_list = filtered_df["Keyword"].str.lower().tolist()
+        keyword_freq = Counter(keyword_list)
+    
+        # 4. Frekansa göre gruplama yap
+        freq_groups = defaultdict(list)
+        for kw, freq in keyword_freq.items():
+            freq_groups[freq].append(kw)
+    
+        # 5. Grupları büyükten küçüğe sırala, içindekileri A-Z sırala
+        grouped_output = []
+        for freq in sorted(freq_groups.keys(), reverse=True):
+            group_words = sorted(freq_groups[freq])
+            # user_words içindekileri yeşile boya
+            highlighted = []
+            for word in group_words:
+                parts = [
+                    f"<span style='color:green'>{w}</span>" if w in user_words else w
+                    for w in word.split()
+                ]
+                highlighted.append(" ".join(parts))
+            grouped_output.append(f"{freq} ({', '.join(highlighted)})")
+    
+        # 6. Final çıktı
+        if grouped_output:
+            st.markdown(
+                f"<b><span style='color:green'>{user_word}</span></b> → {', '.join(grouped_output)}",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(f"<span style='color:gray'>{user_word}</span> → eşleşme bulunamadı.", unsafe_allow_html=True)
 
-
-
+    
     # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
