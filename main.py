@@ -148,13 +148,13 @@ if uploaded_files:
         except:
             return 0.1
         if 1 <= rank <= 10:
-            return 1.8
+            return 0.9
         elif 11 <= rank <= 20:
-            return 1.6
+            return 0.8
         elif 21 <= rank <= 40:
-            return 1.4
+            return 0.7
         elif 41 <= rank <= 60:
-            return 1
+            return 0.6
         elif 61 <= rank <= 100:
             return 0.4
         elif 101 <= rank <= 249:
@@ -258,6 +258,7 @@ if uploaded_files:
 
     #missing
     # ✅ Final Step: Print All Common Words
+    st.write(v)
     common_words = [word for word, kws in word_to_kwset.items() if len(word_to_apps[word]) == len(all_apps) and len(kws) > 1]
     common_words = sorted(common_words)
     st.write("text")
