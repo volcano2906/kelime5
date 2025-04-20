@@ -148,13 +148,13 @@ if uploaded_files:
         except:
             return 0.1
         if 1 <= rank <= 10:
-            return 1.8
+            return 0.9
         elif 11 <= rank <= 20:
-            return 1.6
+            return 0.8
         elif 21 <= rank <= 40:
-            return 1.4
+            return 0.7
         elif 41 <= rank <= 60:
-            return 1
+            return 0.6
         elif 61 <= rank <= 100:
             return 0.4
         elif 101 <= rank <= 249:
