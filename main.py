@@ -613,7 +613,7 @@ if uploaded_files:
     with col1:
         score_threshold = st.slider("⭐ Minimum Ortalama Skor", min_value=round(min_score_val, 2), max_value=round(max_score_val, 2), value=0.02)
     with col2:
-        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=min_count_val, max_value=max_count_val, value=2)
+        count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=min_count_val, max_value=max_count_val, value=0.2)
     
     # 🔍 Uygulama bazlı analiz
     for app_id, word_dict in competitor_word_scores.items():
