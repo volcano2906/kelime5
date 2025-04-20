@@ -614,20 +614,24 @@ if uploaded_files:
         count_threshold = st.slider("🔢 Minimum Keyword Sayısı", min_value=1, max_value=10000, value=2)
     
     # 🔍 Uygulama bazlı analiz
+    # 🔍 Uygulama bazlı analiz – kelimelerin skor ve geçme sayısı ile gösterimi
+    st.subheader("📊 Uygulama Bazlı Kelime Analizi (Skor ve Geçme Sayısı)")
+    
     for app_id, word_dict in competitor_word_scores.items():
         word_scores = []
     
         for word, (avg_score, count_str) in word_dict.items():
+            # 👇 "3-5" gibi formatı ayrıştır
             try:
                 app_count, total_count = map(int, count_str.split("-"))
-            except:
-                continue  # Hatalı format varsa geç
+            except Exception:
+                continue  # Hatalı veri varsa geç
     
             # 🔍 Filtreleme
             if app_count < count_threshold or avg_score < score_threshold:
                 continue
     
-            # 🎨 Renkleme ve işaretleme
+            # 🎨 Görsel işaretlemeler
             color = ""
             if word in user_words:
                 color = "green"
@@ -642,18 +646,22 @@ if uploaded_files:
             if is_common:
                 styled_word = f"<u>{styled_word}</u>"
     
-            # ✨ Format: kelime (puan / 3-5)
+            # ✨ Gösterim formatı: essay (1.2 / 3-5)
             display_text = f"{styled_word} ({avg_score} / {app_count}-{total_count})"
-            word_scores.append((app_count, word, display_text))
     
-        # 🔢 Sırala: önce app içi geçme sayısına göre, sonra alfabetik
+            # Sıralama için tuple olarak ekle
+            word_scores.append((app_count, word.lower(), display_text))
+    
+        # 🔢 Sırala: önce geçme sayısı (app içi), sonra alfabetik
         word_scores.sort(key=lambda x: (-x[0], x[1]))
     
+        # 🖼️ Ekrana yazdır
         if word_scores:
             st.markdown(
-                f"**{app_id}** → {', '.join([item[2] for item in word_scores])}",
+                f"<b>{app_id}</b> → {', '.join([item[2] for item in word_scores])}",
                 unsafe_allow_html=True
             )
+
 
     
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
