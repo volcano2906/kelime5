@@ -225,7 +225,7 @@ if uploaded_files:
     # -------------------------------
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
-    
+    st.write("test")
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
         #if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
