@@ -162,20 +162,25 @@ if uploaded_files:
         else:
             return 0.02
     
-    # 🧩 Step 3: Build reverse index: word → set(keywords)
+    # -------------------------------
+    # ✅ Step 2: Reverse Indexes
+    # -------------------------------
     word_to_kwset = defaultdict(set)
     word_to_apps = defaultdict(set)
-
+    
     for _, row in df_filtered.iterrows():
         kw = row["Keyword"]
         app_id = row["Application Id"]
         for word in re.findall(r'\b\w+\b', kw):
             word_to_apps[word].add(app_id)
+    
     for kw in df_filtered["Keyword"].drop_duplicates():
         for word in re.findall(r'\b\w+\b', kw):
             word_to_kwset[word].add(kw)
     
-    # 🗃 Step 4: Group keywords by app for lookup
+    # -------------------------------
+    # ✅ Step 3: Group keywords by app
+    # -------------------------------
     app_keywords = defaultdict(list)
     for _, row in df_filtered.iterrows():
         app_id = row["Application Id"]
@@ -183,35 +188,61 @@ if uploaded_files:
         rank = row["Rank"]
         app_keywords[app_id].append((keyword, rank))
     
-    all_apps = df_filtered["Application Id"].unique()
-    word_avg_scores = {}
-    competitor_word_scores = defaultdict(lambda: defaultdict(list))
-
-    st.write("test2424")
-    # 🚀 Step 5: Fast scoring logic
-    for word, matched_keywords in word_to_kwset.items():
-        if len(matched_keywords) <= 1:
-            continue
+    # -------------------------------
+    # ✅ Step 4: User Input per App
+    # -------------------------------
+    st.subheader("📝 App ID Bazlı Title & Subtitle Girişi")
     
-        if len(word_to_apps[word]) <= 1:
+    app_user_title_subtitle = {}
+    all_apps = df_filtered["Application Id"].unique()
+    en_stopwords = set(stopwords.words("english"))
+    
+    for i, app_id in enumerate(all_apps):
+        app_id_str = str(app_id)
+        key_unique = f"title_sub_{app_id_str}_{i}"  # 🔐 Benzersiz KEY
+        user_input = st.text_input(f"App ID: {app_id_str}", key=key_unique)
+    
+        cleaned_input = re.sub(r"[^\w\s]", " ", user_input, flags=re.UNICODE).lower()
+        words = re.split(r"[ ,]+", cleaned_input.strip())
+        user_title_subtitle = {w for w in words if w and w not in en_stopwords}
+        app_user_title_subtitle[app_id] = user_title_subtitle
+    
+    # -------------------------------
+    # ✅ Step 5: Compute Scores
+    # -------------------------------
+    competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
+    word_avg_scores = {}
+    
+    for word, matched_keywords in word_to_kwset.items():
+        if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
             continue
     
         total_points = []
+    
         for app_id in all_apps:
             app_kw_dict = dict(app_keywords[app_id])
             word_points = []
+            user_words = app_user_title_subtitle.get(app_id, set())
+            app_specific_keyword_hits = 0
     
             for mk in matched_keywords:
                 if mk in app_kw_dict:
+                    app_specific_keyword_hits += 1
                     score = rank_to_score(app_kw_dict[mk])
-                    word_count_in_kw = len(re.findall(r'\b\w+\b', mk))
-                    adjusted_score = score / word_count_in_kw  # ✅ burada ayarlıyoruz
-                    word_points.append(adjusted_score)
+                    mk_words = set(re.findall(r'\b\w+\b', mk.lower()))
+    
+                    # 📉 Penalty if overlaps with app's input
+                    if mk_words & user_words:
+                        score *= 0.75
+    
+                    word_points.append(score)
                 else:
                     word_points.append(0.01)
     
             avg_score = round(sum(word_points) / len(word_points), 2)
-            competitor_word_scores[app_id][word] = (avg_score, len(word_points))
+            format_ratio = f"{app_specific_keyword_hits}-{len(matched_keywords)}"
+    
+            competitor_word_scores[app_id][word] = (avg_score, format_ratio)
             total_points.append(avg_score)
     
         if total_points:
