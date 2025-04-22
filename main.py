@@ -474,34 +474,33 @@ if uploaded_files:
         count = 0
     
         for app_id in app_columns:
-            app_input_words = app_user_title_subtitle.get(app_id)
+            app_input_words = app_user_title_subtitle.get(app_id, set())
     
-            # ⛔️ Eğer app'e ait title+subtitle girilmemişse geç
             if not app_input_words:
-                continue
+                continue  # eğer bu App ID için hiç giriş yapılmamışsa
     
             try:
                 rank_val = float(row[app_id])
             except:
-                continue  # rank parse edilemiyorsa geç
+                continue  # geçerli Rank yoksa atla
     
-            # 🧠 Rank skorunu hesapla
             base_score = update_rank(rank_val)
     
-            # ✅ Exact match kontrolü → her kelime app_input'ta varsa tam eşleşme
-            if keyword_words == app_input_words:
-                adjusted_score = base_score
-            elif keyword_words & app_input_words:
-                adjusted_score = base_score * 0.75  # kısmi eşleşme varsa cezalandır
+            matched_words = keyword_words & app_input_words
+    
+            if len(matched_words) == len(keyword_words):
+                adjusted_score = base_score  # ✅ tüm kelimeler bulundu
+            elif len(matched_words) > 0:
+                adjusted_score = base_score * 0.75  # ⚠️ sadece bazıları bulundu
             else:
-                adjusted_score = base_score
+                adjusted_score = base_score  # ✅ hiçbiri bulunmadıysa ceza yok
     
             total_score += adjusted_score
             count += 1
     
-        normalize_scores.append(round(total_score / count, 2) if count > 0 else 0)
+        normalize_scores.append(round(total_score / count, 2) if count else 0)
     
-    # ➕ Yeni kolonu ekle
+    # ➕ Skorları pivot_df'e ekle
     pivot_df["normalizeScore"] = normalize_scores
     for i, app_id in enumerate(app_columns):
         pivot_df[f"score_{app_id}"] = [row[i] if i < len(row) else "-" for row in all_adjusted_scores]
