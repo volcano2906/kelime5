@@ -460,6 +460,52 @@ if uploaded_files:
     (pivot_df["Total_Score"] >= score_range[0]) & (pivot_df["Total_Score"] <= score_range[1]) &
     (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])]
 
+    #puan hesaplama
+    # 🔄 Normalize Score hesaplama (tüm uygulamalar için)
+    def get_app_input_words(app_id):
+        return app_user_title_subtitle.get(app_id, set())
+    
+    def calculate_adjusted_score(keyword, app_id, base_score):
+        kw_words = set(re.findall(r'\b\w+\b', keyword.lower()))
+        input_words = get_app_input_words(app_id)
+        
+        match_count = sum(1 for w in kw_words if re.search(rf'\b{re.escape(w)}\b', ' '.join(input_words)))
+    
+        if match_count == len(kw_words):
+            return base_score  # tüm kelimeler eşleşiyorsa
+        elif match_count > 0:
+            return base_score * 0.75  # bazıları eşleşiyorsa
+        else:
+            return base_score  # hiçbiri eşleşmiyorsa yine tam puan (ceza yok)
+    
+    # Her Keyword için normalize puan hesapla
+    normalize_scores = []
+    
+    for idx, row in pivot_df.iterrows():
+        keyword = row["Keyword"]
+        total_score = 0
+        count = 0
+    
+        for app_id in all_apps:
+            app_id = str(app_id)
+            if app_id in pivot_df.columns:
+                try:
+                    rank_val = int(pivot_df.at[idx, app_id])
+                except:
+                    rank_val = 250
+    
+                base_score = update_rank(rank_val)  # eski puan fonksiyonu
+                adjusted_score = calculate_adjusted_score(keyword, app_id, base_score)
+    
+                total_score += adjusted_score
+                count += 1
+    
+        normalize_score = round(total_score / count, 2) if count else 0
+        normalize_scores.append(normalize_score)
+    
+    # pivot_df'e yeni kolonu ekle
+    pivot_df["normalizeScore"] = normalize_scores
+
     
     first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
