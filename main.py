@@ -399,9 +399,14 @@ if uploaded_files:
 
     # Step: Generate extra words per keyword
     def find_extra_words_not_in_shared_set(keyword, reference_words):
-        keyword_words = set(re.split(r'\s+', keyword.lower()))
-        keyword_words = {w for w in keyword_words if w and w not in stop_words}
-        not_in_result = keyword_words - reference_words
+        keyword = keyword.lower()
+        not_in_result = []
+    
+        for ref_word in reference_words:
+            pattern = rf'\b{re.escape(ref_word)}\b'  # tam kelime eşleşmesi
+            if not re.search(pattern, keyword):
+                not_in_result.append(ref_word)
+    
         return ', '.join(sorted(not_in_result)) if not_in_result else "-"
     
     # Apply on original df
