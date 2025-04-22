@@ -507,10 +507,10 @@ if uploaded_files:
     pivot_df["normalizeScore"] = normalize_scores
 
     
-    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
+    first_columns = ["Keyword","Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount","normalizeScore"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
-    for col in pivot_df.columns[8:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
+    for col in pivot_df.columns[9:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
         pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna(250).astype(int)
 
     # Sonuçları gösterme
