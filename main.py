@@ -266,7 +266,6 @@ if uploaded_files:
     # ✅ Final Step: Print All Common Words
     common_words = [word for word, kws in word_to_kwset.items() if len(word_to_apps[word]) == len(all_apps) and len(kws) > 1]
     common_words = sorted(common_words)
-    st.write("text")
     if common_words:
         st.subheader("🟩 Common Words Across All Apps (Used in >1 Keyword)")
     
