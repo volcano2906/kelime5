@@ -465,7 +465,7 @@ if uploaded_files:
 
     # App kolonları (sadece ID'ler)
     app_columns = [col for col in pivot_df.columns if col not in ["Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match", "missFromCommon", "matchCount"]]
-    
+    total_scores = []
     for idx, row in pivot_df.iterrows():
         keyword = row["Keyword"]
         keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
