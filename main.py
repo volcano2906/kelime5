@@ -225,13 +225,11 @@ if uploaded_files:
     # -------------------------------
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
-    st.write("test")
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
            continue
         #if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
             
-    
         total_points = []
     
         for app_id in all_apps:
@@ -632,7 +630,6 @@ if uploaded_files:
     # 📌 Step 1: Filter volume
     # 1. İlk 15 monogram (tek kelime)
     # 1️⃣ Monogram (ilk 15)
-    st.write("test3")
     top_unigrams = word_freq.head(20)
     top_unigrams_str = [f"{row['Word']} ({row['Volume']})" for _, row in top_unigrams.iterrows()]
     
