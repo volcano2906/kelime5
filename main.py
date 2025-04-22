@@ -469,10 +469,12 @@ if uploaded_files:
     # App kolonları (sadece ID'ler)
     app_columns = [col for col in pivot_df.columns if col not in ["Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match", "missFromCommon", "matchCount"]]
     
+
     for idx, row in pivot_df.iterrows():
-        keyword = row["Keyword"]
-        keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
-        
+        keyword = row["Keyword"].lower().strip()
+        keyword_words = re.findall(r'\b\w+\b', keyword)
+        keyword_word_set = set(keyword_words)
+    
         total_score = 0
         count = 0
     
@@ -480,28 +482,25 @@ if uploaded_files:
             try:
                 rank_val = int(float(row[app_id]))
             except:
-                continue  # skip if rank can't be parsed
+                continue  # geçersiz rank varsa atla
     
             base_score = update_rank(rank_val)
     
-            # App'e ait kullanıcı input kelimeleri
             app_input_words = app_user_title_subtitle.get(app_id, set())
     
-            exact_match_count = len(keyword_words & app_input_words)
-    
-            if exact_match_count == len(keyword_words):
-                adjusted_score = base_score  # tümü eşleşti
-            elif exact_match_count > 0:
+            # ✅ Tam eşleşme kontrolü
+            if set(keyword_words) == app_input_words:
+                adjusted_score = base_score  # tüm kelimeler tam eşleşiyor
+            elif any(word in app_input_words for word in keyword_words):
                 adjusted_score = base_score * 0.75  # kısmi eşleşme
             else:
-                adjusted_score = base_score  # hiçbiri yok
+                adjusted_score = base_score  # hiç eşleşme yok
     
             total_score += adjusted_score
             count += 1
     
         normalize_scores.append(round(total_score / count, 2) if count else 0)
     
-    # Sonucu pivot_df'e ekle
     pivot_df["normalizeScore"] = normalize_scores
 
 
