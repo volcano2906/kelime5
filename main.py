@@ -471,40 +471,38 @@ if uploaded_files:
         keyword_words = set(re.findall(r'\b\w+\b', keyword))
     
         total_score = 0
-        count = 0
     
         for app_id in app_columns:
             app_input_words = app_user_title_subtitle.get(app_id, set())
     
             if not app_input_words:
-                continue  # eğer bu App ID için hiç giriş yapılmamışsa
+                continue  # App için input girilmemişse puanlama yapma
     
             try:
                 rank_val = float(row[app_id])
             except:
-                continue  # geçerli Rank yoksa atla
+                continue
     
             base_score = update_rank(rank_val)
-    
             matched_words = keyword_words & app_input_words
     
             if len(matched_words) == len(keyword_words):
-                adjusted_score = base_score  # ✅ tüm kelimeler bulundu
+                adjusted_score = base_score  # ✅ Tam eşleşme
             elif len(matched_words) > 0:
-                adjusted_score = base_score * 0.75  # ⚠️ sadece bazıları bulundu
+                adjusted_score = base_score * 0.75  # ⚠️ Kısmi eşleşme
             else:
-                adjusted_score = base_score  # ✅ hiçbiri bulunmadıysa ceza yok
+                adjusted_score = base_score  # ✅ Ceza yok
     
             total_score += adjusted_score
-            count += 1
     
-        normalize_scores.append(round(total_score / count, 2) if count else 0)
+        total_scores.append(round(total_score, 2))
     
-    # ➕ Skorları pivot_df'e ekle
-    pivot_df["normalizeScore"] = normalize_scores
+    # Sonucu pivot_df'e ekle
+    pivot_df["nTotalScore"] = total_scores
+
 
     
-    first_columns = ["Keyword","Volume", "Total_Score","normalizeScore","Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
+    first_columns = ["Keyword","Volume", "Total_Score","nTotalScore","Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[9:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
