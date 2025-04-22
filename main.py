@@ -502,7 +502,7 @@ if uploaded_files:
     # 🔚 Sonuç pivot_df'e eklenir
     pivot_df["normalizeScore"] = normalize_scores
     
-    first_columns = ["Keyword","Volume", "Total_Score","normalizeScore","Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount","normalizeScore"]
+    first_columns = ["Keyword","Volume", "Total_Score","normalizeScore","Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
     for col in pivot_df.columns[9:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
