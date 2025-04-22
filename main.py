@@ -425,7 +425,7 @@ if uploaded_files:
     
     # ⚡ Uygula
     pivot_df["matchCount"] = pivot_df["Keyword"].astype(str).apply(
-        lambda kw: count_user_word_matches(kw, user_words)
+        lambda kw: count_user_word_matches_exact(kw, user_words)
     )
 
     col1, col2 = st.columns([1, 1])
