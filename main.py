@@ -466,43 +466,43 @@ if uploaded_files:
     #puan hesaplama
     normalize_scores = []
 
-# App kolonları (sadece ID'ler)
-app_columns = [col for col in pivot_df.columns if col not in ["Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match", "missFromCommon", "matchCount"]]
-
-for idx, row in pivot_df.iterrows():
-    keyword = row["Keyword"]
-    keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
+    # App kolonları (sadece ID'ler)
+    app_columns = [col for col in pivot_df.columns if col not in ["Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match", "missFromCommon", "matchCount"]]
     
-    total_score = 0
-    count = 0
-
-    for app_id in app_columns:
-        try:
-            rank_val = int(float(row[app_id]))
-        except:
-            continue  # skip if rank can't be parsed
-
-        base_score = update_rank(rank_val)
-
-        # App'e ait kullanıcı input kelimeleri
-        app_input_words = app_user_title_subtitle.get(app_id, set())
-
-        exact_match_count = len(keyword_words & app_input_words)
-
-        if exact_match_count == len(keyword_words):
-            adjusted_score = base_score  # tümü eşleşti
-        elif exact_match_count > 0:
-            adjusted_score = base_score * 0.75  # kısmi eşleşme
-        else:
-            adjusted_score = base_score  # hiçbiri yok
-
-        total_score += adjusted_score
-        count += 1
-
-    normalize_scores.append(round(total_score / count, 2) if count else 0)
-
-# Sonucu pivot_df'e ekle
-pivot_df["normalizeScore"] = normalize_scores
+    for idx, row in pivot_df.iterrows():
+        keyword = row["Keyword"]
+        keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
+        
+        total_score = 0
+        count = 0
+    
+        for app_id in app_columns:
+            try:
+                rank_val = int(float(row[app_id]))
+            except:
+                continue  # skip if rank can't be parsed
+    
+            base_score = update_rank(rank_val)
+    
+            # App'e ait kullanıcı input kelimeleri
+            app_input_words = app_user_title_subtitle.get(app_id, set())
+    
+            exact_match_count = len(keyword_words & app_input_words)
+    
+            if exact_match_count == len(keyword_words):
+                adjusted_score = base_score  # tümü eşleşti
+            elif exact_match_count > 0:
+                adjusted_score = base_score * 0.75  # kısmi eşleşme
+            else:
+                adjusted_score = base_score  # hiçbiri yok
+    
+            total_score += adjusted_score
+            count += 1
+    
+        normalize_scores.append(round(total_score / count, 2) if count else 0)
+    
+    # Sonucu pivot_df'e ekle
+    pivot_df["normalizeScore"] = normalize_scores
 
 
     
