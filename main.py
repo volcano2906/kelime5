@@ -502,8 +502,7 @@ if uploaded_files:
     
     # ➕ Skorları pivot_df'e ekle
     pivot_df["normalizeScore"] = normalize_scores
-    for i, app_id in enumerate(app_columns):
-        pivot_df[f"score_{app_id}"] = [row[i] if i < len(row) else "-" for row in all_adjusted_scores]
+
     
     first_columns = ["Keyword","Volume", "Total_Score","normalizeScore","Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
