@@ -347,11 +347,11 @@ if uploaded_files:
     
                 total_score += adjusted_score
                 count += 1
-    
+        
         normalize_scores.append(round(total_score / count, 2) if count else 0)
     
     pivot_df["normalizeScore"] = normalize_scores
-
+    st.write(pivot_df["normalizeScore"])
     
     if drop_rank_count:
        pivot_df = pivot_df[pivot_df["Rank_Count"] != 1]
