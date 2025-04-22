@@ -416,9 +416,12 @@ if uploaded_files:
         how="left"
     )
         # 🔍 Her satırda user_words'ten kaç kelime geçtiğini hesapla
-    def count_user_word_matches(keyword, user_words_set):
+    def count_user_word_matches_exact(keyword, user_words_set):
         keyword_lower = keyword.lower()
-        return sum(1 for w in user_words_set if w in keyword_lower)
+        return sum(
+            1 for w in user_words_set 
+            if re.search(rf'\b{re.escape(w)}\b', keyword_lower)
+        )
     
     # ⚡ Uygula
     pivot_df["matchCount"] = pivot_df["Keyword"].astype(str).apply(
