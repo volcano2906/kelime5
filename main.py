@@ -49,17 +49,28 @@ uploader_placeholder = st.empty()
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 # ✅ Rank filtrelemek için slider ekle
-drop_rank_more = st.checkbox("Filter Keywords with Rank More Than", value=False)
+# ✅ Rank filtreleme: checkbox + slider
+st.markdown("### 📈 Rank Filtreleme")
 
-if drop_rank_more:
+col1, col2 = st.columns([1, 3])
+
+with col1:
+    drop_rank_more = st.checkbox("Enable Rank Filter", value=False)
+
+with col2:
     max_rank_threshold = st.slider(
-        "Select maximum rank value to include",
+        "Max Rank (inclusive)",
         min_value=1,
         max_value=250,
-        value=10,  # başlangıç değeri
-        step=1
+        value=10,
+        step=1,
+        disabled=not drop_rank_more
     )
-    df = df[df["Rank"].astype(float) <= max_rank_threshold]
+
+# Filtre uygula
+if drop_rank_more:
+    df["Rank"] = df["Rank"].astype(float)
+    df = df[df["Rank"] <= max_rank_threshold]
 
 def update_rank(rank):
     try:
