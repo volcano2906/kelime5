@@ -100,12 +100,22 @@ if uploaded_files:
     if drop_low_volume:
         df = df[df["Volume"] != 5]
 
+    # ✅ Rank filtrelemek için slider ekle
+    drop_rank_more = st.checkbox("Filter Keywords with Rank More Than", value=False)
+    
     if drop_rank_more:
-        df = df[df["Rank"] < 11]
+        max_rank_threshold = st.slider(
+            "Select maximum rank value to include",
+            min_value=1,
+            max_value=250,
+            value=4,  # başlangıç değeri
+            step=1
+        )
+        df = df[df["Rank"].astype(float) <= max_rank_threshold]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
-    df["Score"] = df["Rank"].apply(update_rank)
+
 
     # 1️⃣ Kullanıcıdan exact match için filtre kelimeleri al — key ekliyoruz
     exclude_exact_words_raw = st.text_input(
