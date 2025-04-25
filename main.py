@@ -205,7 +205,6 @@ if uploaded_files:
     # ✅ Step 4: User Input per App
     # -------------------------------
     st.markdown("### 📝 App Title + Subtitle Girişi (Yatay)")
-    """
     app_user_title_subtitle = {}
     all_apps = df_filtered["Application Id"].unique()
     en_stopwords = set(stopwords.words("english"))
@@ -216,7 +215,7 @@ if uploaded_files:
     
         col1, col2 = st.columns([1, 5])  # Daha küçük ID, daha büyük input
     
-        with col1:
+        """with col1:
             st.markdown(f"**ID:** `{app_id_str}`")
     
         with col2:
@@ -232,7 +231,6 @@ if uploaded_files:
         words = re.split(r"[ ,]+", cleaned_input.strip())
         user_title_subtitle = {w for w in words if w and w not in en_stopwords}
         app_user_title_subtitle[app_id] = user_title_subtitle"""
-    
     # -------------------------------
     # ✅ Step 5: Compute Scores
     # -------------------------------
@@ -273,7 +271,6 @@ if uploaded_files:
     
         if total_points:
             word_avg_scores[word] = round(sum(total_points) / len(total_points), 2)
-
 
     #missing
     # ✅ Final Step: Print All Common Words
