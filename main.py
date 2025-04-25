@@ -111,6 +111,9 @@ if uploaded_files:
         df = df[df["Volume"] != 5]
 
     # Filtreyi uygula
+    # Filtreyi uygula
+    df["Rank"] = df["Rank"].astype(float)
+    df = df[df["Rank"] <= max_rank_threshold]
 
 
     # Filtreyi uygula    
