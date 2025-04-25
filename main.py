@@ -205,7 +205,7 @@ if uploaded_files:
     # ✅ Step 4: User Input per App
     # -------------------------------
     st.markdown("### 📝 App Title + Subtitle Girişi (Yatay)")
-    
+    """
     app_user_title_subtitle = {}
     all_apps = df_filtered["Application Id"].unique()
     en_stopwords = set(stopwords.words("english"))
@@ -231,7 +231,7 @@ if uploaded_files:
         cleaned_input = re.sub(r"[^\w\s]", " ", user_input, flags=re.UNICODE).lower()
         words = re.split(r"[ ,]+", cleaned_input.strip())
         user_title_subtitle = {w for w in words if w and w not in en_stopwords}
-        app_user_title_subtitle[app_id] = user_title_subtitle
+        app_user_title_subtitle[app_id] = user_title_subtitle"""
     
     # -------------------------------
     # ✅ Step 5: Compute Scores
