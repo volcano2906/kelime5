@@ -50,21 +50,15 @@ drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 st.write("test")
 # ✅ Rank filtreleme (kolonsuz sade görünüm)
-drop_rank_more = st.checkbox("🎯 Enable Rank Filter (Max Rank)")
-
 max_rank_threshold = st.slider(
-    "Select Maximum Rank (inclusive)",
+    "🎯 Maximum Rank Threshold",
     min_value=1,
     max_value=250,
-    value=10,
-    step=1,
-    disabled=not drop_rank_more
+    value=5,
+    step=1
 )
 
-# Filtreyi uygula
-if drop_rank_more:
-    df["Rank"] = df["Rank"].astype(float)
-    df = df[df["Rank"] <= max_rank_threshold]
+
 
 def update_rank(rank):
     try:
@@ -115,6 +109,13 @@ if uploaded_files:
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
         df = df[df["Volume"] != 5]
+
+    # Filtreyi uygula
+
+
+    # Filtreyi uygula
+    df["Rank"] = df["Rank"].astype(float)
+    df = df[df["Rank"] <= max_rank_threshold]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
