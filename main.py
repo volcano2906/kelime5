@@ -49,13 +49,17 @@ uploader_placeholder = st.empty()
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 st.write("test")
+# ✅ Rank filtreleme (kolonsuz sade görünüm)
+drop_rank_more = st.checkbox("🎯 Enable Rank Filter (Max Rank)")
+
 max_rank_threshold = st.slider(
     "Select Maximum Rank (inclusive)",
     min_value=1,
     max_value=250,
     value=10,
     step=1,
-    disabled=not drop_rank_more)
+    disabled=not drop_rank_more
+)
 
 # Filtreyi uygula
 if drop_rank_more:
