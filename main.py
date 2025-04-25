@@ -795,24 +795,33 @@ if uploaded_files:
     if target_app_id and target_app_id.strip() in pivot_df.columns:
         target_app_id = target_app_id.strip()
     
-        # 1️⃣ Rank=250 olan keyword'leri al
+        # ✅ Step 1: Get keywords where this app has Rank = 250
         keywords_with_250 = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
     
-        # 2️⃣ Bu keyword'lerdeki kelimeleri topla
+        # ✅ Step 2: Extract words from those keywords
         app_250_words = set()
         for kw in keywords_with_250:
             words = re.split(r'\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
-        # 3️⃣ Metadata'da olmayan kelimeleri bul (tersi işlem)
+        # ✅ ANALİZ 1: Metadata'da olmayan ama rank edilen kelimeler
         missing_in_metadata = app_250_words - user_words_2
-    
-        # 4️⃣ Sonuçları göster
+        st.subheader(f"📌 App ID {target_app_id} – Analiz 1: Metadata'da Olmayan Kelimeler")
         if missing_in_metadata:
-            st.success("✅ Rank edilmiş ama metadata'da olmayan kelimeler:")
+            st.success("✅ Rank Edilmiş ama Metadata'da Olmayan Kelimeler:")
             st.write(", ".join(sorted(missing_in_metadata)))
         else:
-            st.warning("🚫 Rank edilmiş ama metadata'da olmayan kelime bulunamadı.")
+            st.info("🚫 Metadata'da olmayan kelime bulunamadı.")
+    
+        # ✅ ANALİZ 2: Metadata'da da olan rank edilmiş kelimeler
+        found_in_metadata = app_250_words & user_words_2
+        st.subheader(f"📌 App ID {target_app_id} – Analiz 2: Metadata'da Olan Kelimeler")
+        if found_in_metadata:
+            st.info("📗 Rank Edilmiş ve Metadata'da Olan Kelimeler:")
+            st.write(", ".join(sorted(found_in_metadata)))
+        else:
+            st.warning("🚫 Metadata'da bulunan kelime yok.")
+    
     else:
         if target_app_id:
             st.warning("❌ Application ID not found in pivot_df columns.")
