@@ -47,8 +47,19 @@ uploader_placeholder = st.empty()
 
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
-drop_rank_more = st.checkbox("Exclude Keywords with Rank More Than 11")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
+# ✅ Rank filtrelemek için slider ekle
+drop_rank_more = st.checkbox("Filter Keywords with Rank More Than", value=False)
+
+if drop_rank_more:
+    max_rank_threshold = st.slider(
+        "Select maximum rank value to include",
+        min_value=1,
+        max_value=250,
+        value=10,  # başlangıç değeri
+        step=1
+    )
+    df = df[df["Rank"].astype(float) <= max_rank_threshold]
 
 def update_rank(rank):
     try:
@@ -99,9 +110,6 @@ if uploaded_files:
     # Anahtar kelime hacmi 5 olanları filtrele
     if drop_low_volume:
         df = df[df["Volume"] != 5]
-
-    if drop_rank_more:
-        df = df[df["Rank"] < 11]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
