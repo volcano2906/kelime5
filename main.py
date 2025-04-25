@@ -49,15 +49,23 @@ uploader_placeholder = st.empty()
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 st.write("test")
-# ✅ Rank filtreleme (kolonsuz sade görünüm)
+# Min–max değerleri al
+rank_min = int(df["Rank"].min())
+rank_max = int(df["Rank"].max())
+
+# Eğer min = max ise slider hata verir, bu durumda aralık genişletilir
+if rank_min == rank_max:
+    rank_min = max(1, rank_min - 1)
+    rank_max = rank_max + 1
+
+# Slider
 max_rank_threshold = st.slider(
     "🎯 Maximum Rank Threshold",
-    min_value=1,
-    max_value=250,
-    value=1,
-    step=5
+    min_value=rank_min,
+    max_value=rank_max,
+    value=min(rank_max, 10),
+    step=1
 )
-
 
 
 def update_rank(rank):
