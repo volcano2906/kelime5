@@ -113,10 +113,7 @@ if uploaded_files:
     # Filtreyi uygula
 
 
-    # Filtreyi uygula
-    df["Rank"] = df["Rank"].astype(float)
-    df = df[df["Rank"] <= max_rank_threshold]
-    
+    # Filtreyi uygula    
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
     df["Score"] = df["Rank"].apply(update_rank)
