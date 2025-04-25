@@ -209,6 +209,7 @@ if uploaded_files:
     # ✅ Step 5: Compute Scores
     # -------------------------------
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
+    all_apps = df_filtered["Application Id"].unique()
     word_avg_scores = {}
     
     for word, matched_keywords in word_to_kwset.items():
