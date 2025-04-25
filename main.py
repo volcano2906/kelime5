@@ -204,61 +204,28 @@ if uploaded_files:
     # -------------------------------
     # ✅ Step 4: User Input per App
     # -------------------------------
-    st.markdown("### 📝 App Title + Subtitle Girişi (Yatay)")
-    app_user_title_subtitle = {}
-    all_apps = df_filtered["Application Id"].unique()
-    en_stopwords = set(stopwords.words("english"))
-    
-    for i, app_id in enumerate(all_apps):
-        app_id_str = str(app_id)
-        key_unique = f"title_sub_{app_id_str}_{i}"  # 🔐 Benzersiz KEY
-    
-        col1, col2 = st.columns([1, 5])  # Daha küçük ID, daha büyük input
-    
-        """with col1:
-            st.markdown(f"**ID:** `{app_id_str}`")
-    
-        with col2:
-            user_input = st.text_input(
-                label="",
-                placeholder="Title + Subtitle (opsiyonel)",
-                key=key_unique,
-                label_visibility="collapsed"
-            )
-    
-        # Temizleme ve kelime setine çevirme
-        cleaned_input = re.sub(r"[^\w\s]", " ", user_input, flags=re.UNICODE).lower()
-        words = re.split(r"[ ,]+", cleaned_input.strip())
-        user_title_subtitle = {w for w in words if w and w not in en_stopwords}
-        app_user_title_subtitle[app_id] = user_title_subtitle"""
+
     # -------------------------------
     # ✅ Step 5: Compute Scores
     # -------------------------------
     competitor_word_scores = defaultdict(lambda: defaultdict(tuple))
     word_avg_scores = {}
+    
     for word, matched_keywords in word_to_kwset.items():
         if len(matched_keywords) <= 1:
-           continue
-        #if len(matched_keywords) <= 1 or len(word_to_apps[word]) <= 1:
-            
+            continue
+    
         total_points = []
     
         for app_id in all_apps:
             app_kw_dict = dict(app_keywords[app_id])
             word_points = []
-            app_input_words = app_user_title_subtitle.get(app_id, set())
             app_specific_keyword_hits = 0
     
             for mk in matched_keywords:
                 if mk in app_kw_dict:
                     app_specific_keyword_hits += 1
                     score = rank_to_score(app_kw_dict[mk])
-                    mk_words = set(re.findall(r'\b\w+\b', mk.lower()))
-    
-                    # 📉 Penalty if overlaps with app's input
-                    if mk_words & app_input_words:
-                        score *= 0.75
-    
                     word_points.append(score)
                 else:
                     word_points.append(0.01)
