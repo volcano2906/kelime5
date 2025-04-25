@@ -100,22 +100,12 @@ if uploaded_files:
     if drop_low_volume:
         df = df[df["Volume"] != 5]
 
-    # ✅ Rank filtrelemek için slider ekle
-    drop_rank_more = st.checkbox("Filter Keywords with Rank More Than", value=False)
-    
     if drop_rank_more:
-        max_rank_threshold = st.slider(
-            "Select maximum rank value to include",
-            min_value=1,
-            max_value=250,
-            value=4,  # başlangıç değeri
-            step=1
-        )
-        df = df[df["Rank"].astype(float) <= max_rank_threshold]
+        df = df[df["Rank"] < 11]
     
     # Rank değerlerini sayıya çevir ve puan hesapla
     df["Rank"] = df["Rank"].fillna("250").astype(str)
-
+    df["Score"] = df["Rank"].apply(update_rank)
 
     # 1️⃣ Kullanıcıdan exact match için filtre kelimeleri al — key ekliyoruz
     exclude_exact_words_raw = st.text_input(
@@ -795,44 +785,42 @@ if uploaded_files:
     # Anaiz2
     previousMeta = st.text_input("Please write previous all metadata", "")
     user_input_text_2 = f"{previousMeta}".lower()
-    user_input_text_2 = re.sub(r'[^\w\s]', ' ', user_input_text_2, flags=re.UNICODE).strip()
-    user_words_2 = set(re.split(r'[ ,]+', user_input_text_2))
+    user_input_text_2 = re.sub(r'[^\w\s]', ' ', user_input_text_2,flags=re.UNICODE).strip()
+    user_words_2 = re.split(r'[ ,]+', user_input_text_2)
     user_words_2 = {word for word in user_words_2 if word and word not in stop_words}
-    
     target_app_id = st.text_input("Enter Application ID to inspect keywords and ranks", "")
     pivot_df.columns = pivot_df.columns.astype(str)
-    
+    # Proceed only if target ID is valid
     if target_app_id and target_app_id.strip() in pivot_df.columns:
         target_app_id = target_app_id.strip()
     
-        # ✅ Step 1: Get keywords where this app has Rank = 250
+        # Step 1: Get keywords where this app has Rank = 250
         keywords_with_250 = pivot_df[pivot_df[target_app_id] == 250]["Keyword"]
+
     
-        # ✅ Step 2: Extract words from those keywords
+        # Step 2: Extract words from those keywords
         app_250_words = set()
         for kw in keywords_with_250:
             words = re.split(r'\s+', kw.lower())
             app_250_words.update([w for w in words if w and w not in stop_words])
     
-        # ✅ ANALİZ 1: Metadata'da olmayan ama rank edilen kelimeler
-        missing_in_metadata = app_250_words - user_words_2
-        st.subheader(f"📌 App ID {target_app_id} – Analiz 1: Metadata'da Olmayan Kelimeler")
-        if missing_in_metadata:
-            st.success("✅ Rank Edilmiş ama Metadata'da Olmayan Kelimeler:")
-            st.write(", ".join(sorted(missing_in_metadata)))
-        else:
-            st.info("🚫 Metadata'da olmayan kelime bulunamadı.")
+        # Step 3: Get words from app_results[target_app_id] if available
+        existing_app_words = set()
+        app_results = {str(app_id): result for app_id, result in app_results.items()}
+        if target_app_id in app_results:
+            result_str = app_results[target_app_id].lower()
+            existing_app_words = set(re.split(r'[,\s]+', result_str))
+            existing_app_words = {w for w in existing_app_words if w and w not in stop_words}
     
-        # ✅ ANALİZ 2: Metadata'da da olan rank edilmiş kelimeler
-        found_in_metadata = app_250_words & user_words_2
-        st.subheader(f"📌 App ID {target_app_id} – Analiz 2: Metadata'da Olan Kelimeler")
-        if found_in_metadata:
-            st.info("📗 Rank Edilmiş ve Metadata'da Olan Kelimeler:")
-            st.write(", ".join(sorted(found_in_metadata)))
+        # Step 4: Find new relevant words
+        new_common_words = app_250_words & user_words_2 - existing_app_words
+        
+        # Step 5: Display
+        if new_common_words:
+            st.success("✅ Used but not ranked:")
+            st.write(", ".join(new_common_words))
         else:
-            st.warning("🚫 Metadata'da bulunan kelime yok.")
-    
+            st.warning("🚫 No new common words found.")
     else:
         if target_app_id:
             st.warning("❌ Application ID not found in pivot_df columns.")
-
