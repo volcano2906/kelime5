@@ -622,7 +622,7 @@ if uploaded_files:
     with col2:
         count_threshold = st.slider(
             "🔢 Minimum Keyword Sayısı", 
-            min_value=min_count_val, 
+            min_value=2, 
             max_value=max_count_val, 
             value=1, 
             step=1
