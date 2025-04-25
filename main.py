@@ -616,15 +616,15 @@ if uploaded_files:
             "⭐ Minimum Ortalama Skor", 
             min_value=round(min_score_val, 1), 
             max_value=round(max_score_val, 1), 
-            value=round(min_score_val, 1), 
+            value=0.02, 
             step=0.01
         )
     with col2:
         count_threshold = st.slider(
             "🔢 Minimum Keyword Sayısı", 
-            min_value=2, 
+            min_value=1, 
             max_value=max_count_val, 
-            value=1, 
+            value=2, 
             step=1
         )
     
