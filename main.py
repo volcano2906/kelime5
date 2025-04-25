@@ -55,8 +55,7 @@ max_rank_threshold = st.slider(
     max_value=250,
     value=10,
     step=1,
-    disabled=not drop_rank_more
-)
+    disabled=not drop_rank_more)
 
 # Filtreyi uygula
 if drop_rank_more:
