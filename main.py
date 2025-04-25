@@ -55,7 +55,7 @@ max_rank_threshold = st.slider(
     min_value=1,
     max_value=250,
     value=1,
-    step=1
+    step=5
 )
 
 
