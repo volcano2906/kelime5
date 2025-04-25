@@ -48,7 +48,7 @@ uploader_placeholder = st.empty()
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
-
+st.write("test")
 max_rank_threshold = st.slider(
     "Select Maximum Rank (inclusive)",
     min_value=1,
