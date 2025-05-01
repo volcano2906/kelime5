@@ -669,6 +669,30 @@ if uploaded_files:
                 unsafe_allow_html=True
             )
 
+    # ✅ Dataframe olarak göstermek için
+    word_summary_data = []
+    
+    for word, score in word_avg_scores.items():
+        app_count = len(word_to_apps[word])
+        word_summary_data.append({
+            "Word": word,
+            "App_Count": app_count,
+            "Avg_Score": score
+        })
+    
+    # ✅ Dataframe'e çevir
+    word_summary_df = pd.DataFrame(word_summary_data)
+    
+    # 🔢 App_Count ve Skor'a göre sırala
+    word_summary_df = word_summary_df.sort_values(by=["App_Count", "Avg_Score"], ascending=[False, False])
+    
+    # ✅ Göster
+    st.subheader("📊 Word Summary: App Bazlı Geçme Sayısı ve Ortalama Skor")
+    st.dataframe(word_summary_df, use_container_width=True)
+
+    word_summary_df["Highlight"] = word_summary_df["Word"].apply(
+        lambda w: f"✅ {w}" if w in user_words else w
+    )
     
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
