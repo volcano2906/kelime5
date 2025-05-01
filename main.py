@@ -671,29 +671,30 @@ if uploaded_files:
 
     # ✅ Dataframe olarak göstermek için
     st.write("app")
-    word_summary_data = []
+    # Kelime bazlı analiz için yapı
+    word_global_stats = defaultdict(lambda: {"total_score": 0, "count": 0, "apps": set()})
     
-    for word, score in word_avg_scores.items():
-        app_count = len(word_to_apps[word])
-        word_summary_data.append({
+    for app_id, word_dict in competitor_word_scores.items():
+        for word, (avg_score, _) in word_dict.items():
+            word_global_stats[word]["total_score"] += avg_score
+            word_global_stats[word]["count"] += 1
+            word_global_stats[word]["apps"].add(app_id)
+    
+    # DataFrame oluştur
+    word_summary_df = pd.DataFrame([
+        {
             "Word": word,
-            "App_Count": app_count,
-            "Avg_Score": score
-        })
+            "Avg_Score": round(data["total_score"] / data["count"], 3),
+            "App_Count": len(data["apps"])
+        }
+        for word, data in word_global_stats.items()
+    ])
     
-    # ✅ Dataframe'e çevir
-    word_summary_df = pd.DataFrame(word_summary_data)
-    
-    # 🔢 App_Count ve Skor'a göre sırala
+    # Sırala: önce App_Count sonra skor
     word_summary_df = word_summary_df.sort_values(by=["App_Count", "Avg_Score"], ascending=[False, False])
     
-    # ✅ Göster
-    st.subheader("📊 Word Summary: App Bazlı Geçme Sayısı ve Ortalama Skor")
+    st.write("### 📊 Word-Level Global Scores Across Apps")
     st.dataframe(word_summary_df, use_container_width=True)
-
-    word_summary_df["Highlight"] = word_summary_df["Word"].apply(
-        lambda w: f"✅ {w}" if w in user_words else w
-    )
     
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
