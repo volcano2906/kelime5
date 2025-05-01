@@ -59,13 +59,10 @@ max_rank_threshold = st.slider(
 )
 
 
-min_rank = int(df["Rank"].min())
-max_rank = int(df["Rank"].max())
-
 rank_range = st.slider(
     "Rank Aralığını Seçin",
-    min_value=min_rank,
-    max_value=max_rank,
+    min_value=1,
+    max_value=150,
     value=(min_rank, max_rank),
     step=1
 )
