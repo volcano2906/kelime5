@@ -57,7 +57,8 @@ max_rank_threshold = st.slider(
     value=50,
     step=1
 )
-st.writer("adw")
+
+
 min_rank = int(df["Rank"].min())
 max_rank = int(df["Rank"].max())
 
