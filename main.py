@@ -669,8 +669,8 @@ if uploaded_files:
                 unsafe_allow_html=True
             )
 
-    # ✅ Dataframe olarak göstermek için
-    st.write("tesr4")
+    st.write("ytftyyt")
+    # ✅ Dataframe olarak göstermek içi
     # Kelime bazlı analiz için yapı
     word_global_stats = defaultdict(lambda: {"total_score": 0, "count": 0, "apps": set()})
     
