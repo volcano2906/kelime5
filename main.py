@@ -670,7 +670,7 @@ if uploaded_files:
             )
 
     # ✅ Dataframe olarak göstermek için
-    st.write("app")
+    st.write("tesr4")
     # Kelime bazlı analiz için yapı
     word_global_stats = defaultdict(lambda: {"total_score": 0, "count": 0, "apps": set()})
     
