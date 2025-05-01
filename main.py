@@ -670,6 +670,7 @@ if uploaded_files:
             )
 
     # ✅ Dataframe olarak göstermek için
+    st.write("app")
     word_summary_data = []
     
     for word, score in word_avg_scores.items():
