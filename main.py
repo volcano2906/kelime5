@@ -67,8 +67,7 @@ rank_range = st.slider(
     step=1
 )
 
-# Filtre uygula
-df = df[(df["Rank"] >= rank_range[0]) & (df["Rank"] <= rank_range[1])]
+
 
 
 def update_rank(rank):
@@ -125,6 +124,8 @@ if uploaded_files:
     # Filtreyi uygula
     df["Rank"] = df["Rank"].astype(float)
     df = df[df["Rank"] <= max_rank_threshold]
+    # Filtre uygula
+    df = df[(df["Rank"] >= rank_range[0]) & (df["Rank"] <= rank_range[1])]
 
 
     # Filtreyi uygula    
