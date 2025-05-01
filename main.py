@@ -63,7 +63,7 @@ rank_range = st.slider(
     "Rank Aralığını Seçin",
     min_value=1,
     max_value=150,
-    value=(min_rank, max_rank),
+    value=(1, 150),
     step=1
 )
 
