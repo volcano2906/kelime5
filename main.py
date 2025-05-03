@@ -50,8 +50,7 @@ drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 
 # Kullanıcıdan kelime al
-st.write("tes")
-user_input_text = st.text_input("Enter words (comma or space separated):")
+user_input_text_3 = st.text_input("Rakip kelimeleri gir (comma or space separated):")
 
 
 # Min–max değerleri al
@@ -290,24 +289,22 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
 
-    if user_input_text:
+    if user_input_text_3:
     # 1️⃣ Kelimeleri parçala
-        user_words = set(
+        user_words_3 = set(
             w.strip().lower()
-            for w in re.split(r'[,\s]+', user_input_text)
+            for w in re.split(r'[,\s]+', user_input_text_3)
             if w.strip()
         )
 
     # 2️⃣ Keyword başına kaç eşleşen kelime var, hesapla
     def count_matches(keyword):
         keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
-        return sum(1 for w in user_words if w in keyword_words)
+        return sum(1 for w in user_words_3 if w in keyword_words)
 
     df["Opport"] = df["Keyword"].astype(str).apply(count_matches)
 
     # 3️⃣ Sonucu göster
-    st.write("### Keywords with Match Counts")
-    st.dataframe(df[["Keyword", "Opport"]].sort_values("Opport", ascending=False))
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
@@ -478,10 +475,10 @@ if uploaded_files:
 
 
     
-    first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","missFromCommon","matchCount"]
+    first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
-    for col in pivot_df.columns[8:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
+    for col in pivot_df.columns[9:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
         pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna(250).astype(int)
 
     # Sonuçları gösterme
