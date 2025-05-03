@@ -288,7 +288,6 @@ if uploaded_files:
         return "Yes" if re.search(pattern, user_input_text) else "No"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
-    st.dataframe(df)
     # 3️⃣ Sonucu göster
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
@@ -475,7 +474,6 @@ if uploaded_files:
         pivot_df["Opport"] = pivot_df["Keyword"].astype(str).apply(kw_count_exact_matches)
 
 
-    st.dataframe(pivot_df)
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
