@@ -701,6 +701,39 @@ if uploaded_files:
                 unsafe_allow_html=True
             )
 
+
+    word_to_app_pass_counts = defaultdict(int)
+word_to_avg_scores = defaultdict(list)
+
+for app_id, word_dict in competitor_word_scores.items():
+    for word, (avg_score, count_str) in word_dict.items():
+        try:
+            app_count = int(count_str.split("-")[0])
+        except:
+            app_count = 0
+
+        if app_count < count_threshold or avg_score < score_threshold:
+            continue
+
+        word_to_app_pass_counts[word] += 1
+        word_to_avg_scores[word].append(avg_score)
+
+    
+    word_app_summary = pd.DataFrame([
+        {
+            "Word": word,
+            "App_Count": word_to_app_pass_counts[word],
+            "Avg_Score_Across_Apps": round(sum(scores) / len(scores), 3)
+        }
+        for word, scores in word_to_avg_scores.items()
+    ])
+    
+    # 📋 Sort by App_Count DESC, then by Word
+    word_app_summary = word_app_summary.sort_values(by=["App_Count", "Word"], ascending=[False, True])
+    
+    # 📌 Show as dataframe
+    st.subheader("🧠 Word Summary: App Count & Avg Score")
+    st.dataframe(word_app_summary, use_container_width=True)
     
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
