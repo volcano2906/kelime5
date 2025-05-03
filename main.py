@@ -455,6 +455,7 @@ if uploaded_files:
     pivot_df = pivot_df[
     (pivot_df["Total_Score"] >= score_range[0]) & (pivot_df["Total_Score"] <= score_range[1]) &
     (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])]
+    st.write("test")
     pivot_df["Opport"] = "-"
     
     if kw_input_text:
