@@ -50,7 +50,7 @@ drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 
 # Kullanıcıdan kelime al
-user_input_text_3 = st.text_input("Rakip kelimeleri gir (comma or space separated):")
+kw_input_text = st.text_input("Rakip kelimeleri gir (comma or space separated):")
 
 
 # Min–max değerleri al
@@ -289,18 +289,18 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
 
-    if user_input_text_3:
-    # 1️⃣ Kelimeleri parçala
-        user_words_3 = set(
+    if kw_input_text:
+        # ✅ Step 2: Tokenize input into unique lowercase words
+        kw_input_words = set(
             w.strip().lower()
-            for w in re.split(r'[,\s]+', user_input_text_3)
+            for w in re.split(r"[,\s]+", kw_input_text)
             if w.strip()
         )
 
-    # 2️⃣ Keyword başına kaç eşleşen kelime var, hesapla
-    def count_matches(keyword):
-        keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
-        return sum(1 for w in user_words_3 if w in keyword_words)
+    # ✅ Step 3: Define matching logic
+    def kw_count_exact_matches(kw_keyword):
+        kw_tokens = set(re.findall(r'\b\w+\b', kw_keyword.lower()))
+        return sum(1 for w in kw_input_words if w in kw_tokens)
 
     df["Opport"] = df["Keyword"].astype(str).apply(count_matches)
 
