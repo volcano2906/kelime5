@@ -645,8 +645,8 @@ if uploaded_files:
     with col1:
         score_threshold = st.slider(
             "⭐ Minimum Ortalama Skor", 
-            min_value=round(min_score_val, 1), 
-            max_value=round(max_score_val, 1), 
+            min_value=0.02, 
+            max_value=1, 
             value=0.02, 
             step=0.01
         )
