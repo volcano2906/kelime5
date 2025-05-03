@@ -289,6 +289,7 @@ if uploaded_files:
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
 
+
     if kw_input_text:
         # ✅ Step 2: Tokenize input into unique lowercase words
         kw_input_words = set(
@@ -296,13 +297,18 @@ if uploaded_files:
             for w in re.split(r"[,\s]+", kw_input_text)
             if w.strip()
         )
+    
+        # ✅ Step 3: Define matching logic
+        def kw_count_exact_matches(kw_keyword):
+            kw_tokens = set(re.findall(r'\b\w+\b', kw_keyword.lower()))
+            return sum(1 for w in kw_input_words if w in kw_tokens)
+    
+        # ✅ Step 4: Compute match count
+        df["Opport"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
+        
 
-    # ✅ Step 3: Define matching logic
-    def kw_count_exact_matches(kw_keyword):
-        kw_tokens = set(re.findall(r'\b\w+\b', kw_keyword.lower()))
-        return sum(1 for w in kw_input_words if w in kw_tokens)
 
-    df["Opport"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
+   
 
     # 3️⃣ Sonucu göster
 
