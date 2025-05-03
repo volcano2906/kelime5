@@ -48,7 +48,11 @@ uploader_placeholder = st.empty()
 # Anahtar kelime hacmi 5 olanları filtreleme seçeneği
 drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
-st.write("test")
+
+# Kullanıcıdan kelime al
+user_input_text = st.text_input("Enter words (comma or space separated):")
+
+
 # Min–max değerleri al
 max_rank_threshold = st.slider(
     "🎯 Maximum Rank Threshold",
@@ -284,6 +288,25 @@ if uploaded_files:
         return "Yes" if re.search(pattern, user_input_text) else "No"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
+
+    if user_input_text:
+    # 1️⃣ Kelimeleri parçala
+        user_words = set(
+            w.strip().lower()
+            for w in re.split(r'[,\s]+', user_input_text)
+            if w.strip()
+        )
+
+    # 2️⃣ Keyword başına kaç eşleşen kelime var, hesapla
+    def count_matches(keyword):
+        keyword_words = set(re.findall(r'\b\w+\b', keyword.lower()))
+        return sum(1 for w in user_words if w in keyword_words)
+
+    df["Opport"] = df["Keyword"].astype(str).apply(count_matches)
+
+    # 3️⃣ Sonucu göster
+    st.write("### Keywords with Match Counts")
+    st.dataframe(df[["Keyword", "Opport"]].sort_values("Opport", ascending=False))
 
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
