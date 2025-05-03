@@ -288,8 +288,8 @@ if uploaded_files:
         return "Yes" if re.search(pattern, user_input_text) else "No"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
+    df["Oppo"] = 0
 
-    st.write("test")
     if kw_input_text:
         # ✅ Step 2: Tokenize input into unique lowercase words
         kw_input_words = set(
@@ -304,14 +304,8 @@ if uploaded_files:
             return sum(1 for w in kw_input_words if w in kw_tokens)
     
         # ✅ Step 4: Compute match count
-        df["KW_Match_Count"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
-    
-        # ✅ Step 5: Show results
-        st.write("### Keywords and How Many Words Matched")
-        st.dataframe(df[["Keyword", "KW_Match_Count"]].sort_values("KW_Match_Count", ascending=False))
+        df["Oppo"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
         
-
-
    
     st.dataframe(df)
     # 3️⃣ Sonucu göster
