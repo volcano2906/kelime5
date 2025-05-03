@@ -50,6 +50,7 @@ drop_low_volume = st.checkbox("Exclude Keywords with Volume 5")
 drop_rank_count = st.checkbox("Exclude When Rank Count with 1")
 
 # Kullanıcıdan kelime al
+st.write("tes")
 user_input_text = st.text_input("Enter words (comma or space separated):")
 
 
