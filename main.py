@@ -302,7 +302,7 @@ if uploaded_files:
         kw_tokens = set(re.findall(r'\b\w+\b', kw_keyword.lower()))
         return sum(1 for w in kw_input_words if w in kw_tokens)
 
-    df["Opport"] = df["Keyword"].astype(str).apply(count_matches)
+    df["Opport"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
 
     # 3️⃣ Sonucu göster
 
