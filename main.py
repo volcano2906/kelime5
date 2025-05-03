@@ -455,8 +455,8 @@ if uploaded_files:
     pivot_df = pivot_df[
     (pivot_df["Total_Score"] >= score_range[0]) & (pivot_df["Total_Score"] <= score_range[1]) &
     (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])]
-    pivot_df["Opport"] = 0
-
+    pivot_df["Opport"] = "-"
+    
     if kw_input_text:
         # ✅ Step 2: Tokenize input into unique lowercase words
         kw_input_words = set(
@@ -465,13 +465,14 @@ if uploaded_files:
             if w.strip()
         )
     
-        # ✅ Step 3: Define matching logic
-        def kw_count_exact_matches(kw_keyword):
+        # ✅ Step 3: Define logic to find missing words
+        def find_missing_kw_words(kw_keyword):
             kw_tokens = set(re.findall(r'\b\w+\b', kw_keyword.lower()))
-            return sum(1 for w in kw_input_words if w in kw_tokens)
+            missing = kw_input_words - kw_tokens
+            return ", ".join(sorted(missing)) if missing else "-"
     
-        # ✅ Step 4: Compute match count
-        pivot_df["Opport"] = pivot_df["Keyword"].astype(str).apply(kw_count_exact_matches)
+        # ✅ Step 4: Apply to pivot_df
+        pivot_df["Opport"] = pivot_df["Keyword"].astype(str).apply(find_missing_kw_words)
 
 
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
