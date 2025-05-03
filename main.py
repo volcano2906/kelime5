@@ -309,9 +309,8 @@ if uploaded_files:
 
 
    
-
+    st.dataframe(df)
     # 3️⃣ Sonucu göster
-
     # Veriyi uygun formata dönüştürme
     pivot_df = df.pivot_table(
         index=["Keyword", "Volume"], 
