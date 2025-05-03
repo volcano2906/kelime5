@@ -477,7 +477,7 @@ if uploaded_files:
     (pivot_df["Rank_Count"] >= rank_count_range[0]) & (pivot_df["Rank_Count"] <= rank_count_range[1])]
 
 
-    
+    st.dataframe(pivot_df)
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
