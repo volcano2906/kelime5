@@ -305,6 +305,7 @@ if uploaded_files:
     
         # ✅ Step 4: Compute match count
         df["Opport"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
+        st.dataframe(df)
         
 
 
