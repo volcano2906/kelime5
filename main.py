@@ -288,7 +288,7 @@ if uploaded_files:
         return "Yes" if re.search(pattern, user_input_text) else "No"
 
     df["Missing Keywords"] = df["Keyword"].apply(find_missing_keywords)    
-    df["Oppo"] = 0
+    df["Opport"] = 0
 
     if kw_input_text:
         # ✅ Step 2: Tokenize input into unique lowercase words
@@ -304,7 +304,7 @@ if uploaded_files:
             return sum(1 for w in kw_input_words if w in kw_tokens)
     
         # ✅ Step 4: Compute match count
-        df["Oppo"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
+        df["Opport"] = df["Keyword"].astype(str).apply(kw_count_exact_matches)
         
    
     st.dataframe(df)
