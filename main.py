@@ -458,21 +458,21 @@ if uploaded_files:
     pivot_df["Opport"] = "-"
     
     if kw_input_text:
-        # ✅ Step 2: Tokenize input into unique lowercase words
+        # ✅ Step 1: Tokenize input as lowercase words
         kw_input_words = set(
             w.strip().lower()
             for w in re.split(r"[,\s]+", kw_input_text)
             if w.strip()
         )
     
-        # ✅ Step 3: Define logic to find missing words
-        def find_missing_kw_words(kw_keyword):
+        # ✅ Step 2: For each keyword, show the words that are NOT in kw_input_words
+        def find_non_matching_words(kw_keyword):
             kw_tokens = set(re.findall(r'\b\w+\b', kw_keyword.lower()))
-            missing = kw_input_words - kw_tokens
+            missing = kw_tokens - kw_input_words
             return ", ".join(sorted(missing)) if missing else "-"
     
-        # ✅ Step 4: Apply to pivot_df
-        pivot_df["Opport"] = pivot_df["Keyword"].astype(str).apply(find_missing_kw_words)
+        # ✅ Step 3: Apply to pivot_df
+        pivot_df["Opport"] = pivot_df["Keyword"].astype(str).apply(find_non_matching_words)
 
 
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
