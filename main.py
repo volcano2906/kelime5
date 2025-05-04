@@ -703,9 +703,9 @@ if uploaded_files:
             )
 
 
-    # ✅ Collect word stats
-    word_to_app_pass_counts = defaultdict(int)
+   word_to_app_pass_counts = defaultdict(int)
     word_to_avg_scores = defaultdict(list)
+    word_to_app_list = defaultdict(list)
     
     for app_id, word_dict in competitor_word_scores.items():
         for word, (avg_score, count_str) in word_dict.items():
@@ -719,23 +719,27 @@ if uploaded_files:
     
             word_to_app_pass_counts[word] += 1
             word_to_avg_scores[word].append(avg_score)
+            word_to_app_list[word].append(str(app_id))
     
-    # ✅ Create summary dataframe
+    # ✅ Create single summary dataframe
     word_app_summary = pd.DataFrame([
         {
             "Word": word,
             "App_Count": word_to_app_pass_counts[word],
-            "Avg_Score_Across_Apps": round(sum(scores) / len(scores), 3)
+            "Apps": ", ".join(sorted(word_to_app_list[word])),
+            "Avg_Score_Across_Apps": round(sum(scores) / len(scores), 3),
+            "Score_List": scores,
+            "UserWord": "✅" if word in user_words else ""
         }
         for word, scores in word_to_avg_scores.items()
     ])
     
-    # ✅ Sort and display
+    # ✅ Sort by app count, then alphabetically
     word_app_summary = word_app_summary.sort_values(by=["App_Count", "Word"], ascending=[False, True])
     
-    st.subheader("🧠 Word Summary: App Count & Avg Score")
+    # ✅ Display
+    st.subheader("🧠 Word Summary: All in One Table")
     st.dataframe(word_app_summary, use_container_width=True)
-    
     st.subheader("🔍 User Words Analizi: Hangi Kelimelerle Birlikte Geçiyor? (Sadece 2 ve 3Kelimelik Keyword'ler)")
     for user_word in sorted(user_words):
         # 1️⃣ user_word içeren 2–3 kelimelik keyword'leri filtrele
