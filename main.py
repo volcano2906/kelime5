@@ -727,7 +727,6 @@ if uploaded_files:
         {
             "Word": word,
             "App_Count": word_to_app_pass_counts[word],
-            "Apps": ", ".join(sorted(word_to_app_list[word])),
             "Avg_Score_Across_Apps": round(sum(scores) / len(scores), 3),
             "Score_List": scores,
             "UserWord": "✅" if word in user_words else ""
