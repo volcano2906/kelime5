@@ -703,7 +703,8 @@ if uploaded_files:
             )
 
 
-   word_to_app_pass_counts = defaultdict(int)
+    st.write("rrewre")
+    word_to_app_pass_counts = defaultdict(int)
     word_to_avg_scores = defaultdict(list)
     word_to_app_list = defaultdict(list)
     
