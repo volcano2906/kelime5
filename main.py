@@ -58,7 +58,7 @@ max_rank_threshold = st.slider(
     "🎯 Maximum Rank Threshold",
     min_value=1,
     max_value=100,
-    value=50,
+    value=80,
     step=1
 )
 
