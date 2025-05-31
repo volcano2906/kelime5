@@ -475,6 +475,9 @@ if uploaded_files:
         pivot_df["Opport"] = pivot_df["Keyword"].astype(str).apply(find_non_matching_words)
 
 
+    
+
+    st.write(pivot_df.columns)
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
