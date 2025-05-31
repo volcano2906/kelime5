@@ -476,12 +476,27 @@ if uploaded_files:
 
 
     
+ 
+    # Rank sütunlarını seç (Application ID'ler)
+    rank_columns = [
+        col for col in pivot_df.columns 
+        if col not in ["Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match", "missFromCommon", "matchCount", "Opport" ]
+    ]
+    
+    # Ortalama rank hesapla (250 olanları dışla)
+    def calculate_avg_rank(row):
+        valid_ranks = [
+            float(row[col]) for col in rank_columns
+            if pd.notnull(row[col]) and float(row[col]) != 250
+        ]
+        return round(sum(valid_ranks) / len(valid_ranks), 2) if valid_ranks else None
+    
+    pivot_df["Avg_Rank"] = pivot_df.apply(calculate_avg_rank, axis=1)
 
-    st.write(pivot_df.columns)
-    first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
+    first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Avg_Rank","Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
-    for col in pivot_df.columns[9:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
+    for col in pivot_df.columns[10:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
         pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna(250).astype(int)
 
     # Sonuçları gösterme
