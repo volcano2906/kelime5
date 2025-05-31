@@ -487,7 +487,7 @@ if uploaded_files:
         ]
     ]
 
-    def calculate_avg_rank(row):
+    def calculate_median_rank(row):
         valid_ranks = []
         for col in rank_columns:
             val = row[col]
@@ -501,7 +501,7 @@ if uploaded_files:
                     valid_ranks.append(float_val)
             except:
                 continue
-        return round(sum(valid_ranks) / len(valid_ranks), 2) if valid_ranks else None
+        return round(np.median(valid_ranks), 2) if valid_ranks else None
 
     pivot_df["Avg_Rank"] = pivot_df.apply(calculate_avg_rank, axis=1)
     
