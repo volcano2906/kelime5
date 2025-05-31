@@ -504,7 +504,7 @@ if uploaded_files:
                 continue
         return round(np.median(valid_ranks), 2) if valid_ranks else None
 
-    pivot_df["Avg_Rank"] = pivot_df.apply(calculate_avg_rank, axis=1)
+    pivot_df["Avg_Rank"] = pivot_df.apply(calculate_median_rank, axis=1)
     
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Avg_Rank","Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
