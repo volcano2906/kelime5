@@ -75,30 +75,12 @@ rank_range = st.slider(
 
 
 st.write("math")
-def update_rank(rank, scale=1.0):
-    """
-    DCG-benzeri ağırlık hesaplar.
-    
-    Parameters
-    ----------
-    rank : int or float-string
-        Uygulamadaki sıralama (1 en iyi).
-    scale : float, optional
-        Çarpan. Örn. 10 verirseniz 1/log2(rank+1)*10 döner.
-        
-    Returns
-    -------
-    float
-        DCG ağırlığı; rank büyüdükçe log-indirgeme uygulanır.
-    """
+def update_rank(rank):
     try:
-        r = int(float(rank))          # '12.0' → 12
-        if r < 1:
-            r = 1
-    except (ValueError, TypeError):
-        return 0.0                    # hatalı değer → 0
-    
-    return scale / math.log2(r + 1)
+        rank = int(float(rank))  # Önce float, sonra int dönüşümü
+    except ValueError:
+        return 1
+    return 5 if rank <= 10 else 4 if rank <= 30 else 3 if rank <= 50 else 2 if rank <= 249 else 1
 
 
 if uploaded_files:
