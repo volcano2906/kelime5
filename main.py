@@ -480,7 +480,11 @@ if uploaded_files:
     # Rank sütunlarını seç (Application ID'ler)
     rank_columns = [
         col for col in pivot_df.columns 
-        if col not in ["Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", "Exact Match", "missFromCommon", "matchCount", "Opport" ]
+        if col not in [
+            "Keyword", "Volume", "Total_Score", "Rank_Count", "Missing_Keywords", 
+            "Exact Match", "missFromCommon", "matchCount", "normalizeScore", 
+            "totalScoreFromAppInputs", "Opport", "NtotalScore", "Avg_Rank"
+        ]
     ]
     
     # Ortalama rank hesapla (250 olanları dışla)
