@@ -489,6 +489,7 @@ if uploaded_files:
     ]
 
     st.write("m234242")
+    st.write("m234242")
     def calculate_median_rank(row):
         valid_ranks = []
         for col in rank_columns:
