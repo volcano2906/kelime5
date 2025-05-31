@@ -499,8 +499,7 @@ if uploaded_files:
                 continue
             try:
                 float_val = float(val)
-                if float_val != 250:
-                    valid_ranks.append(float_val)
+                valid_ranks.append(float_val)
             except:
                 continue
         return round(np.median(valid_ranks), 2) if valid_ranks else None
