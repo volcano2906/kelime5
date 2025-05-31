@@ -486,9 +486,25 @@ if uploaded_files:
             "totalScoreFromAppInputs", "Opport", "NtotalScore", "Avg_Rank"
         ]
     ]
-    
-    st.write(rank_columns)
 
+    def calculate_avg_rank(row):
+        valid_ranks = []
+        for col in rank_columns:
+            val = row[col]
+            if pd.isnull(val):
+                continue
+            if isinstance(val, str) and val.strip().lower() == "null":
+                continue
+            try:
+                float_val = float(val)
+                if float_val != 250:
+                    valid_ranks.append(float_val)
+            except:
+                continue
+        return round(sum(valid_ranks) / len(valid_ranks), 2) if valid_ranks else None
+
+    pivot_df["Avg_Rank"] = pivot_df.apply(calculate_avg_rank, axis=1)
+    
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Avg_Rank","Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
