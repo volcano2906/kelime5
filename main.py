@@ -7,6 +7,7 @@ import nltk
 import chardet
 import numpy as np
 from collections import defaultdict
+import math
 
 # Stopwords'leri yükle
 nltk.download('stopwords')
@@ -72,8 +73,8 @@ rank_range = st.slider(
     step=1
 )
 
-import math
 
+st.write("math")
 def update_rank(rank, scale=1.0):
     """
     DCG-benzeri ağırlık hesaplar.
