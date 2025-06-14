@@ -526,14 +526,14 @@ if uploaded_files:
                 continue
         return round(np.median(valid_ranks), 2) if valid_ranks else None
 
-    pivot_df["Avg_Rank"] = pivot_df.apply(calculate_median_rank, axis=1)
     
-    first_columns = ["Keyword","Volume", "Total_Score","Rank_Count", "Avg_Rank","Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
+    first_columns = ["Keyword","Volume", "Total_Score","Rank_Count","Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
-    for col in pivot_df.columns[10:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
+    for col in pivot_df.columns[9:]:  # İlk 2 sütun (Keyword, Volume) hariç diğerlerine uygula
         pivot_df[col] = pd.to_numeric(pivot_df[col], errors='coerce').fillna(250).astype(int)
 
+    pivot_df["Avg_Rank"] = pivot_df.apply(calculate_median_rank, axis=1)
     # Sonuçları gösterme
     st.write("### Dönüştürülmüş Veri Tablosu ve Puanlar")
     st.dataframe(pivot_df, use_container_width=True)
