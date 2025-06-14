@@ -509,8 +509,7 @@ if uploaded_files:
 
     st.write("m234242")
     st.write("m234242")
-    st.write("m2342442424")
-    st.dataframe(pivot_df)
+
     def calculate_median_rank(row):
         valid_ranks = []
         for col in rank_columns:
@@ -526,7 +525,8 @@ if uploaded_files:
                 continue
         return round(np.median(valid_ranks), 2) if valid_ranks else None
 
-    
+    st.write("m2344")
+    st.dataframe(pivot_df)
     first_columns = ["Keyword","Volume", "Total_Score","Rank_Count","Missing_Keywords", "Exact Match","Opport","missFromCommon","matchCount"]
     remaining_columns = [col for col in pivot_df.columns if col not in first_columns]
     pivot_df = pivot_df[first_columns + remaining_columns]
