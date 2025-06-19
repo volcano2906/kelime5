@@ -187,7 +187,7 @@ if uploaded_files:
         st.info("ℹ️ Exact match filtresi uygulanmadı. Kelime girilmedi.")
 
     #puanalama
-    df_filtered = df[df["Volume"] <= 5].copy()
+    df_filtered = df[df["Volume"] > 4].copy()
     df_filtered["Keyword"] = df_filtered["Keyword"].astype(str).str.lower()
     st.write("mahbup546")
     
